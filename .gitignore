@@ -1,0 +1,45 @@
+# ==============================================================================
+# 📦 .NET Build & Compilation Artifacts
+# ==============================================================================
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+bincra/
+build/
+bin/
+obj/
+
+# ==============================================================================
+# 💻 Visual Studio Code & Local IDE Settings
+# ==============================================================================
+.vscode/*
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/
+*.log
+
+# ==============================================================================
+# 🛡️ Application Secrets & Local Machine Configuration
+# ==============================================================================
+# Block local dev settings containing your database keys or API credentials
+AUselessApp/appsettings.Development.json
+
+# Local SQLite databases (if you use them for testing)
+*.db
+*.db-journal
+*.db-wal
+
+# ==============================================================================
+# 🧪 Testing & Code Coverage Artifacts
+# ==============================================================================
+TestResults/
+*.trx
+*.coverlet.log
+
+# ==============================================================================
+# 🖥️ Operating System Specific Files
+# ==============================================================================
+.DS_Store
+Thumbs.db
