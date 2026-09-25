@@ -9,4 +9,5 @@ Welcome to Useless App we hope you find **no real information** while using our 
 3. Do your work
 4. Create a pull-request on Github or through VS Code or GitHub Desktop.
 ....* Set it to auto merge upon approval
-5. Notify team of your pull request so it can gain its two required approvals
+....* Consider setting it to squash merge so we don't end up with 1000 branches at the end of the semester
+5. Notify team of your pull request so it can gain its two required approval
