@@ -19,6 +19,7 @@ obj/
 !.vscode/extensions.json
 .history/
 *.log
+.env
 
 # ==============================================================================
 # 🛡️ Application Secrets & Local Machine Configuration
