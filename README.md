@@ -8,7 +8,5 @@ main repository
    * `dotnet restore`
 3. Build the project
    * `dotnet build`
-4. Run the project
-   * `dotnet run`
-5. This enables live updates to your local hosted site
-   * `dotnet watch`
+4. Run the project with live updates
+   * `dotnet watch --project UselessApp/`
