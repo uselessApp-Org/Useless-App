@@ -10,5 +10,5 @@ main repository
    * `dotnet build`
 4. Run the project
    * `dotnet run`
-5. This enables live updates to you just save to see updates
+5. This enables live updates to your local hosted site
    * `dotnet watch`
