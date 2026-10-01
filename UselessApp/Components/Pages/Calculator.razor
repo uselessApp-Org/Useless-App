@@ -1,21 +1,26 @@
 @page "/calculator"
+@using UselessApp.Components.Calculator
 
 <PageTitle>Calculator</PageTitle>
 
 <div>
-    <button class="button-number">7</button>
-    <button class="button-number">8</button>
-    <button class="button-number">9</button>
+    <NumButton Number=7></NumButton>
+    <NumButton Number=8></NumButton>
+    <NumButton Number=9></NumButton>
 </div>
 
 <div>
-    <button class="button-number">4</button>
-    <button class="button-number">5</button>
-    <button class="button-number">6</button>
+    <NumButton Number=4></NumButton>
+    <NumButton Number=5></NumButton>
+    <NumButton Number=6></NumButton>
 </div>
 
 <div>
-    <button class="button-number">1</button>
-    <button class="button-number">2</button>
-    <button class="button-number">3</button>
+    <NumButton Number=1></NumButton>
+    <NumButton Number=2></NumButton>
+    <NumButton Number=3></NumButton>
+</div>
+
+<div>
+    <NumButton Style="NumButton Zero" Number=0></NumButton>
 </div>
