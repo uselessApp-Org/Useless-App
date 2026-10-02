@@ -1,0 +1,28 @@
+.CalcButton{
+    background-color: aqua;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #46138f;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    padding: 20px;
+    outline-offset: 4px;
+    transition: background .5s;
+}
+
+.CalcButton:hover {
+    background-color: blueviolet;
+}
+
+.CalcButton.Zero{
+    grid-column: span 2;
+}
+
+.CalcButton.Enter{
+    grid-row: span 2;
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+    padding: 5px;
+    font-size:large;
+}

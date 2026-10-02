@@ -1,0 +1,20 @@
+<button class="@Style"
+    @onclick="ButtonClicked">
+    @Value
+</button>
+
+@code{
+    [Parameter]
+    public string Style { get; set; } = "CalcButton";
+
+    [Parameter]
+    public string Value { get; set; } = "";
+
+    [Parameter]
+    public EventCallback<string> Clicked { get; set; }
+
+    private async Task ButtonClicked()
+    {
+        await Clicked.InvokeAsync(Value);
+    }
+}

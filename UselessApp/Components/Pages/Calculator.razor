@@ -2,25 +2,31 @@
 @using UselessApp.Components.Calculator
 
 <PageTitle>Calculator</PageTitle>
-
 <div>
-    <NumButton Number=7></NumButton>
-    <NumButton Number=8></NumButton>
-    <NumButton Number=9></NumButton>
+    <p>Calc string spot</p>
 </div>
+<div class="CalcLayout">
+    <div class="Buttons">
+        <CalcButton Style="CalcButton Zero" Value="CLEAR"></CalcButton>
+        <CalcButton Value="/"></CalcButton>
+        <CalcButton Value="*"></CalcButton>
 
-<div>
-    <NumButton Number=4></NumButton>
-    <NumButton Number=5></NumButton>
-    <NumButton Number=6></NumButton>
-</div>
+        <CalcButton Value="7"></CalcButton>
+        <CalcButton Value="8"></CalcButton>
+        <CalcButton Value="9"></CalcButton>
+        <CalcButton Value="-"></CalcButton>
 
-<div>
-    <NumButton Number=1></NumButton>
-    <NumButton Number=2></NumButton>
-    <NumButton Number=3></NumButton>
-</div>
+        <CalcButton Value="4"></CalcButton>
+        <CalcButton Value="5"></CalcButton>
+        <CalcButton Value="6"></CalcButton>
+        <CalcButton Value="+"></CalcButton>
 
-<div>
-    <NumButton Style="NumButton Zero" Number=0></NumButton>
+        <CalcButton Value="1"></CalcButton>
+        <CalcButton Value="2"></CalcButton>
+        <CalcButton Value="3"></CalcButton>
+        <CalcButton Style="CalcButton Enter" Value="ENTER"></CalcButton>
+
+        <CalcButton Style="CalcButton Zero" Value="0"></CalcButton>
+        <CalcButton Value="."></CalcButton>
+    </div>
 </div>
