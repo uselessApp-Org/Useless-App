@@ -1,7 +1,29 @@
 ﻿@page "/"
-
+@using UselessApp.Services
+@rendermode InteractiveServer
+@inject MongodbUserService MongodbUserService
 <PageTitle>Home</PageTitle>
 
 <h1>Hello, world! Added Tests</h1>
 
+
+
+<input @bind="newUser.Username" placeholder="Username" />
+<input @bind="newUser.Password" placeholder="Password" />
+
+
+
+<button @onclick="AddUser">Add User</button>
+
+
+@code {
+    private User newUser = new User();
+
+    private async Task AddUser()
+    {
+       
+        await MongodbUserService.AddUserAsync(newUser);
+        newUser = new User(); // reset form
+    }
+}
 Get out of my head
