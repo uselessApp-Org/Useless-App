@@ -1,0 +1,66 @@
+@page "/api-search-term"
+@rendermode InteractiveServer
+@using System.Net.Http
+
+<h3>Search with API Key</h3>
+
+<div class="search-container" style="max-width: 500px; margin-bottom: 20px;">
+    <div class="input-group mb-3">
+        <input type="text" 
+               class="form-control" 
+               @bind="searchTerm" />
+        
+        <button class="btn btn-primary" type="button" @onclick="ExecuteSearch">
+            Search
+        </button>
+    </div>
+</div>
+
+<div class="result-container">
+    <h5>Search Results:</h5>
+    <pre style="background-color: #f4f4f4; padding: 15px; border-radius: 5px; overflow-x: auto;">@apiResult</pre>
+</div>
+
+@code {
+    private const string BaseApiUrl = "https://dictionaryapi.com/api/v3/references/collegiate/json/";
+    private const string ApiKey = "bb25cd06-abba-40ad-b58e-45c7a44f1910";
+
+    private string searchTerm = "";
+    private string apiResult = "Enter a search term and click Search.";
+
+    private async Task ExecuteSearch()
+    {
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            apiResult = "Please enter a search term.";
+            return;
+        }
+
+        apiResult = $"Searching for '{searchTerm}'...";
+
+        string cleanTerm = searchTerm.Trim().ToLower();
+
+        string finalUrl = $"{BaseApiUrl}{cleanTerm}?key={ApiKey}";
+
+        apiResult = await FetchRawHttpDataAsync(finalUrl);
+    }
+
+    public async Task<string> FetchRawHttpDataAsync(string url)
+    {
+        try
+        {
+            using HttpClient client = new HttpClient();
+            using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url);
+            request.Headers.Add("User-Agent", "BlazorApp/1.0");
+
+            using HttpResponseMessage response = await client.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+            
+            return await response.Content.ReadAsStringAsync();
+        }
+        catch (Exception ex)
+        {
+            return $"Error: {ex.Message}";
+        }
+    }
+}
