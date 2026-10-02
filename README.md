@@ -15,7 +15,7 @@ Welcome to Useless App we hope you find **no real information** while using our 
 1. Ensure you have .Net 9.0 installed
    * `dotnet --version`
    * If you don't have the correct version run
-   * 'winget install Microsoft.DotNet.SDK.10'
+   * `winget install Microsoft.DotNet.SDK.10`
 2. Ensure you have the required NuGet Dependencies
    * `dotnet restore`
 3. Build the project
