@@ -1,5 +1,7 @@
 namespace UselessApp.Services;
 
+// Placeholder class to do backend stuff with
+
 public class CalculatorEvaluatorService
 {
     public string Evaluate(List<string> tokens)
@@ -9,8 +11,6 @@ public class CalculatorEvaluatorService
             return "0";
         }
 
-        // Placeholder logic: concatenated string
-        // You can replace this later with your full expression parsing/evaluation logic!
         return string.Join("", tokens);
     }
 }
