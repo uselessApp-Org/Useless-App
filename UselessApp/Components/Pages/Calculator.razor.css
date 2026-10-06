@@ -1,9 +1,29 @@
+.CalcContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+}
+
 .CalcLayout {
     width: 320px;
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
     background-color: brown;
+}
+
+.Display {
+    background-color: #222;
+    color: #00ffcc;
+    font-family: monospace;
+    font-size: 1.5rem;
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    text-align: right;
+    min-height: 50px;
+    word-wrap: break-word;
 }
 
 .Buttons {

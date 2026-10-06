@@ -18,6 +18,7 @@ builder.Services.AddSingleton<IMongoClient>(sp =>
 
 // Register your data service
 builder.Services.AddSingleton<MongodbUserService>();
+builder.Services.AddSingleton<CalculatorEvaluatorService>();
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
