@@ -1,13 +1,16 @@
-﻿@page "/counter"
+@page "/counter"
 @rendermode InteractiveServer
 
 <PageTitle>Counter</PageTitle>
 
-<h1>Counter</h1>
+<header class="page-heading"><p class="eyebrow">TOOL 01 / KEEP TRACK</p><h1>Counter</h1><p>One small click for you. One deeply unnecessary app for everyone.</p></header>
+<section class="panel counter-panel"><div class="counter-number" aria-hidden="true">@currentCount</div>
 
 <p role="status">Current count: @currentCount</p>
 
 <button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+
+</section>
 
 @code {
     private int currentCount = 0;
