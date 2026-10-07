@@ -1,31 +1,65 @@
 @page "/calculator"
 @using UselessApp.Components.Calculator
+@using UselessApp.Services
+@inject CalculatorEvaluatorService Evaluator
+@rendermode InteractiveServer
 
 <PageTitle>Calculator</PageTitle>
-<header class="page-heading"><p class="eyebrow">TOOL 03 / NUMBER SPACE</p><h1>Calculator</h1><p>The buttons are ready. The mathematics is still negotiating.</p></header>
-<div class="CalcLayout">
-    <div class="calc-display" aria-label="Calculator display">0</div>
-    <div class="Buttons">
-        <CalcButton Style="CalcButton Zero" Value="CLEAR"></CalcButton>
-        <CalcButton Value="/"></CalcButton>
-        <CalcButton Value="*"></CalcButton>
 
-        <CalcButton Value="7"></CalcButton>
-        <CalcButton Value="8"></CalcButton>
-        <CalcButton Value="9"></CalcButton>
-        <CalcButton Value="-"></CalcButton>
+<div class="CalcContainer">
+    <div class="CalcLayout">
+        <div class="Display">
+            @DisplayString
+        </div>
+        <div class="Buttons">
+            <CalcButton Style="CalcButton Zero" Value="CLEAR" Clicked="HandleButtonClick"></CalcButton>
+            <CalcButton Value="/" Clicked="HandleButtonClick"></CalcButton>
+            <CalcButton Value="*" Clicked="HandleButtonClick"></CalcButton>
 
-        <CalcButton Value="4"></CalcButton>
-        <CalcButton Value="5"></CalcButton>
-        <CalcButton Value="6"></CalcButton>
-        <CalcButton Value="+"></CalcButton>
+            <CalcButton Value="1" Clicked="HandleButtonClick"></CalcButton>
+            <CalcButton Value="6" Clicked="HandleButtonClick"></CalcButton>
+            <CalcButton Value="9" Clicked="HandleButtonClick"></CalcButton>
+            <CalcButton Value="-" Clicked="HandleButtonClick"></CalcButton>
 
-        <CalcButton Value="1"></CalcButton>
-        <CalcButton Value="2"></CalcButton>
-        <CalcButton Value="3"></CalcButton>
-        <CalcButton Style="CalcButton Enter" Value="ENTER"></CalcButton>
+            <CalcButton Value="3" Clicked="HandleButtonClick"></CalcButton>
+            <CalcButton Value="2" Clicked="HandleButtonClick"></CalcButton>
+            <CalcButton Value="8" Clicked="HandleButtonClick"></CalcButton>
+            <CalcButton Value="+" Clicked="HandleButtonClick"></CalcButton>
 
-        <CalcButton Style="CalcButton Zero" Value="0"></CalcButton>
-        <CalcButton Value="."></CalcButton>
+            <CalcButton Value="7" Clicked="HandleButtonClick"></CalcButton>
+            <CalcButton Value="5" Clicked="HandleButtonClick"></CalcButton>
+            <CalcButton Value="4" Clicked="HandleButtonClick"></CalcButton>
+            <CalcButton Style="CalcButton Enter" Value="ENTER" Clicked="HandleButtonClick"></CalcButton>
+
+            <CalcButton Style="CalcButton Zero" Value="0" Clicked="HandleButtonClick"></CalcButton>
+            <CalcButton Value="." Clicked="HandleButtonClick"></CalcButton>
+        </div>
     </div>
 </div>
+
+@code {
+    private List<string> displayTokens = new List<string>();
+
+    private string DisplayString => displayTokens.Count > 0 ? string.Join("", displayTokens) : "0";
+
+    private void HandleButtonClick(string value)
+    {
+        if (value == "CLEAR")
+        {
+            displayTokens.Clear();
+        }
+        else if (value == "ENTER")
+        {
+            string result = Evaluator.Evaluate(displayTokens);
+            displayTokens.Clear();
+            if (!string.IsNullOrEmpty(result))
+            {
+                displayTokens.Add(result);
+            }
+        }
+        else
+        {
+            displayTokens.Add(value);
+        }
+    }
+}

@@ -1,1 +1,99 @@
-.page{display:flex;min-height:100vh}.sidebar{width:252px;background:var(--sidebar);color:var(--sidebar-text);flex-shrink:0}main{flex:1;min-width:0}.top-row{height:82px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 48px;gap:16px}.top-row span{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--muted)}.top-row a{font-size:12px;color:var(--ink);text-decoration:none}.content{max-width:1200px;margin:auto;padding:48px}.app-footer{margin:16px 48px 28px;padding-top:20px;border-top:1px solid var(--line);font-size:12px;color:var(--muted);display:flex;justify-content:space-between}#blazor-error-ui{display:none;background:#fff0df;padding:16px;position:fixed;bottom:0;width:100%;z-index:1000}@media(max-width:800px){.page{display:block}.sidebar{width:100%}.top-row{height:60px;padding:0 24px}.content{padding:30px 24px}.app-footer{margin:16px 24px 24px}}@media(max-width:420px){.top-row span{letter-spacing:1px;font-size:9px}.app-footer{gap:12px}}
+.page {
+    display: flex;
+    min-height: 100vh
+}
+
+.sidebar {
+    width: 252px;
+    background: var(--sidebar);
+    color: var(--sidebar-text);
+    flex-shrink: 0
+}
+
+main {
+    flex: 1;
+    min-width: 0
+}
+
+.top-row {
+    height: 82px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 48px;
+    gap: 16px
+}
+
+.top-row span {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--muted)
+}
+
+.top-row a {
+    font-size: 12px;
+    color: var(--ink);
+    text-decoration: none
+}
+
+.content {
+    max-width: 1200px;
+    margin: auto;
+    padding: 48px
+}
+
+.app-footer {
+    margin: 16px 48px 28px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    font-size: 12px;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between
+}
+
+#blazor-error-ui {
+    display: none;
+    background: #fff0df;
+    padding: 16px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    z-index: 1000
+}
+
+@media(max-width:800px) {
+    .page {
+        display: block
+    }
+
+    .sidebar {
+        width: 100%
+    }
+
+    .top-row {
+        height: 60px;
+        padding: 0 24px
+    }
+
+    .content {
+        padding: 30px 24px
+    }
+
+    .app-footer {
+        margin: 16px 24px 24px
+    }
+}
+
+@media(max-width:420px) {
+    .top-row span {
+        letter-spacing: 1px;
+        font-size: 9px
+    }
+
+    .app-footer {
+        gap: 12px
+    }
+}
