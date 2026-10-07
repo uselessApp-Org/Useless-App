@@ -7,40 +7,49 @@
 <PageTitle>Calculator</PageTitle>
 
 <div class="CalcContainer">
+    <ScientificKeypad ButtonClicked="HandleButtonClick" />
+
     <div class="CalcLayout">
         <div class="Display">
             @DisplayString
         </div>
-        <div class="Buttons">
-            <CalcButton Style="CalcButton Zero" Value="CLEAR" Clicked="HandleButtonClick"></CalcButton>
-            <CalcButton Value="/" Clicked="HandleButtonClick"></CalcButton>
-            <CalcButton Value="*" Clicked="HandleButtonClick"></CalcButton>
+        <div class="MainButtons">
+            <CalcButton Style="Zero" Value="CLEAR" Clicked="HandleButtonClick">CLEAR</CalcButton>
+            <CalcButton Value="/" Clicked="HandleButtonClick">/</CalcButton>
+            <CalcButton Value="*" Clicked="HandleButtonClick">*</CalcButton>
 
-            <CalcButton Value="1" Clicked="HandleButtonClick"></CalcButton>
-            <CalcButton Value="6" Clicked="HandleButtonClick"></CalcButton>
-            <CalcButton Value="9" Clicked="HandleButtonClick"></CalcButton>
-            <CalcButton Value="-" Clicked="HandleButtonClick"></CalcButton>
+            <CalcButton Value="@numpadDigits[0]" Clicked="HandleButtonClick">@numpadDigits[0]</CalcButton>
+            <CalcButton Value="@numpadDigits[1]" Clicked="HandleButtonClick">@numpadDigits[1]</CalcButton>
+            <CalcButton Value="@numpadDigits[2]" Clicked="HandleButtonClick">@numpadDigits[2]</CalcButton>
+            <CalcButton Value="-" Clicked="HandleButtonClick">-</CalcButton>
 
-            <CalcButton Value="3" Clicked="HandleButtonClick"></CalcButton>
-            <CalcButton Value="2" Clicked="HandleButtonClick"></CalcButton>
-            <CalcButton Value="8" Clicked="HandleButtonClick"></CalcButton>
-            <CalcButton Value="+" Clicked="HandleButtonClick"></CalcButton>
+            <CalcButton Value="@numpadDigits[3]" Clicked="HandleButtonClick">@numpadDigits[3]</CalcButton>
+            <CalcButton Value="@numpadDigits[4]" Clicked="HandleButtonClick">@numpadDigits[4]</CalcButton>
+            <CalcButton Value="@numpadDigits[5]" Clicked="HandleButtonClick">@numpadDigits[5]</CalcButton>
+            <CalcButton Value="+" Clicked="HandleButtonClick">+</CalcButton>
 
-            <CalcButton Value="7" Clicked="HandleButtonClick"></CalcButton>
-            <CalcButton Value="5" Clicked="HandleButtonClick"></CalcButton>
-            <CalcButton Value="4" Clicked="HandleButtonClick"></CalcButton>
-            <CalcButton Style="CalcButton Enter" Value="ENTER" Clicked="HandleButtonClick"></CalcButton>
+            <CalcButton Value="@numpadDigits[6]" Clicked="HandleButtonClick">@numpadDigits[6]</CalcButton>
+            <CalcButton Value="@numpadDigits[7]" Clicked="HandleButtonClick">@numpadDigits[7]</CalcButton>
+            <CalcButton Value="@numpadDigits[8]" Clicked="HandleButtonClick">@numpadDigits[8]</CalcButton>
+            <CalcButton Style="Enter" Value="ENTER" Clicked="HandleButtonClick">ENTER</CalcButton>
 
-            <CalcButton Style="CalcButton Zero" Value="0" Clicked="HandleButtonClick"></CalcButton>
-            <CalcButton Value="." Clicked="HandleButtonClick"></CalcButton>
+            <CalcButton Style="Zero" Value="0" Clicked="HandleButtonClick">0</CalcButton>
+            <CalcButton Value="." Clicked="HandleButtonClick">.</CalcButton>
         </div>
     </div>
 </div>
 
 @code {
     private List<string> displayTokens = new List<string>();
+    private List<string> numpadDigits = new() { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+    private Random rng = new();
 
     private string DisplayString => displayTokens.Count > 0 ? string.Join("", displayTokens) : "0";
+
+    private void ShuffleDigits()
+    {
+        numpadDigits = numpadDigits.OrderBy(_ => rng.Next()).ToList();
+    }
 
     private void HandleButtonClick(string value)
     {
@@ -60,6 +69,11 @@
         else
         {
             displayTokens.Add(value);
+
+            if (value.Length == 1 && char.IsDigit(value[0]) && value != "0")
+            {
+                ShuffleDigits();
+            }
         }
     }
 }

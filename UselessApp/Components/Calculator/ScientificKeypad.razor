@@ -1,0 +1,53 @@
+@using UselessApp.Components.Calculator
+
+<div class="ScientificPanel">
+    <div class="PanelHeader">
+        <span>Scientific</span>
+    </div>
+    <div class="ButtonsGrid">
+        @foreach (var btn in ButtonsList)
+        {
+            <CalcButton Value="@btn.Value" Clicked="ButtonClicked">
+                @if (!string.IsNullOrEmpty(btn.Superscript))
+                {
+                    @btn.Label<sup>@btn.Superscript</sup>
+                }
+                else
+                {
+                    @btn.Label
+                }
+            </CalcButton>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public EventCallback<string> ButtonClicked { get; set; }
+
+    private record SciButton(string Value, string Label, string? Superscript = null);
+
+    private List<SciButton> ButtonsList = new();
+
+    protected override void OnInitialized()
+    {
+        var rawButtons = new List<SciButton>
+        {
+            new("(", "("),
+            new(")", ")"),
+            new("sin(", "sin"),
+            new("cos(", "cos"),
+            new("tan(", "tan"),
+            new("asin(", "sin", "-1"),
+            new("acos(", "cos", "-1"),
+            new("atan(", "tan", "-1"),
+            new("^", "x", "y"),
+            new("sqrt(", "\u221a"),
+            new("%", "%"),
+            new("pi", "\u03c0")
+        };
+
+        var rng = new Random();
+        ButtonsList = rawButtons.OrderBy(_ => rng.Next()).ToList();
+    }
+}

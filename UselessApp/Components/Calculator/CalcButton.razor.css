@@ -32,3 +32,8 @@
 .CalcButton.Enter:hover{
     background:var(--accent)
 }
+
+.CalcButton sup {
+    font-size: 0.7em;
+    vertical-align: super;
+}

@@ -1,8 +1,9 @@
 .CalcContainer {
     display: flex;
     justify-content: center;
-    align-items: center;
-    min-height: 80vh;
+    align-items: stretch;
+    gap: 16px;
+    margin: 40px auto;
 }
 
 .CalcLayout {
@@ -26,7 +27,7 @@
     word-wrap: break-word;
 }
 
-.Buttons {
+.MainButtons {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 10px;
