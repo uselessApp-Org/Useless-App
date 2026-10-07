@@ -19,6 +19,9 @@ builder.Services.AddSingleton<IMongoClient>(sp =>
 // Register your data service
 builder.Services.AddSingleton<MongodbUserService>();
 
+builder.Services.AddHttpClient("experiments", client => client.Timeout = TimeSpan.FromSeconds(20));
+builder.Services.AddScoped<IExperimentService, ExperimentService>();
+
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
