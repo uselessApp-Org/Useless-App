@@ -1,1 +1,148 @@
-.brand{display:flex;align-items:center;gap:12px;padding:32px 26px;color:var(--sidebar-text);text-decoration:none;font-size:19px;font-weight:650}.brand-mark{background:var(--accent);color:var(--accent-ink);border-radius:12px;width:42px;height:42px;display:grid;place-items:center;font-size:28px}.brand small{display:block;font-size:8px;letter-spacing:1.8px;margin-top:5px;color:#91a599}.nav-scrollable{padding:25px 18px}.nav-caption{font-size:9px;letter-spacing:2px;color:#91a599;padding:0 16px 14px}nav{display:grid;gap:7px}nav ::deep .nav-link{display:flex;align-items:center;gap:14px;color:var(--sidebar-text);padding:13px 16px;border-radius:9px;font-size:14px;text-decoration:none}nav ::deep .nav-link span{font-size:21px;width:24px;text-align:center}nav ::deep .nav-link:hover{background:var(--hero);color:var(--sidebar-text)}nav ::deep .nav-link.active{background:var(--accent);color:var(--accent-ink);font-weight:600}.sidebar-note{margin:100px 12px 0;padding-top:22px;border-top:1px solid #34483c;font-size:8px;letter-spacing:1px;color:#a9b9ad}.note-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);margin-right:4px}.sidebar-note p{font-size:13px;line-height:1.8;letter-spacing:0;margin-top:15px}.menu-toggle,.menu-label{display:none}@media(max-width:800px){.brand{padding:18px 24px}.menu-label{display:flex;justify-content:space-between;margin:0 24px 16px;cursor:pointer;color:var(--accent);font-size:13px}.menu-toggle{display:block;position:absolute;width:1px;height:1px;opacity:0}.menu-toggle:focus-visible + .menu-label{outline:2px solid var(--accent);outline-offset:5px}.nav-scrollable{display:none;padding:0 24px 20px}.menu-toggle:checked ~ .nav-scrollable{display:block}.sidebar-note{display:none}.nav-caption{display:none}}
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 32px 26px;
+    color: var(--sidebar-text);
+    text-decoration: none;
+    font-size: 19px;
+    font-weight: 650
+}
+
+.brand-mark {
+    background: var(--accent);
+    color: var(--accent-ink);
+    border-radius: 12px;
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    font-size: 28px
+}
+
+.brand small {
+    display: block;
+    font-size: 8px;
+    letter-spacing: 1.8px;
+    margin-top: 5px;
+    color: #91a599
+}
+
+.nav-scrollable {
+    padding: 25px 18px
+}
+
+.nav-caption {
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: #91a599;
+    padding: 0 16px 14px
+}
+
+nav {
+    display: grid;
+    gap: 7px
+}
+
+nav ::deep .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    color: var(--sidebar-text);
+    padding: 13px 16px;
+    border-radius: 9px;
+    font-size: 14px;
+    text-decoration: none
+}
+
+nav ::deep .nav-link span {
+    font-size: 21px;
+    width: 24px;
+    text-align: center
+}
+
+nav ::deep .nav-link:hover {
+    background: var(--hero);
+    color: var(--sidebar-text)
+}
+
+nav ::deep .nav-link.active {
+    background: var(--accent);
+    color: var(--accent-ink);
+    font-weight: 600
+}
+
+.sidebar-note {
+    margin: 100px 12px 0;
+    padding-top: 22px;
+    border-top: 1px solid #34483c;
+    font-size: 8px;
+    letter-spacing: 1px;
+    color: #a9b9ad
+}
+
+.note-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    margin-right: 4px
+}
+
+.sidebar-note p {
+    font-size: 13px;
+    line-height: 1.8;
+    letter-spacing: 0;
+    margin-top: 15px
+}
+
+.menu-toggle,
+.menu-label {
+    display: none
+}
+
+@media(max-width:800px) {
+    .brand {
+        padding: 18px 24px
+    }
+
+    .menu-label {
+        display: flex;
+        justify-content: space-between;
+        margin: 0 24px 16px;
+        cursor: pointer;
+        color: var(--accent);
+        font-size: 13px
+    }
+
+    .menu-toggle {
+        display: block;
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        opacity: 0
+    }
+
+    .menu-toggle:focus-visible+.menu-label {
+        outline: 2px solid var(--accent);
+        outline-offset: 5px
+    }
+
+    .nav-scrollable {
+        display: none;
+        padding: 0 24px 20px
+    }
+
+    .menu-toggle:checked~.nav-scrollable {
+        display: block
+    }
+
+    .sidebar-note {
+        display: none
+    }
+
+    .nav-caption {
+        display: none
+    }
+}
