@@ -1,0 +1,78 @@
+@inject IJSRuntime JS
+@inject NavigationManager Navigation
+@using UselessApp.Services
+<div class="@(compact ? "shelf compact" : "shelf")">
+<section id="tools">
+    <div class="section-heading"><h2>Your toolkit</h2><span>Questionable decisions, neatly organized.</span></div>
+    <p class="shelf-intro">Pick a tool. Lower your expectations. Have a lovely time.</p>
+    <div class="shelf-controls"><label class="sr-only" for="tool-search">Search tools</label><input id="tool-search" class="form-control" placeholder="Find your next bad idea…" @bind="query" @bind:event="oninput" /><label class="sr-only" for="tool-filter">Filter tools</label><select id="tool-filter" class="form-control" @bind="filter"><option value="all">All apps</option><option value="pinned">Pinned only</option></select><button class="btn btn-secondary" @onclick="() => compact = !compact" aria-pressed="@(compact ? "true" : "false")">@(compact ? "Roomy view" : "Compact view")</button><button class="btn btn-primary" @onclick="SurpriseMe" disabled="@(!VisibleApps.Any())">Surprise me</button></div>
+    @if (!VisibleApps.Any()) { <p role="status" class="empty-pins">Nothing here. Even our bad ideas have limits. Try another search.</p> }
+    <section class="pinned-shelf" aria-labelledby="pinned-heading">
+        <div class="section-heading"><h3 id="pinned-heading">Pinned apps</h3><span>@pins.Count pinned</span></div>
+        @if (pins.Count == 0)
+        {
+            <p class="empty-pins">Your collection of bad ideas starts here. Pin any app below.</p>
+        }
+        else
+        {
+            <div class="tool-grid">
+                @foreach (var app in VisibleApps.Where(a => pins.Contains(a.Id)))
+                {
+                    @AppCard(app)
+                }
+            </div>
+        }
+    </section>
+    <div class="section-heading"><h3>Current apps</h3><span>The original suspects</span></div>
+    <div class="tool-grid">
+        @foreach (var app in VisibleApps.Where(a => a.Route != null))
+        {
+            @AppCard(app)
+        }
+    </div>
+</section>
+<section id="other-apps" class="other-apps">
+    <div class="section-heading"><h2>Other apps</h2><span>The experimental department</span></div>
+    <p class="shelf-intro">Try the demos now. External connections can be set up one tool at a time.</p>
+    <div class="tool-grid">
+        @foreach (var app in VisibleApps.Where(a => a.Route == null))
+        {
+            @AppCard(app)
+        }
+    </div>
+</section>
+</div>
+@code {
+    private static readonly UselessApp.Services.ToolCatalog.AppIdea[] Apps = UselessApp.Services.ToolCatalog.Apps;
+    private string query = "";
+    private string filter = "all";
+    private bool compact;
+    private IEnumerable<UselessApp.Services.ToolCatalog.AppIdea> VisibleApps => Apps.Where(a => (filter != "pinned" || pins.Contains(a.Id)) && (a.Name.Contains(query, StringComparison.OrdinalIgnoreCase) || a.Description.Contains(query, StringComparison.OrdinalIgnoreCase)));
+    private void SurpriseMe() { var candidates = VisibleApps.ToArray(); if (candidates.Length > 0) { var app = candidates[Random.Shared.Next(candidates.Length)]; Navigation.NavigateTo(app.Route ?? $"lab/{app.Id}"); } }
+    private HashSet<string> pins = new();
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        var saved = await JS.InvokeAsync<string[]>("uselessPreferences.getPins");
+        pins = saved.Where(id => Apps.Any(a => a.Id == id)).ToHashSet();
+        StateHasChanged();
+    }
+    private async Task TogglePin(string id)
+    {
+        if (!pins.Add(id)) pins.Remove(id);
+        await JS.InvokeVoidAsync("uselessPreferences.setPins", pins.ToArray());
+    }
+    private RenderFragment AppCard(ToolCatalog.AppIdea app) => @<article class="tool-card app-card" @key="app.Id">
+        <div class="card-top"><span class="tool-icon @app.Color" aria-hidden="true">@app.Icon</span><button type="button" class="pin-button" aria-label="@(pins.Contains(app.Id) ? $"Unpin {app.Name}" : $"Pin {app.Name}")" aria-pressed="@(pins.Contains(app.Id) ? "true" : "false")" @onclick="() => TogglePin(app.Id)">@(pins.Contains(app.Id) ? "Unpin" : "Pin +")</button></div>
+        <span class="app-status">@app.Status</span>
+        <h3>@app.Name</h3><p>@app.Description</p>
+        @if (app.Route != null)
+        {
+            <a class="tool-action" href="@app.Route">Open app <span aria-hidden="true">↗</span></a>
+        }
+        else
+        {
+            <a class="tool-action" href="@($"lab/{app.Id}")">Try demo <span aria-hidden="true">↗</span></a>
+        }
+    </article>;
+}

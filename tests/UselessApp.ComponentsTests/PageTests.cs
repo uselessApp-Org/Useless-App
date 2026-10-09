@@ -58,6 +58,6 @@ public class PageTests : BunitContext
         var component = Render<NavMenu>();
         Assert.Contains("active", component.Find("a[href='counter']").ClassList);
         Assert.DoesNotContain("active", component.Find("nav a[href='']").ClassList);
-        Assert.Equal(3, component.FindAll("nav a").Count);
+        Assert.Equal(5, component.FindAll("nav a").Count);
     }
 }

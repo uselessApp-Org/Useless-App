@@ -19,8 +19,10 @@ public class RouteTests : IClassFixture<AppFactory>, IDisposable
     });
 
     [Theory]
-    [InlineData("/", "Get out of my head")]
+    [InlineData("/", "Your toolkit")]
     [InlineData("/counter", "Current count: 0")]
+    [InlineData("/lab/translator", "Lost in Translation")]
+    [InlineData("/lab/converter", "Unit Confuser")]
     [InlineData("/weather", "Temp. (C)")]
     [InlineData("/Error", "An error occurred while processing your request.")]
     public async Task Pages_ReturnHtmlWithExpectedContent(string route, string expected)

@@ -1,11 +1,9 @@
-﻿@page "/weather"
+@page "/weather"
 @attribute [StreamRendering]
 
 <PageTitle>Weather</PageTitle>
 
-<h1>Weather</h1>
-
-<p>This component demonstrates showing data.</p>
+<header class="page-heading"><p class="eyebrow">TOOL 02 / THE OUTLOOK</p><h1>Weather</h1><p>A five-day forecast with randomly generated sample data.</p></header>
 
 @if (forecasts == null)
 {
@@ -13,12 +11,12 @@
 }
 else
 {
-    <table class="table">
+    <div class="panel table-panel"><table class="table">
         <thead>
             <tr>
                 <th>Date</th>
                 <th aria-label="Temperature in Celsius">Temp. (C)</th>
-                <th aria-label="Temperature in Farenheit">Temp. (F)</th>
+                <th aria-label="Temperature in Fahrenheit">Temp. (F)</th>
                 <th>Summary</th>
             </tr>
         </thead>
@@ -33,7 +31,7 @@ else
                 </tr>
             }
         </tbody>
-    </table>
+    </table></div>
 }
 
 @code {

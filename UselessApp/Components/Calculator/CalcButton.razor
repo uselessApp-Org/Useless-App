@@ -1,17 +1,32 @@
-<button class="@Style"
+<button class="@ButtonClasses"
     @onclick="ButtonClicked">
-    @Value
+    @if (ChildContent is not null)
+    {
+        @ChildContent
+    }
+    else
+    {
+        @(DisplayText ?? Value)
+    }
 </button>
 
-@code{
+@code {
     [Parameter]
-    public string Style { get; set; } = "CalcButton";
+    public string Style { get; set; } = "";
 
     [Parameter]
     public string Value { get; set; } = "";
 
     [Parameter]
+    public string? DisplayText { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
     public EventCallback<string> Clicked { get; set; }
+
+    private string ButtonClasses => string.IsNullOrWhiteSpace(Style) ? "CalcButton" : $"CalcButton {Style}";
 
     private async Task ButtonClicked()
     {
