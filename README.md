@@ -22,3 +22,6 @@ Welcome to Useless App we hope you find **no real information** while using our 
    * `dotnet build`
 4. Run the project with live updates
    * `dotnet watch --project UselessApp/`
+
+## Database Set-up (should not need this)
+dotnet add package MongoDB.Driver

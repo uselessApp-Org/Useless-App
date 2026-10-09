@@ -1,6 +1,7 @@
 using MongoDB.Driver;
 using Microsoft.Extensions.Options;
 using UselessApp.Services;
+using BCrypt.Net;
 
 
 namespace UselessApp.Services;
@@ -29,8 +30,13 @@ catch (Exception ex)
     }
 
     public async Task AddUserAsync(User user)
+
     {
-        Console.WriteLine("INSERT METHOD RAN");
+        Console.WriteLine($"Password received: '{user.Password}'");
+
+        if (string.IsNullOrEmpty(user.Password))
+            throw new ArgumentException("Password cannot be null or empty");
+        user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
         await _user.InsertOneAsync(user);
     }
     //Validating Login
@@ -41,10 +47,8 @@ catch (Exception ex)
         .FirstOrDefaultAsync();
         if (user== null)
         return null;
-        if (user.Password != password)
-            return null;
-
-        return user;
+        bool isValid = BCrypt.Net.BCrypt.Verify(password, user.Password);
+               return user;
 
     }
 }

@@ -7,8 +7,8 @@ public class User
     public ObjectId Id { get; set; }
 
     [BsonElement("Username")]
-    public string Username { get; set; }
+    public required string Username { get; set; }
 
     [BsonElement("Password")]
-    public string Password { get; set; }
+    public required string Password { get; set; }
 }

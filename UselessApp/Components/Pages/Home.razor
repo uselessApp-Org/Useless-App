@@ -8,8 +8,12 @@
 
 
 
-<input @bind="newUser.Username" placeholder="Username" />
-<input @bind="newUser.Password" placeholder="Password" />
+<InputText @bind-Value="newUser.Username" placeholder="Username" />
+
+<InputText @bind-Value="newUser.Password" 
+           type="password" 
+           placeholder="Password" />
+
 
 
 
@@ -17,13 +21,15 @@
 
 
 @code {
-    private User newUser = new User();
+    private User newUser = new User { Username = string.Empty, Password = string.Empty };
 
     private async Task AddUser()
-    {
-       
-        await MongodbUserService.AddUserAsync(newUser);
-        newUser = new User(); // reset form
-    }
+{
+    await MongodbUserService.AddUserAsync(newUser);
+
+    // Force a clean UI re-render
+    newUser = new User { Username = string.Empty, Password = string.Empty };
+    StateHasChanged();
 }
-Get out of my head
+
+}
