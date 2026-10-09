@@ -1,7 +1,38 @@
-﻿@page "/"
-
-<PageTitle>Home</PageTitle>
-
-<h1>Hello, world! Added Tests</h1>
-
-Get out of my head
+@page "/"
+@using UselessApp.Services
+@rendermode InteractiveServer
+@inject MongodbUserService MongodbUserService
+<PageTitle>Home | UselessApp</PageTitle>
+<section class="hero">
+    <div>
+        <p class="eyebrow">CONFIDENCE WITHOUT THE QUALIFICATIONS</p>
+        <h1>So close.<br /><em>So very wrong.</em></h1>
+        <p class="intro">A Swiss Army knife made entirely of spoons.<br />Pick a tool. Watch it miss the point.</p><a
+        class="btn btn-primary" href="#tools">See what could go wrong <span aria-hidden="true">↗</span></a>
+    </div>
+    <div class="hero-art" aria-hidden="true"><span class="orbit orbit-one"></span><span
+        class="orbit orbit-two"></span><span class="art-center">u.</span><span
+        class="art-chip chip-one">＋</span><span class="art-chip chip-two">☀</span><span
+        class="art-chip chip-three">⌕</span><span class="art-caption">A FEW USELESS POSSIBILITIES</span></div>
+    </section>
+    <ToolShelf />
+    <section class="panel user-panel">
+        <div>
+            <p class="eyebrow">JOIN THE QUESTIONABLE DECISIONS CLUB</p>
+            <h2>Add a user</h2>
+            <p>Create a user record in your connected database.</p>
+        </div>
+        <div class="user-form"><label for="username">Username</label><input id="username" class="form-control"
+                                                                                @bind="newUser.Username" placeholder="Your username" autocomplete="username" /><label
+            for="password">Password</label><input id="password" class="form-control" type="password"
+                                                  @bind="newUser.Password" placeholder="Your password" autocomplete="new-password" /><button
+            class="btn btn-primary" @onclick="AddUser">Add User <span aria-hidden="true">＋</span></button></div>
+        </section>
+@code {
+    private User newUser = new User();
+    private async Task AddUser()
+    {
+        await MongodbUserService.AddUserAsync(newUser);
+        newUser = new User();
+    }
+}

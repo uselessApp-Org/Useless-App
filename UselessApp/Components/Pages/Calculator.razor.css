@@ -1,3 +1,11 @@
+.CalcContainer {
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    gap: 16px;
+    margin: 40px auto;
+}
+
 .CalcLayout {
     width: 320px;
     padding: 20px;
@@ -6,7 +14,20 @@
     background-color: brown;
 }
 
-.Buttons {
+.Display {
+    background-color: #222;
+    color: #00ffcc;
+    font-family: monospace;
+    font-size: 1.5rem;
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    text-align: right;
+    min-height: 50px;
+    word-wrap: break-word;
+}
+
+.MainButtons {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 10px;

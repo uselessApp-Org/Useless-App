@@ -1,12 +1,15 @@
 @page "/api-search-term"
 @rendermode InteractiveServer
 @using System.Net.Http
+@inject IConfiguration Configuration
 
-<h3>Search with API Key</h3>
+<PageTitle>API Search | UselessApp</PageTitle>
+<header class="page-heading"><p class="eyebrow">TOOL 04 / STAY CURIOUS</p><h1>API Search</h1><p>Consulting an actual dictionary. Our confidence remains unjustified.</p></header>
 
-<div class="search-container" style="max-width: 500px; margin-bottom: 20px;">
+<div class="search-container panel">
+    <label for="search-term" class="search-label">What word are you looking for?</label>
     <div class="input-group mb-3">
-        <input type="text" 
+        <input id="search-term" placeholder="Try possibility…" type="text" 
                class="form-control" 
                @bind="searchTerm" />
         
@@ -16,14 +19,13 @@
     </div>
 </div>
 
-<div class="result-container">
-    <h5>Search Results:</h5>
-    <pre style="background-color: #f4f4f4; padding: 15px; border-radius: 5px; overflow-x: auto;">@apiResult</pre>
+<div class="result-container panel">
+    <h2>Search Results</h2>
+    <pre role="status">@apiResult</pre>
 </div>
 
 @code {
     private const string BaseApiUrl = "https://dictionaryapi.com/api/v3/references/collegiate/json/";
-    private const string ApiKey = "bb25cd06-abba-40ad-b58e-45c7a44f1910";
 
     private string searchTerm = "";
     private string apiResult = "Enter a search term and click Search.";
@@ -38,9 +40,15 @@
 
         apiResult = $"Searching for '{searchTerm}'...";
 
-        string cleanTerm = searchTerm.Trim().ToLower();
+        var apiKey = Configuration["DictionaryApi:ApiKey"];
+        if (string.IsNullOrWhiteSpace(apiKey))
+        {
+            apiResult = "Dictionary connection is not configured yet.";
+            return;
+        }
+        string cleanTerm = Uri.EscapeDataString(searchTerm.Trim().ToLowerInvariant());
 
-        string finalUrl = $"{BaseApiUrl}{cleanTerm}?key={ApiKey}";
+        string finalUrl = $"{BaseApiUrl}{cleanTerm}?key={Uri.EscapeDataString(apiKey)}";
 
         apiResult = await FetchRawHttpDataAsync(finalUrl);
     }

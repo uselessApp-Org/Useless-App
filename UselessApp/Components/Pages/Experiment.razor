@@ -1,0 +1,103 @@
+@page "/lab/{ToolId}"
+@rendermode InteractiveServer
+@using UselessApp.Services
+@inject IExperimentService Experiments
+<PageTitle>@(app?.Name ?? "Missing experiment") | UselessApp</PageTitle>
+@if (app == null)
+{
+    <header class="page-heading"><h1>This idea escaped.</h1><p>We could not find that experiment.</p><a href="/#other-apps">Back to Other apps</a></header>
+}
+else
+{
+    <header class="page-heading"><a href="/#other-apps">← All experiments</a><p class="eyebrow">THE EXPERIMENTAL DEPARTMENT</p><h1>@app.Name</h1><p>@app.Description</p></header>
+    <section class="panel experiment-form">
+        @if (ToolId == "converter")
+        {
+            <div class="field"><label for="unit-category">Measurement type</label><select id="unit-category" class="form-control" value="@category" @onchange="ChangeCategory">@foreach (var type in ToolOptions.Units.Keys) { <option value="@type">@type</option> }</select></div>
+            <div class="field"><label for="conversion-amount">Amount</label><input id="conversion-amount" class="form-control" type="number" step="any" @bind="amount" placeholder="Enter an amount" /></div>
+            <div class="paired-fields">
+                <div class="field"><label for="from-unit">From unit</label><select id="from-unit" class="form-control" @bind="fromUnit">@foreach (var unit in ToolOptions.Units[category]) { <option value="@unit">@unit</option> }</select></div>
+                <button class="btn btn-secondary swap-button" type="button" @onclick="SwapUnits" aria-label="Swap source and target units">⇄</button>
+                <div class="field"><label for="to-unit">To unit</label><select id="to-unit" class="form-control" @bind="toUnit">@foreach (var unit in ToolOptions.Units[category]) { <option value="@unit">@unit</option> }</select></div>
+            </div>
+            <p class="small-note">Real unit choices. Deeply suspicious arithmetic.</p>
+        }
+        else if (ToolId == "translator")
+        {
+            <div class="paired-fields">
+                <div class="field"><label for="source-language">From language</label><select id="source-language" class="form-control" @bind="sourceLanguage"><option value="auto">Auto-detect</option>@foreach (var language in ToolOptions.Languages) { <option value="@language.Key">@language.Value</option> }</select></div>
+                <button class="btn btn-secondary swap-button" type="button" disabled="@(sourceLanguage == "auto")" @onclick="SwapLanguages" aria-label="Swap source and target languages">⇄</button>
+                <div class="field"><label for="target-language">To language</label><select id="target-language" class="form-control" @bind="targetLanguage">@foreach (var language in ToolOptions.Languages) { <option value="@language.Key">@language.Value</option> }</select></div>
+            </div>
+            <div class="field"><label for="experiment-input">Text to translate</label><textarea id="experiment-input" class="form-control" rows="5" maxlength="2000" @bind="input" @bind:event="oninput" placeholder="Type the text you want translated…"></textarea></div>
+            <p class="small-note">Auto-detect is a request for the connected provider. The demo does not detect languages.</p>
+        }
+        else
+        {
+            <label for="experiment-input">@InputLabel</label>
+            <textarea id="experiment-input" class="form-control" rows="3" maxlength="2000" @bind="input" @bind:event="oninput" placeholder="@InputPlaceholder"></textarea>
+        }
+        @if (ValidationMessage != null) { <p class="form-hint" role="status">@ValidationMessage</p> }
+        <label for="experiment-mode">Answer source</label>
+        <select id="experiment-mode" class="form-control" @bind="connected"><option value="false">Demo — no setup needed</option>@if (Experiments.IsConfigured(ToolId)) { <option value="true">Connected provider</option> }</select>
+        <button class="btn btn-primary" disabled="@(busy || ValidationMessage != null)" @onclick="Run">@(busy ? "Misunderstanding…" : ActionLabel)</button>
+        <p class="small-note">Demo results are fictional jokes. They do not run timers, create playlists, or change external apps.</p>
+    </section>
+    @if (result != null)
+    {
+        <section class="panel" aria-live="polite"><span class="app-status">@result.Source</span><h2>@ResultHeading</h2><p class="experiment-output">@result.Text</p><button class="btn btn-secondary" @onclick="Clear">Start over</button></section>
+    }
+}
+@code {
+    [Parameter] public string ToolId { get; set; } = "";
+    private ToolCatalog.AppIdea? app;
+    private string input = "";
+    private bool connected, busy;
+    private ExperimentResult? result;
+    private string category = "Length", fromUnit = "Meters", toUnit = "Feet";
+    private decimal? amount = 1;
+    private string sourceLanguage = "auto", targetLanguage = "es";
+    private string? ValidationMessage => ToolId switch
+    {
+        "converter" when amount == null => "Enter a numeric amount.",
+        "converter" when fromUnit == toUnit => "Choose two different units.",
+        "translator" when sourceLanguage == targetLanguage => "Choose two different languages.",
+        "converter" => null,
+        _ when string.IsNullOrWhiteSpace(input) => ToolId == "translator" ? "Enter some text to translate." : "Enter something to get started.",
+        _ => null
+    };
+    private string ActionLabel => ToolId switch { "converter" => "Convert ↗", "translator" => "Translate ↗", "directions" => "Find route ↗", "timer" => "Try timer ↗", "recipes" => "Find recipe ↗", "trivia" => "Answer question ↗", "music" => "Suggest playlist ↗", "todo" => "Make a plan ↗", _ => "Make it worse ↗" };
+    private string ResultHeading => ToolId switch { "converter" => "Conversion result", "translator" => "Translation", _ => "The answer nobody needed" };
+    private string InputLabel => ToolId switch { "directions" => "Where do you want to go?", "timer" => "How long should the timer run?", "recipes" => "Ingredients or a dish", "trivia" => "Your trivia question", "music" => "Mood or genre", "todo" => "Task to plan", _ => "Your input" };
+    private string InputPlaceholder => ToolId switch { "directions" => "Enter a destination…", "timer" => "For example: 10 minutes…", "recipes" => "For example: pasta, tomatoes, basil…", "trivia" => "Ask a question…", "music" => "For example: quiet music for studying…", "todo" => "For example: finish the group project…", _ => "Type here…" };
+    protected override void OnParametersSet()
+    {
+        app = ToolCatalog.Apps.FirstOrDefault(a => a.Id == ToolId && a.Route == null);
+        Clear(); connected = false;
+    }
+    private void ChangeCategory(ChangeEventArgs args)
+    {
+        var next = args.Value?.ToString() ?? "Length";
+        if (!ToolOptions.Units.ContainsKey(next)) return;
+        category = next; fromUnit = ToolOptions.Units[next][0]; toUnit = ToolOptions.Units[next][1]; result = null;
+    }
+    private void SwapUnits() { (fromUnit, toUnit) = (toUnit, fromUnit); result = null; }
+    private void SwapLanguages() { if (sourceLanguage != "auto") { (sourceLanguage, targetLanguage) = (targetLanguage, sourceLanguage); result = null; } }
+    private async Task Run()
+    {
+        if (busy || ValidationMessage != null) return;
+        var text = input;
+        Dictionary<string, string>? options = null;
+        if (ToolId == "converter")
+        {
+            var numeric = amount!.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            text = $"{numeric} {fromUnit} to {toUnit}";
+            options = new() { ["category"] = category, ["amount"] = numeric, ["fromUnit"] = fromUnit, ["toUnit"] = toUnit };
+        }
+        else if (ToolId == "translator") options = new() { ["sourceLanguage"] = sourceLanguage, ["targetLanguage"] = targetLanguage };
+        busy = true;
+        try { result = await Experiments.RunAsync(ToolId, text, connected, options); }
+        finally { busy = false; }
+    }
+    private void Clear() { input = ""; result = null; amount = 1; category = "Length"; fromUnit = "Meters"; toUnit = "Feet"; sourceLanguage = "auto"; targetLanguage = "es"; }
+}

@@ -1,23 +1,10 @@
-﻿@inherits LayoutComponentBase
-
+@inherits LayoutComponentBase
 <div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
-
+    <aside class="sidebar"><NavMenu /></aside>
     <main>
-        <div class="top-row px-4">
-            <a href="https://github.com/uselessApp-Org/Useless-App" target="_blank">GitHub</a>
-        </div>
-
-        <article class="content px-4">
-            @Body
-        </article>
+        <header class="top-row"><span>ALMOST HELPFUL SINCE RIGHT NOW</span><ThemeSelector /><a href="https://github.com/uselessApp-Org/Useless-App" target="_blank" rel="noopener noreferrer">View on GitHub ↗</a></header>
+        <article class="content">@Body</article>
+        <footer class="app-footer">UselessApp <span>Results may vary. Mostly in the wrong direction.</span></footer>
     </main>
 </div>
-
-<div id="blazor-error-ui" data-nosnippet>
-    An unhandled error has occurred.
-    <a href="." class="reload">Reload</a>
-    <span class="dismiss">🗙</span>
-</div>
+<div id="blazor-error-ui" data-nosnippet role="alert">Something went wrong. <a href="." class="reload">Reload</a></div>
