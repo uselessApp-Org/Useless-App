@@ -22,3 +22,12 @@ Welcome to Useless App we hope you find **no real information** while using our 
    * `dotnet build`
 4. Run the project with live updates
    * `dotnet watch --project UselessApp/`
+## Setting Gemini API
+1. Get API Key
+   * `dotnet --version`
+   * If you don't have the correct version run
+   * `winget install Microsoft.DotNet.SDK.9`
+2. Use API Key
+   * `dotnet restore`
+3. Using in Gemini in code
+   * `dotnet build`
