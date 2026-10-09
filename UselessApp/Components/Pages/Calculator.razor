@@ -41,24 +41,44 @@
 
 @code {
     private List<string> displayTokens = new List<string>();
+    private string currentNumber = "";
     private List<string> numpadDigits = new() { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
     private Random rng = new();
 
-    private string DisplayString => displayTokens.Count > 0 ? string.Join("", displayTokens) : "0";
+    private string DisplayString
+    {
+        get
+        {
+            string fullExpression = string.Join("", displayTokens) + currentNumber;
+            return string.IsNullOrEmpty(fullExpression) ? "0" : fullExpression;
+        }
+    }
 
     private void ShuffleDigits()
     {
         numpadDigits = numpadDigits.OrderBy(_ => rng.Next()).ToList();
     }
 
+    private void FlushCurrentNumber()
+    {
+        if (!string.IsNullOrEmpty(currentNumber))
+        {
+            displayTokens.Add(currentNumber);
+            currentNumber = "";
+        }
+    }
+
     private void HandleButtonClick(string value)
     {
         if (value == "CLEAR")
         {
+            currentNumber = "";
             displayTokens.Clear();
         }
         else if (value == "ENTER")
         {
+            FlushCurrentNumber();
+
             string result = Evaluator.Evaluate(displayTokens);
             displayTokens.Clear();
             if (!string.IsNullOrEmpty(result))
@@ -66,13 +86,29 @@
                 displayTokens.Add(result);
             }
         }
-        else
+        else if (char.IsDigit(value[0]) || value == ".")
         {
-            displayTokens.Add(value);
+            currentNumber += value;
 
-            if (value.Length == 1 && char.IsDigit(value[0]) && value != "0")
+            if (value != "0" && value != ".")
             {
                 ShuffleDigits();
+            }
+        }
+        else
+        {
+            FlushCurrentNumber();
+
+            // Unary functions (e.g., "sin(", "cos(", "sqrt(") are split into function name + "("
+            if (value.EndsWith("(") && value.Length > 1)
+            {
+                string funcName = value[..^1];
+                displayTokens.Add(funcName);
+                displayTokens.Add("(");
+            }
+            else
+            {
+                displayTokens.Add(value);
             }
         }
     }
