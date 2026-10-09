@@ -1,0 +1,31 @@
+@rendermode InteractiveServer
+@inject IJSRuntime JS
+<div class="theme-picker">
+    <label for="theme-choice">Theme</label>
+    <select id="theme-choice" class="form-control" value="@theme" @onchange="ChangeTheme" aria-label="Choose a theme">
+        <option value="midnight">Light mode</option>
+        <option value="garden">Dark mode</option>
+        <option value="bubblegum">Bubblegum disaster</option>
+        <option value="blueprint">Bad blueprint</option>
+        <option value="sunset">Sunset incident</option>
+        <option value="terminal">Hacker-ish</option>
+        <option value="lavender">Lavender panic</option>
+        <option value="coffee">Coffee break</option>
+        <option value="ocean">Deeply confused</option>
+        <option value="paper">Paperwork</option>
+    </select>
+</div>
+@code {
+    private string theme = "midnight";
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        theme = await JS.InvokeAsync<string>("uselessPreferences.getTheme");
+        StateHasChanged();
+    }
+    private async Task ChangeTheme(ChangeEventArgs args)
+    {
+        theme = args.Value?.ToString() ?? "garden";
+        await JS.InvokeVoidAsync("uselessPreferences.setTheme", theme);
+    }
+}

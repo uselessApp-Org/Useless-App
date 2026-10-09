@@ -1,35 +1,14 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">UselessApp</a>
-    </div>
-</div>
-
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
-
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="nav flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="APIHelp">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> API Help
-            </NavLink>
-        </div>
+﻿<a class="brand" href=""><span class="brand-mark" aria-hidden="true">u.</span><span>UselessApp<small>PROFESSIONALLY UNHELPFUL</small></span></a>
+<input type="checkbox" id="menu-toggle" class="menu-toggle" />
+<label for="menu-toggle" class="menu-label">Explore tools <span aria-hidden="true">☰</span></label>
+<div class="nav-scrollable">
+    <div class="nav-caption">WORKSPACE</div>
+    <nav aria-label="Main navigation">
+        <NavLink class="nav-link" href="" Match="NavLinkMatch.All"><span aria-hidden="true">⌂</span> Home</NavLink>
+        <NavLink class="nav-link" href="weather"><span aria-hidden="true">☀</span> Weather</NavLink>
+        <NavLink class="nav-link" href="calculator"><span aria-hidden="true">▦</span> Calculator</NavLink>
+        <NavLink class="nav-link" href="api-search-term"><span aria-hidden="true">⌕</span> API Search</NavLink>
+        <NavLink class="nav-link" href="api-help"><span aria-hidden="true">ⓘ</span> API Help</NavLink>
     </nav>
+    <div class="sidebar-note"><span class="note-dot"></span> ZERO ACCURACY. FULL CONFIDENCE.<p>Lower the bar.<br />We brought a shovel.</p></div>
 </div>
-
