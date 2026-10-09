@@ -24,4 +24,9 @@ Welcome to Useless App we hope you find **no real information** while using our 
    * `dotnet watch --project UselessApp/`
 
 ## Database Set-up (should not need this)
-dotnet add package MongoDB.Driver
+
+ 'dotnet add package MongoDB.Driver'
+
+## Database Notes
+
+ Database may not connect with the connection string,we are currently working on that, if you need to connect to the database let Caleb know

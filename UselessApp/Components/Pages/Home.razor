@@ -29,7 +29,7 @@
             class="btn btn-primary" @onclick="AddUser">Add User <span aria-hidden="true">＋</span></button></div>
         </section>
 @code {
-    private User newUser = new User();
+    private User newUser = new User { Username = string.Empty, Password = string.Empty };
     private async Task AddUser()
 {
     await MongodbUserService.AddUserAsync(newUser);
