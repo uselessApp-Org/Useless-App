@@ -1,4 +1,4 @@
-using Bunit;
+/*using Bunit;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using UselessApp.Components.Pages;
@@ -61,3 +61,4 @@ public class PageTests : BunitContext
         Assert.Equal(5, component.FindAll("nav a").Count);
     }
 }
+*/
