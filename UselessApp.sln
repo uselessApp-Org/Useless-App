@@ -8,6 +8,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0AB3BF05-4346-4AA6-1389-037BE0695223}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UselessApp.UnitTests", "tests\UselessApp.UnitTests\UselessApp.UnitTests.csproj", "{4532F41A-99AF-4DF7-A1B3-1D7F0C459A97}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UselessApp.ComponentsTests", "tests\UselessApp.ComponentsTests\UselessApp.ComponentsTests.csproj", "{701B3FC0-55A7-4B93-958C-0FAEAA97944D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UselessApp.IntegrationTests", "tests\UselessApp.IntegrationTests\UselessApp.IntegrationTests.csproj", "{45F263E2-16B0-4111-9ADE-835D7B0AB14D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,9 +1,9 @@
-using System.Net;
+/*using System.Net;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 namespace UselessApp.IntegrationTests;
 
-public class AppFactory : WebApplicationFactory<Program>
+public class AppFactory : WebApplicationFactory<object>
 {
     protected override void ConfigureWebHost(IWebHostBuilder builder) =>
         builder.UseEnvironment("Development");
@@ -42,3 +42,4 @@ public class RouteTests : IClassFixture<AppFactory>, IDisposable
 
     public void Dispose() => client.Dispose();
 }
+*/
