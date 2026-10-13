@@ -16,11 +16,13 @@ Welcome to Useless App we hope you find **no real information** while using our 
    * `dotnet --version`
    * If you don't have the correct version run
    * `winget install Microsoft.DotNet.SDK.9`
-2. Ensure you have the required NuGet Dependencies
-   * `dotnet restore`
-3. Build the project
-   * `dotnet build`
-4. Run the project with live updates
+2. Create the solution file if you need to
+   * `dotnet new sln --name UselessApp --format sln`
+3. Ensure you have the required NuGet Dependencies
+   * `dotnet restore UselessApp/`
+4. Build the project
+   * `dotnet build UselessApp/`
+5. Run the project with live updates
    * `dotnet watch --project UselessApp/`
 
 ## Database Set-up (should not need this)
