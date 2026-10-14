@@ -1,0 +1,59 @@
+@page "/AskAI"
+@rendermode InteractiveServer
+@inject GeminiService GeminiService
+
+<PageTitle>Ask AI</PageTitle>
+<header class="page-heading"><p class="eyebrow">TOOL 05 / ASK THE OVERLORD </p><h1>Ask AI</h1><p>Ask the overlord anything you dare.</p></header>
+
+<div class="mb-3">
+    <textarea @bind="userInput" class="form-control" rows="3" placeholder="Ask Gemini something..."></textarea>
+</div>
+
+<button class="btn btn-primary" @onclick="AskGemini" disabled="@isLoading">
+    @if (isLoading)
+    {
+        <span class="spinner-border spinner-border-sm" role="status"></span>
+        <span> Thinking...</span>
+    }
+    else
+    {
+        <span>Submit</span>
+    }
+</button>
+
+@if (!string.IsNullOrEmpty(aiResponse))
+{
+    <div class="card mt-3">
+        <div class="card-body">
+            <h5 class="card-title">Response:</h5>
+            <p class="card-text" style="white-space: pre-wrap;">@aiResponse</p>
+        </div>
+    </div>
+}
+
+@code {
+    private string userInput = string.Empty;
+    private string aiResponse = string.Empty;
+    private bool isLoading = false;
+
+    private async Task AskGemini()
+    {
+        if (string.IsNullOrWhiteSpace(userInput)) return;
+
+        isLoading = true;
+        aiResponse = string.Empty;
+
+        try
+        {
+            aiResponse = await GeminiService.GenerateTextAsync(userInput);
+        }
+        catch (Exception ex)
+        {
+            aiResponse = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

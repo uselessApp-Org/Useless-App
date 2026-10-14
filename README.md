@@ -32,3 +32,14 @@ Welcome to Useless App we hope you find **no real information** while using our 
 ## Database Notes
 
  Database may not connect with the connection string,we are currently working on that, if you need to connect to the database let Caleb know
+## Setting up Gemini API
+1. Getting API key
+   * Go to https://aistudio.google.com/api-keys
+   * Click create API Key
+   * pick a coneveastion to run it out of
+2. Using API Key
+   * Add the API key to the user secrets
+3. Add service to call API Key
+   * See example in Services/GeminiService
+4. Adding Blazor Component
+   * See example of model and Blozor component in Components/Pages/AskAI.razor
