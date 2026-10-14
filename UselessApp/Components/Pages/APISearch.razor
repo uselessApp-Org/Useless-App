@@ -1,27 +1,31 @@
 @page "/api-search-term"
 @rendermode InteractiveServer
 @using System.Net.Http
+@using System.Text.Json
+@using System.Threading.Tasks
 @inject IConfiguration Configuration
 
 <PageTitle>API Search | UselessApp</PageTitle>
 <header class="page-heading"><p class="eyebrow">TOOL 04 / STAY CURIOUS</p><h1>API Search</h1><p>Consulting an actual dictionary. Our confidence remains unjustified.</p></header>
 
-<div class="search-container panel">
-    <label for="search-term" class="search-label">What word are you looking for?</label>
-    <div class="input-group mb-3">
-        <input id="search-term" placeholder="Try possibility…" type="text" 
-               class="form-control" 
-               @bind="searchTerm" />
+<div align="center">
+    <div class="search-container panel">
+        <label for="search-term" class="search-label">What word are you looking for?</label>
+        <div class="input-group mb-3">
+            <input id="search-term" placeholder="Try possibility…" type="text" style="color: white"
+                class="form-control" 
+                @bind="searchTerm" />
         
-        <button class="btn btn-primary" type="button" @onclick="ExecuteSearch">
-            Search
-        </button>
+            <button class="btn btn-primary" type="button" @onclick="ExecuteSearch">
+                Search
+            </button>
+        </div>
     </div>
-</div>
-
-<div class="result-container panel">
-    <h2>Search Results</h2>
-    <pre role="status">@apiResult</pre>
+    
+    <div class="result-container panel">
+        <h2>Search Results</h2>
+        <pre role="status">@jsonString</pre>
+    </div>
 </div>
 
 @code {
@@ -29,6 +33,9 @@
 
     private string searchTerm = "";
     private string apiResult = "Enter a search term and click Search.";
+
+    string finalUrl = "";
+    string jsonString = "";
 
     private async Task ExecuteSearch()
     {
@@ -38,19 +45,21 @@
             return;
         }
 
-        apiResult = $"Searching for '{searchTerm}'...";
+        apiResult = $"Looking up something entirely different...";
 
-        var apiKey = Configuration["DictionaryApi:ApiKey"];
-        if (string.IsNullOrWhiteSpace(apiKey))
-        {
-            apiResult = "Dictionary connection is not configured yet.";
-            return;
-        }
-        string cleanTerm = Uri.EscapeDataString(searchTerm.Trim().ToLowerInvariant());
+        //REIMPLEMENT WHEN API KEY IS IMPLEMENTED EXTERNALLY
+        //var apiKey = Configuration["DictionaryApi:ApiKey"];
+        //if (string.IsNullOrWhiteSpace(apiKey))
+        //{
+        //    apiResult = "Dictionary connection is not configured yet.";
+        //    return;
+        //}
 
-        string finalUrl = $"{BaseApiUrl}{cleanTerm}?key={Uri.EscapeDataString(apiKey)}";
+        //LOOK FOR ID AND SHORTDEF
+        
+        string cleanTerm = searchTerm.Trim().ToLowerInvariant();
 
-        apiResult = await FetchRawHttpDataAsync(finalUrl);
+        await FetchRandomWord();
     }
 
     public async Task<string> FetchRawHttpDataAsync(string url)
@@ -63,12 +72,34 @@
 
             using HttpResponseMessage response = await client.SendAsync(request);
             response.EnsureSuccessStatusCode();
-            
-            return await response.Content.ReadAsStringAsync();
+
+            return jsonString = await response.Content.ReadAsStringAsync();
         }
         catch (Exception ex)
         {
             return $"Error: {ex.Message}";
+        }
+    }
+
+    public async Task FetchRandomWord()
+    {
+        using (HttpClient client = new HttpClient())
+        {
+            try
+            {
+                string randomWordURL = "https://random-word-api.herokuapp.com/word";
+                string randomWordJson = await client.GetStringAsync(randomWordURL);
+
+                finalUrl = $"{BaseApiUrl}{randomWordJson}?key=bb25cd06-abba-40ad-b58e-45c7a44f1910";
+                string searchTerm = await client.GetStringAsync(finalUrl);
+
+                apiResult = await FetchRawHttpDataAsync(finalUrl);
+            }
+
+            catch (Exception ex)
+            {
+                apiResult = $"Error: {ex.Message}";
+            }
         }
     }
 }
