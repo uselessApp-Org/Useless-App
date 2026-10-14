@@ -20,7 +20,6 @@ obj/
 .history/
 *.log
 *.env
-*.sln
 
 # ==============================================================================
 # 🛡️ Application Secrets & Local Machine Configuration
