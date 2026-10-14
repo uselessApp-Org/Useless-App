@@ -22,27 +22,15 @@
     grid-column:span 2
 }
 
-.CalcButton.ActionTop{
+.CalcButton.Enter{
     grid-row:span 2;
     background:var(--accent);
     color:var(--accent-ink);
-    font-size:12px;
+    font-size:12px
 }
 
-.CalcButton.ActionTop:hover{
-    background:var(--accent);
-}
-
-.CalcButton.ActionBottom{
-    grid-row:span 2;
-    background:var(--hero);
-    color:var(--ink);
-    font-size:12px;
-}
-
-.CalcButton.ActionBottom:hover{
-    background:var(--accent);
-    color:var(--accent-ink);
+.CalcButton.Enter:hover{
+    background:var(--accent)
 }
 
 .CalcButton sup {

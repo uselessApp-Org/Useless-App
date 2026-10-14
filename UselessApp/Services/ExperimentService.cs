@@ -25,6 +25,7 @@ public sealed class ExperimentService(IHttpClientFactory clients, IConfiguration
     {
         if (!ToolCatalog.Apps.Any(a => a.Id == id && a.Route == null)) throw new ArgumentException("Unknown experiment.");
         if (string.IsNullOrWhiteSpace(input)) return new("Give me something to misunderstand first.", "Demo");
+        if (input.Length > 2000) return new("Keep input to 2,000 characters or fewer.", "Validation error");
         if (id == "converter" && options != null)
         {
             if (!options.TryGetValue("category", out var category) || !ToolOptions.Units.TryGetValue(category, out var units)
@@ -63,9 +64,12 @@ public sealed class ExperimentService(IHttpClientFactory clients, IConfiguration
         if (id == "converter" && options != null)
         {
             var amount = decimal.Parse(options["amount"], System.Globalization.CultureInfo.InvariantCulture);
-            // A deliberately bogus scale; stays in range even for extreme decimal inputs.
-            var wrong = amount / 2 + 17;
-            return $"{amount.ToString("G", System.Globalization.CultureInfo.InvariantCulture)} {options["fromUnit"]} → {wrong.ToString("G", System.Globalization.CultureInfo.InvariantCulture)} {options["toUnit"]}\nConversion factor approved by a spoon. This is intentionally incorrect.";
+            try
+            {
+                var value = UnitConverter.Convert(options["category"], options["fromUnit"], options["toUnit"], (double)amount);
+                return $"{amount.ToString("G", System.Globalization.CultureInfo.InvariantCulture)} {options["fromUnit"]} = {UnitConverter.Format(value)} {options["toUnit"]}";
+            }
+            catch (ArgumentException e) { return "Invalid conversion: " + e.Message; }
         }
         if (id == "translator" && options != null)
         {

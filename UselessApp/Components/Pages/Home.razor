@@ -27,17 +27,23 @@
                                                                                 @bind="newUser.Username" placeholder="Your username" autocomplete="username" /><label
             for="password">Password</label><input id="password" class="form-control" type="password"
                                                   @bind="newUser.Password" placeholder="Your password" autocomplete="new-password" /><button
-            class="btn btn-primary" @onclick="AddUser">Add User <span aria-hidden="true">＋</span></button></div>
+            class="btn btn-primary" @onclick="AddUser">Add User <span aria-hidden="true">＋</span></button><p role="status">@userFeedback</p></div>
         </section>
 @code {
     private User newUser = new User { Username = string.Empty, Password = string.Empty };
+    private string? userFeedback;
     private async Task AddUser()
-{
-    await MongodbUserService.AddUserAsync(newUser);
-
-    // Force a clean UI re-render
-    newUser = new User { Username = string.Empty, Password = string.Empty };
-    StateHasChanged();
-}
+    {
+        if (string.IsNullOrWhiteSpace(newUser.Username) || newUser.Password.Length < 8)
+        { userFeedback = "Enter a username and a password of at least 8 characters."; return; }
+        try
+        {
+            await MongodbUserService.AddUserAsync(newUser);
+            newUser = new User { Username = string.Empty, Password = string.Empty };
+            userFeedback = "Account record created.";
+        }
+        catch (InvalidOperationException) { userFeedback = "Username already used or database not ready."; }
+        catch (Exception) { userFeedback = "Database unavailable. The rest of the app works without MongoDB."; }
+    }
 
 }

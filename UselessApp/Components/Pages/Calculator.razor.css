@@ -1,35 +1,17 @@
 .CalcContainer {
-    position: relative;
-    width: 100%;
-    max-width: 900px;
-    height: 520px;
-    margin: 20px auto;
-    overflow: hidden;
-    box-sizing: border-box;
-}
-
-.ScientificWrapper {
-    position: absolute;
-    z-index: 10;
-    transition: top 0.45s cubic-bezier(0.25, 0.8, 0.25, 1), left 0.45s cubic-bezier(0.25, 0.8, 0.25, 1);
-}
-
-.OperatorWrapper {
-    position: absolute;
-    z-index: 10;
-    transition: top 0.45s cubic-bezier(0.25, 0.8, 0.25, 1), left 0.45s cubic-bezier(0.25, 0.8, 0.25, 1);
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    gap: 16px;
+    margin: 40px auto;
 }
 
 .CalcLayout {
-    position: absolute;
-    z-index: 10;
-    width: 290px;
+    width: 320px;
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
     background-color: brown;
-    box-sizing: border-box;
-    transition: top 0.45s cubic-bezier(0.25, 0.8, 0.25, 1), left 0.45s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 .Display {
@@ -48,6 +30,5 @@
 .MainButtons {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(4, 1fr);
     gap: 10px;
 }

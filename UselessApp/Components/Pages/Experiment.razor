@@ -20,7 +20,7 @@ else
                 <button class="btn btn-secondary swap-button" type="button" @onclick="SwapUnits" aria-label="Swap source and target units">⇄</button>
                 <div class="field"><label for="to-unit">To unit</label><select id="to-unit" class="form-control" @bind="toUnit">@foreach (var unit in ToolOptions.Units[category]) { <option value="@unit">@unit</option> }</select></div>
             </div>
-            <p class="small-note">Real unit choices. Deeply suspicious arithmetic.</p>
+            <p class="small-note">Accurate local conversion; no API key required.</p>
         }
         else if (ToolId == "translator")
         {
@@ -32,16 +32,46 @@ else
             <div class="field"><label for="experiment-input">Text to translate</label><textarea id="experiment-input" class="form-control" rows="5" maxlength="2000" @bind="input" @bind:event="oninput" placeholder="Type the text you want translated…"></textarea></div>
             <p class="small-note">Auto-detect is a request for the connected provider. The demo does not detect languages.</p>
         }
+        else if (ToolId == "todo")
+        {
+            <label for="new-dont">Something you should absolutely not do</label>
+            <div class="paired-fields"><input id="new-dont" class="form-control" maxlength="120" @bind="newDont" @bind:event="oninput" placeholder="Example: open 37 tabs" /><button class="btn btn-primary" type="button" @onclick="AddDont">Add to list</button></div>
+            <div class="notepad"><h2>Today's To-Don't List</h2>
+            @if (donts.Count == 0) { <p>Nothing to avoid yet. Impressive.</p> }
+            @foreach (var item in donts) { <div class="dont-row" @key="item.Id"><input type="checkbox" checked="@item.Done" @onchange="e => SetDont(item.Id, e.Value is true)" aria-label="Mark item done" /><span class="@(item.Done ? "done" : "")">@item.Text</span><button class="btn btn-secondary" type="button" @onclick="() => RemoveDont(item.Id)">Remove</button></div> }
+            <p>@donts.Count(i => i.Done) of @donts.Count successfully avoided.</p></div>
+            <button type="button" class="btn btn-secondary" @onclick="ClearDone">Clear checked</button>
+        }
+        else if (ToolId == "trivia")
+        {
+            <p>Question @(questionIndex + 1) of @questions.Length</p>
+            <h2>@questions[questionIndex].Prompt</h2>
+            @foreach (var answer in questions[questionIndex].Choices.Select((value, index) => (value,index)))
+            { <button type="button" class="btn btn-secondary trivia-option" disabled="@answered" @onclick="() => Answer(answer.index)">@answer.value</button> }
+            @if (answered) { <p role="status">@(correctAnswer ? "Correct! Even we admit it." : $"Not quite. Answer: {questions[questionIndex].Choices[questions[questionIndex].Correct]}")</p><button type="button" class="btn btn-primary" @onclick="NextQuestion">Next question</button> }
+            <p>Score: @score / @answeredCount</p>
+        }
+        else if (ToolId == "timer")
+        {
+            <label for="timer-seconds">Countdown seconds (1–3600)</label>
+            <input id="timer-seconds" type="number" min="1" max="3600" class="form-control" @bind="timerSeconds" disabled="@timerRunning" />
+            <p class="timer-clock" role="timer" aria-live="off">@TimerDisplay</p>
+            <div class="timer-actions"><button type="button" class="btn btn-primary" @onclick="StartTimer" disabled="@(timerRunning || timerSeconds < 1 || timerSeconds > 3600)">Start / Resume</button><button type="button" class="btn btn-secondary" @onclick="PauseTimer">Pause</button><button type="button" class="btn btn-secondary" @onclick="ResetTimer">Reset</button></div>
+            @if (remainingSeconds == 0) { <p role="status">Time is up!</p> }
+        }
         else
         {
             <label for="experiment-input">@InputLabel</label>
             <textarea id="experiment-input" class="form-control" rows="3" maxlength="2000" @bind="input" @bind:event="oninput" placeholder="@InputPlaceholder"></textarea>
         }
         @if (ValidationMessage != null) { <p class="form-hint" role="status">@ValidationMessage</p> }
+        @if (ToolId is not ("todo" or "trivia" or "timer"))
+        {
         <label for="experiment-mode">Answer source</label>
         <select id="experiment-mode" class="form-control" @bind="connected"><option value="false">Demo — no setup needed</option>@if (Experiments.IsConfigured(ToolId)) { <option value="true">Connected provider</option> }</select>
         <button class="btn btn-primary" disabled="@(busy || ValidationMessage != null)" @onclick="Run">@(busy ? "Misunderstanding…" : ActionLabel)</button>
-        <p class="small-note">Demo results are fictional jokes. They do not run timers, create playlists, or change external apps.</p>
+        <p class="small-note">Connected mode requires a configured provider. Local tools work without external accounts.</p>
+        }
     </section>
     @if (result != null)
     {
@@ -52,6 +82,52 @@ else
     [Parameter] public string ToolId { get; set; } = "";
     private ToolCatalog.AppIdea? app;
     private string input = "";
+    private sealed record DontItem(int Id, string Text, bool Done);
+    private List<DontItem> donts = [];
+    private int dontId;
+    private string newDont = "";
+    private void AddDont() { if (string.IsNullOrWhiteSpace(newDont) || donts.Count >= 100) return; donts.Add(new(++dontId, newDont.Trim(), false)); newDont = ""; }
+    private void SetDont(int id, bool done) { var ix = donts.FindIndex(x => x.Id == id); if (ix >= 0) donts[ix] = donts[ix] with { Done = done }; }
+    private void RemoveDont(int id) { donts.RemoveAll(x => x.Id == id); }
+    private void ClearDone() { donts.RemoveAll(x => x.Done); }
+    private sealed record Question(string Prompt, string[] Choices, int Correct);
+    private static readonly Question[] questions = [
+        new("What is the largest planet?", ["Mars", "Jupiter", "Earth", "Venus"], 1),
+        new("How many sides does a hexagon have?", ["5", "8", "6", "7"], 2),
+        new("What is the chemical symbol for gold?", ["Ag", "Au", "Gd", "Go"], 1),
+        new("Which ocean is the largest?", ["Indian", "Atlantic", "Arctic", "Pacific"], 3),
+        new("What does HTTP stand for?", ["Hypertext Transfer Protocol", "High Tech Text Program", "Hyper Tool Transfer Port", "Home Text Terminal Protocol"], 0),
+        new("What is 12 × 12?", ["124", "132", "144", "148"], 2),
+        new("Which language runs in a browser?", ["SQL", "JavaScript", "C", "Bash"], 1),
+        new("What is the freezing point of water in Celsius?", ["0", "32", "100", "-10"], 0)
+    ];
+    private int questionIndex, score, answeredCount;
+    private bool answered, correctAnswer;
+    private void Answer(int choice) { if (answered) return; correctAnswer = choice == questions[questionIndex].Correct; if (correctAnswer) score++; answeredCount++; answered = true; }
+    private void NextQuestion() { questionIndex = (questionIndex + 1) % questions.Length; answered = false; }
+    private int timerSeconds = 60, remainingSeconds = 60;
+    private string TimerDisplay => TimeSpan.FromSeconds(remainingSeconds).ToString(@"mm\:ss");
+    private bool timerRunning;
+    private CancellationTokenSource? timerCancellation;
+    private async Task StartTimer()
+    {
+        if (timerRunning || timerSeconds is < 1 or > 3600) return;
+        if (remainingSeconds <= 0 || remainingSeconds == 60 && timerSeconds != 60) remainingSeconds = timerSeconds;
+        timerRunning = true;
+        timerCancellation?.Cancel(); timerCancellation = new();
+        var token = timerCancellation.Token;
+        try
+        {
+            using var ticker = new PeriodicTimer(TimeSpan.FromSeconds(1));
+            while (remainingSeconds > 0 && await ticker.WaitForNextTickAsync(token))
+            { remainingSeconds--; await InvokeAsync(StateHasChanged); }
+        }
+        catch (OperationCanceledException) { }
+        finally { timerRunning = false; await InvokeAsync(StateHasChanged); }
+    }
+    private void PauseTimer() { timerCancellation?.Cancel(); timerRunning = false; }
+    private void ResetTimer() { PauseTimer(); remainingSeconds = timerSeconds; }
+
     private bool connected, busy;
     private ExperimentResult? result;
     private string category = "Length", fromUnit = "Meters", toUnit = "Feet";
@@ -99,5 +175,5 @@ else
         try { result = await Experiments.RunAsync(ToolId, text, connected, options); }
         finally { busy = false; }
     }
-    private void Clear() { input = ""; result = null; amount = 1; category = "Length"; fromUnit = "Meters"; toUnit = "Feet"; sourceLanguage = "auto"; targetLanguage = "es"; }
+    private void Clear() { PauseTimer(); input = ""; result = null; amount = 1; category = "Length"; fromUnit = "Meters"; toUnit = "Feet"; sourceLanguage = "auto"; targetLanguage = "es"; }
 }

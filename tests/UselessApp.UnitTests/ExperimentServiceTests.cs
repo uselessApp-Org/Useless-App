@@ -83,7 +83,7 @@ public class ExperimentServiceTests
         var handler = new Handler("{}");
         var result = await Create(handler).RunAsync("converter", "10 Meters to Feet", false,
             new Dictionary<string, string> { ["category"] = "Length", ["amount"] = "10", ["fromUnit"] = "Meters", ["toUnit"] = "Feet" });
-        Assert.Contains("10 Meters → 22 Feet", result.Text);
+        Assert.Contains("10 Meters = 32.8083989501 Feet", result.Text);
         Assert.Equal(0, handler.Calls);
     }
     [Fact]

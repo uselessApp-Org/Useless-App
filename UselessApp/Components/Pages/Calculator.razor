@@ -7,50 +7,35 @@
 <PageTitle>Calculator</PageTitle>
 
 <div class="CalcContainer">
-    <div class="ScientificWrapper" style="top: @(sciTop)px; left: @(sciLeft)px;">
-        <ScientificKeypad ButtonClicked="HandleButtonClick" />
-    </div>
+    <ScientificKeypad ButtonClicked="HandleButtonClick" />
 
-    <div class="CalcLayout" style="top: @(calcTop)px; left: @(calcLeft)px;">
+    <div class="CalcLayout">
         <div class="Display">
             @DisplayString
         </div>
         <div class="MainButtons">
+            <CalcButton Style="Zero" Value="CLEAR" Clicked="HandleButtonClick">CLEAR</CalcButton>
+            <CalcButton Value="/" Clicked="HandleButtonClick">/</CalcButton>
+            <CalcButton Value="*" Clicked="HandleButtonClick">*</CalcButton>
+
             <CalcButton Value="@numpadDigits[0]" Clicked="HandleButtonClick">@numpadDigits[0]</CalcButton>
             <CalcButton Value="@numpadDigits[1]" Clicked="HandleButtonClick">@numpadDigits[1]</CalcButton>
             <CalcButton Value="@numpadDigits[2]" Clicked="HandleButtonClick">@numpadDigits[2]</CalcButton>
-            @if (clearOnTop)
-            {
-                <CalcButton Style="ActionTop" Value="CLEAR" Clicked="HandleButtonClick">CLEAR</CalcButton>
-            }
-            else
-            {
-                <CalcButton Style="ActionTop" Value="ENTER" Clicked="HandleButtonClick">ENTER</CalcButton>
-            }
+            <CalcButton Value="-" Clicked="HandleButtonClick">-</CalcButton>
 
             <CalcButton Value="@numpadDigits[3]" Clicked="HandleButtonClick">@numpadDigits[3]</CalcButton>
             <CalcButton Value="@numpadDigits[4]" Clicked="HandleButtonClick">@numpadDigits[4]</CalcButton>
             <CalcButton Value="@numpadDigits[5]" Clicked="HandleButtonClick">@numpadDigits[5]</CalcButton>
+            <CalcButton Value="+" Clicked="HandleButtonClick">+</CalcButton>
 
             <CalcButton Value="@numpadDigits[6]" Clicked="HandleButtonClick">@numpadDigits[6]</CalcButton>
             <CalcButton Value="@numpadDigits[7]" Clicked="HandleButtonClick">@numpadDigits[7]</CalcButton>
             <CalcButton Value="@numpadDigits[8]" Clicked="HandleButtonClick">@numpadDigits[8]</CalcButton>
-            @if (clearOnTop)
-            {
-                <CalcButton Style="ActionBottom" Value="ENTER" Clicked="HandleButtonClick">ENTER</CalcButton>
-            }
-            else
-            {
-                <CalcButton Style="ActionBottom" Value="CLEAR" Clicked="HandleButtonClick">CLEAR</CalcButton>
-            }
+            <CalcButton Style="Enter" Value="ENTER" Clicked="HandleButtonClick">ENTER</CalcButton>
 
             <CalcButton Style="Zero" Value="0" Clicked="HandleButtonClick">0</CalcButton>
             <CalcButton Value="." Clicked="HandleButtonClick">.</CalcButton>
         </div>
-    </div>
-
-    <div class="OperatorWrapper" style="top: @(opTop)px; left: @(opLeft)px;">
-        <OperatorKeypad ButtonClicked="HandleButtonClick" />
     </div>
 </div>
 
@@ -58,28 +43,7 @@
     private List<string> displayTokens = new List<string>();
     private string currentNumber = "";
     private List<string> numpadDigits = new() { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
-    private bool clearOnTop = true;
     private Random rng = new();
-
-    // Dimensions of the components
-    private const int SciWidth = 190;
-    private const int SciHeight = 440;
-    private const int CalcWidth = 290;
-    private const int CalcHeight = 440;
-    private const int OpWidth = 110;
-    private const int OpHeight = 360;
-
-    // Boundaries of CalcContainer
-    private const int ArenaWidth = 900;
-    private const int ArenaHeight = 500;
-
-    // Initial positions
-    private int sciTop = 20;
-    private int sciLeft = 60;
-    private int calcTop = 20;
-    private int calcLeft = 280;
-    private int opTop = 20;
-    private int opLeft = 600;
 
     private string DisplayString
     {
@@ -95,49 +59,6 @@
         numpadDigits = numpadDigits.OrderBy(_ => rng.Next()).ToList();
     }
 
-    private bool Overlaps(int x1, int y1, int w1, int h1, int x2, int y2, int w2, int h2, int margin = 15)
-    {
-        bool xOverlap = x1 < x2 + w2 + margin && x1 + w1 + margin > x2;
-        bool yOverlap = y1 < y2 + h2 + margin && y1 + h1 + margin > y2;
-        return xOverlap && yOverlap;
-    }
-
-    private void MovePanelsInsideBounds()
-    {
-        int maxSciX = ArenaWidth - SciWidth;
-        int maxSciY = ArenaHeight - SciHeight;
-        int maxCalcX = ArenaWidth - CalcWidth;
-        int maxCalcY = ArenaHeight - CalcHeight;
-        int maxOpX = ArenaWidth - OpWidth;
-        int maxOpY = ArenaHeight - OpHeight;
-
-        for (int attempts = 0; attempts < 150; attempts++)
-        {
-            int cCalcX = rng.Next(10, Math.Max(11, maxCalcX));
-            int cCalcY = rng.Next(10, Math.Max(11, maxCalcY));
-
-            int cSciX = rng.Next(10, Math.Max(11, maxSciX));
-            int cSciY = rng.Next(10, Math.Max(11, maxSciY));
-
-            int cOpX = rng.Next(10, Math.Max(11, maxOpX));
-            int cOpY = rng.Next(10, Math.Max(11, maxOpY));
-
-            // Check mutual collisions among all 3 panels
-            if (!Overlaps(cCalcX, cCalcY, CalcWidth, CalcHeight, cSciX, cSciY, SciWidth, SciHeight) &&
-                !Overlaps(cCalcX, cCalcY, CalcWidth, CalcHeight, cOpX, cOpY, OpWidth, OpHeight) &&
-                !Overlaps(cSciX, cSciY, SciWidth, SciHeight, cOpX, cOpY, OpWidth, OpHeight))
-            {
-                calcLeft = cCalcX;
-                calcTop = cCalcY;
-                sciLeft = cSciX;
-                sciTop = cSciY;
-                opLeft = cOpX;
-                opTop = cOpY;
-                return;
-            }
-        }
-    }
-
     private void FlushCurrentNumber()
     {
         if (!string.IsNullOrEmpty(currentNumber))
@@ -149,9 +70,6 @@
 
     private void HandleButtonClick(string value)
     {
-        clearOnTop = !clearOnTop;
-        MovePanelsInsideBounds();
-
         if (value == "CLEAR")
         {
             currentNumber = "";
@@ -176,10 +94,6 @@
             {
                 ShuffleDigits();
             }
-        }
-        else if (value == "-" && string.IsNullOrEmpty(currentNumber) && (displayTokens.Count == 0 || displayTokens[^1] == "(" || displayTokens[^1] == "+" || displayTokens[^1] == "-" || displayTokens[^1] == "*" || displayTokens[^1] == "/" || displayTokens[^1] == "%" || displayTokens[^1] == "^"))
-        {
-            currentNumber = "-";
         }
         else
         {

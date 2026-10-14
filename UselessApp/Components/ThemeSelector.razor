@@ -14,14 +14,29 @@
         <option value="ocean">Deeply confused</option>
         <option value="paper">Paperwork</option>
     </select>
+    <label for="custom-accent">Custom color</label>
+    <input id="custom-accent" type="color" class="accent-color-picker" title="Choose a custom accent color" aria-label="Custom accent color" value="@accentColor" @oninput="ChangeAccent" />
+    <button type="button" class="accent-reset" title="Reset custom color" @onclick="ResetAccent">Reset color</button>
 </div>
 @code {
     private string theme = "midnight";
+    private string accentColor = "#b8d994";
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (!firstRender) return;
         theme = await JS.InvokeAsync<string>("uselessPreferences.getTheme");
+        accentColor = await JS.InvokeAsync<string>("uselessPreferences.getAccent");
         StateHasChanged();
+    }
+    private async Task ChangeAccent(ChangeEventArgs args)
+    {
+        accentColor = args.Value?.ToString() ?? "#b8d994";
+        await JS.InvokeVoidAsync("uselessPreferences.setAccent", accentColor);
+    }
+    private async Task ResetAccent()
+    {
+        await JS.InvokeVoidAsync("uselessPreferences.resetAccent");
+        accentColor = "#b8d994";
     }
     private async Task ChangeTheme(ChangeEventArgs args)
     {
