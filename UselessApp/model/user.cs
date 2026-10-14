@@ -1,6 +1,6 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-
+namespace UselessApp.Models;
 public class User
 {
     [BsonId]

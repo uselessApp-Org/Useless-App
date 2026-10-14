@@ -1,0 +1,19 @@
+@using UselessApp.Components.Calculator
+
+<div class="OperatorPanel">
+    <div class="PanelHeader">
+        <span>Operators</span>
+    </div>
+    <div class="ButtonsGrid">
+        <CalcButton Value="/" Clicked="ButtonClicked">/</CalcButton>
+        <CalcButton Value="*" Clicked="ButtonClicked">*</CalcButton>
+        <CalcButton Value="-" Clicked="ButtonClicked">-</CalcButton>
+        <CalcButton Value="+" Clicked="ButtonClicked">+</CalcButton>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public EventCallback<string> ButtonClicked { get; set; }
+}
+

@@ -26,6 +26,7 @@ builder.Services.AddScoped<IExperimentService, ExperimentService>();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+builder.Services.AddHttpClient<GeminiService>();
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())

@@ -16,11 +16,13 @@ Welcome to Useless App we hope you find **no real information** while using our 
    * `dotnet --version`
    * If you don't have the correct version run
    * `winget install Microsoft.DotNet.SDK.9`
-2. Ensure you have the required NuGet Dependencies
-   * `dotnet restore`
-3. Build the project
-   * `dotnet build`
-4. Run the project with live updates
+2. Create the solution file if you need to
+   * `dotnet new sln --name UselessApp --format sln`
+3. Ensure you have the required NuGet Dependencies
+   * `dotnet restore UselessApp/`
+4. Build the project
+   * `dotnet build UselessApp/`
+5. Run the project with live updates
    * `dotnet watch --project UselessApp/`
 
 ## Database Set-up (should not need this)
@@ -30,3 +32,14 @@ Welcome to Useless App we hope you find **no real information** while using our 
 ## Database Notes
 
  Database may not connect with the connection string,we are currently working on that, if you need to connect to the database let Caleb know
+## Setting up Gemini API
+1. Getting API key
+   * Go to https://aistudio.google.com/api-keys
+   * Click create API Key
+   * pick a coneveastion to run it out of
+2. Using API Key
+   * Add the API key to the user secrets
+3. Add service to call API Key
+   * See example in Services/GeminiService
+4. Adding Blazor Component
+   * See example of model and Blozor component in Components/Pages/AskAI.razor

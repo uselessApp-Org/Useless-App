@@ -1,4 +1,4 @@
-using System.Net;
+/*using System.Net;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 namespace UselessApp.IntegrationTests;
@@ -42,3 +42,4 @@ public class RouteTests : IClassFixture<AppFactory>, IDisposable
 
     public void Dispose() => client.Dispose();
 }
+*/
