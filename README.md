@@ -1,15 +1,34 @@
-# UselessApp
+# Useless-App
+Welcome to Useless App we hope you find **no real information** while using our application!
 
-A deliberately playful ASP.NET Core 9 / Blazor Server app with a calculator, unit converter, trivia, To-Don't list, timer, theme selector, and optional connected services.
+## Versioning Practices
+1. Fetch then Pull main into your local repo
+2. Create a new branch in the following format from main(usually):
+   * UA-<##>-Few-Word-Description
+   * replace <##> with the number of your ticket from Jira
+3. Do your work
+4. Create a pull-request on Github or through VS Code or GitHub Desktop.
+   * Fill out the PR Template
+5. Notify team of your pull request so it can gain its two required approvals
 
-**Start here:** [SETUP-AND-TESTING.md](SETUP-AND-TESTING.md) for local setup, tests, optional MongoDB and provider connections, and deployment cautions.
+## Setting up the Environment
+1. Ensure you have .Net 9.0 installed
+   * `dotnet --version`
+   * If you don't have the correct version run
+   * `winget install Microsoft.DotNet.SDK.9`
+2. Create the solution file if you need to
+   * `dotnet new sln --name UselessApp --format sln`
+3. Ensure you have the required NuGet Dependencies
+   * `dotnet restore UselessApp/`
+4. Build the project
+   * `dotnet build UselessApp/`
+5. Run the project with live updates
+   * `dotnet watch --project UselessApp/`
 
-Quick start:
+## Database Set-up (should not need this)
 
-```powershell
-dotnet restore UselessApp.sln
-dotnet build UselessApp.sln
-dotnet run --project UselessApp --launch-profile http
-```
+ 'dotnet add package MongoDB.Driver'
 
-Tests: `dotnet test UselessApp.sln`. Most tools run without a database or API key. External integrations must be configured separately.
+## Database Notes
+
+ Database may not connect with the connection string,we are currently working on that, if you need to connect to the database let Caleb know

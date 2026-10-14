@@ -20,7 +20,6 @@ builder.Services.AddSingleton<IMongoClient>(sp =>
 builder.Services.AddSingleton<MongodbUserService>();
 builder.Services.AddSingleton<CalculatorEvaluatorService>();
 
-builder.Services.AddHttpClient("dictionary", client => client.Timeout = TimeSpan.FromSeconds(10));
 builder.Services.AddHttpClient("experiments", client => client.Timeout = TimeSpan.FromSeconds(20));
 builder.Services.AddScoped<IExperimentService, ExperimentService>();
 
@@ -39,10 +38,7 @@ app.UseStatusCodePagesWithReExecute("/not-found");
 app.UseHttpsRedirection();
 app.UseAntiforgery();
 app.MapStaticAssets();
-app.MapGet("/health/live", () => Results.Ok(new { status = "ok", service = "UselessApp" }));
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
 app.Run();
-
-public partial class Program { }

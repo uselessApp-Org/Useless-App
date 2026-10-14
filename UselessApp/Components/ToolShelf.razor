@@ -25,7 +25,7 @@
     </section>
     <div class="section-heading"><h3>Current apps</h3><span>The original suspects</span></div>
     <div class="tool-grid">
-        @foreach (var app in VisibleApps.Where(a => a.Route != null && !a.Id.StartsWith("arcade-")))
+        @foreach (var app in VisibleApps.Where(a => a.Route != null))
         {
             @AppCard(app)
         }
@@ -35,7 +35,7 @@
     <div class="section-heading"><h2>Other apps</h2><span>The experimental department</span></div>
     <p class="shelf-intro">Try the demos now. External connections can be set up one tool at a time.</p>
     <div class="tool-grid">
-        @foreach (var app in VisibleApps.Where(a => a.Route == null || a.Id.StartsWith("arcade-")))
+        @foreach (var app in VisibleApps.Where(a => a.Route == null))
         {
             @AppCard(app)
         }
