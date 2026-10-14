@@ -1,0 +1,40 @@
+@page "/login"
+@using UselessApp.Models
+@using UselessApp.Services
+@inject MongodbUserService MongodbUserService
+@rendermode InteractiveServer
+
+
+<section class="panel user-panel">
+        <div>
+            <p class="eyebrow">JOIN THE QUESTIONABLE DECISIONS CLUB</p>
+            <h2>Add a user</h2>
+            <p>Create a user to record your great(awful) decisions.</p>
+        </div>
+        <div class="user-form"><label for="username">Username</label><input id="username" class="form-control"
+                                                                                @bind="checkUser.Username" placeholder="Your username" autocomplete="username" /><label
+            for="password">Password</label><input id="password" class="form-control" type="password"
+                                                  @bind="checkUser.Password" placeholder="Your password" autocomplete="new-password" /><button
+            class="btn btn-primary" @onclick="LoginUser">sign up <span aria-hidden="true">＋</span></button></div>
+        </section>
+@code {
+    
+    private User checkUser = new User { Username = string.Empty, Password = string.Empty };
+    private async Task LoginUser()
+{
+    var result = await MongodbUserService.ValidateLoginAsync(checkUser.Username, checkUser.Password);
+
+    if (result == null)
+    {
+        Console.WriteLine("Invalid username or password");
+    }
+    else
+    {
+        Console.WriteLine($"Welcome, {result.Username}");
+    }
+
+    checkUser = new User { Username = string.Empty, Password = string.Empty };
+    StateHasChanged();
+}
+
+}
