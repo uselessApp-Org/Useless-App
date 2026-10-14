@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 namespace UselessApp.IntegrationTests;
 
-public class AppFactory : WebApplicationFactory<object>
+public class AppFactory : WebApplicationFactory<Program>
 {
     protected override void ConfigureWebHost(IWebHostBuilder builder) =>
         builder.UseEnvironment("Development");
