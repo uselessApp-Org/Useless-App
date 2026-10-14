@@ -117,7 +117,7 @@
                 var wordArray = JsonSerializer.Deserialize<List<string>>(randomWordJson);
                 string cleanWord = wordArray?.FirstOrDefault() ?? "hogmenay";
 
-                finalUrl = $"{BaseApiUrl}{randomWordJson}?key=bb25cd06-abba-40ad-b58e-45c7a44f1910";
+                finalUrl = $"{BaseApiUrl}{randomWordJson}?key="; //IMPLEMENT KEY
 
                 jsonString = await FetchRawHttpDataAsync(finalUrl);
 
