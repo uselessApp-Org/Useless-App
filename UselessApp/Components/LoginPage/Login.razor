@@ -8,14 +8,14 @@
 <section class="panel user-panel">
         <div>
             <p class="eyebrow">JOIN THE QUESTIONABLE DECISIONS CLUB</p>
-            <h2>Add a user</h2>
-            <p>Create a user to record your great(awful) decisions.</p>
+            <h2>Login</h2>
+            <p>Login to your account to see all of your questionable decisions.</p>
         </div>
         <div class="user-form"><label for="username">Username</label><input id="username" class="form-control"
                                                                                 @bind="checkUser.Username" placeholder="Your username" autocomplete="username" /><label
             for="password">Password</label><input id="password" class="form-control" type="password"
                                                   @bind="checkUser.Password" placeholder="Your password" autocomplete="new-password" /><button
-            class="btn btn-primary" @onclick="LoginUser">sign up <span aria-hidden="true">＋</span></button></div>
+            class="btn btn-primary" @onclick="LoginUser">Login</button></div>
         </section>
 @code {
     
