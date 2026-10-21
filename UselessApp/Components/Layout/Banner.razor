@@ -1,0 +1,29 @@
+@inject DisplayNameService DisplayNameService
+@rendermode InteractiveServer
+
+<div class="login-container">
+    @if (DisplayNameService.IsLoggedIn)
+    {
+        <span class="user-display">
+            @(DisplayNameService.RandomDisplayName 
+              ?? DisplayNameService.DisplayName 
+              ?? DisplayNameService.Username)
+        </span>
+    }
+    else
+    {
+        <a href="/signup">Sign Up</a>
+        <a href="/login">Login</a>
+    }
+</div>
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            DisplayNameService.OnChange += StateHasChanged;
+            await DisplayNameService.LoadUserAsync();
+        }
+    }
+}

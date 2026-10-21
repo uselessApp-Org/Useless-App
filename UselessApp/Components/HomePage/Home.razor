@@ -4,6 +4,7 @@
 @using UselessApp.Components.HomePage.Components
 @rendermode InteractiveServer
 @inject MongodbUserService MongodbUserService
+@inject DisplayNameService DisplayNameService
 <PageTitle>Home | UselessApp</PageTitle>
 <section class="hero">
     <div>
@@ -18,27 +19,4 @@
         class="art-chip chip-three">⌕</span><span class="art-caption">A FEW USELESS POSSIBILITIES</span></div>
     </section>
     <ToolShelf />
-    <section class="panel user-panel">
-        <div>
-            <p class="eyebrow">JOIN THE QUESTIONABLE DECISIONS CLUB</p>
-            <h2>Add a user</h2>
-            <p>Create a user record in your connected database.</p>
-        </div>
-        <div class="user-form"><label for="username">Username</label><input id="username" class="form-control"
-                                                                                @bind="newUser.Username" placeholder="Your username" autocomplete="username" /><label
-            for="password">Password</label><input id="password" class="form-control" type="password"
-                                                  @bind="newUser.Password" placeholder="Your password" autocomplete="new-password" /><button
-            class="btn btn-primary" @onclick="AddUser">Add User <span aria-hidden="true">＋</span></button></div>
-        </section>
-@code {
-    private User newUser = new User { Username = string.Empty, Password = string.Empty };
-    private async Task AddUser()
-{
-    await MongodbUserService.AddUserAsync(newUser);
-
-    // Force a clean UI re-render
-    newUser = new User { Username = string.Empty, Password = string.Empty };
-    StateHasChanged();
-}
-
-}
+    

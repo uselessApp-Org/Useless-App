@@ -28,10 +28,13 @@ Welcome to Useless App we hope you find **no real information** while using our 
 ## Database Set-up (should not need this)
 
  'dotnet add package MongoDB.Driver'
+ Create an account on MongoDB so you can access the database and see if the connection went through. 
 
 ## Database Notes
 
  Database may not connect with the connection string,we are currently working on that, if you need to connect to the database let Caleb know
+ 
+ In the appsettings.json file, there is a connection string. DO NOT change this, if that gets changed you will not be able to connect to the database without the connection string changed back.
 ## Setting up Gemini API
 1. Getting API key
    * Go to https://aistudio.google.com/api-keys
