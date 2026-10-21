@@ -27,6 +27,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddHttpClient<GeminiService>();
+builder.Services.AddHttpClient<MerriamWebsterService>();
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())

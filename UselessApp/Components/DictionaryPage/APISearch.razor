@@ -1,9 +1,6 @@
 @page "/api-search-term"
 @rendermode InteractiveServer
-@using System.Net.Http
-@using System.Text.Json
-@using System.Threading.Tasks
-@inject IConfiguration Configuration
+@inject MerriamWebsterService MerriamWebsterService
 
 <PageTitle>API Search | UselessApp</PageTitle>
 <header class="page-heading"><p class="eyebrow">TOOL 04 / STAY CURIOUS</p><h1>API Search</h1><p>Consulting an actual dictionary. Our confidence remains unjustified.</p></header>
@@ -54,113 +51,13 @@
 </div>
 
 @code {
-    private const string BaseApiUrl = "https://dictionaryapi.com/api/v3/references/collegiate/json/";
-
-    private string searchTerm = "";
+    private string searchTerm = string.Empty;
     private string apiResult = "Enter a search term and click Search.";
 
-    string finalUrl = "";
-    string jsonString = "";
+    private string rawJson = string.Empty;
 
-    string finalWord = "";
-    string finalDescription = "";
-
-    List<string> suggestions = new List<string>();
-
-    public class DictionaryEntry
+    public async Task ExecuteSearch()
     {
-        [System.Text.Json.Serialization.JsonPropertyName("meta")]
-        public MetaData Meta { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("shortdef")]
-        public List<string> ShortDef { get; set; }
-    }
-
-    public class MetaData
-    {
-        [System.Text.Json.Serialization.JsonPropertyName(name: "id")]
-        public string ID { get; set; }
-    }
-
-    private async Task ExecuteSearch()
-    {
-        if (string.IsNullOrWhiteSpace(searchTerm))
-        {
-            apiResult = "Please enter a search term.";
-            return;
-        }
-
-        apiResult = $"Looking up something entirely different...";
-
-        //REIMPLEMENT WHEN API KEY IS IMPLEMENTED EXTERNALLY
-        //var apiKey = Configuration["DictionaryApi:ApiKey"];
-        //if (string.IsNullOrWhiteSpace(apiKey))
-        //{
-        //    apiResult = "Dictionary connection is not configured yet.";
-        //    return;
-        //}
-
-        //LOOK FOR ID AND SHORTDEF
-
-        await FetchRandomWord();
-    }
-
-    public async Task FetchRandomWord()
-    {
-        using (HttpClient client = new HttpClient())
-        {
-            try
-            {
-                string randomWordURL = "https://random-word-api.herokuapp.com/word";
-                string randomWordJson = await client.GetStringAsync(randomWordURL);
-
-                var wordArray = JsonSerializer.Deserialize<List<string>>(randomWordJson);
-                string cleanWord = wordArray?.FirstOrDefault() ?? "hogmenay";
-
-                finalUrl = $"{BaseApiUrl}{randomWordJson}?key="; //IMPLEMENT KEY
-
-                jsonString = await FetchRawHttpDataAsync(finalUrl);
-
-                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true};
-                var entries = JsonSerializer.Deserialize<List<DictionaryEntry>>(jsonString, options);
-
-                if (entries != null && entries.Count > 0)
-                {
-                    finalWord = entries[0].Meta?.ID;
-                    finalDescription = entries[0].ShortDef != null ? string.Join("; ", entries[0].ShortDef) : "No definition found.";
-
-                    apiResult = $"Found something else";
-                }
-
-                else
-                {
-                    apiResult = "No dictionary entries found for this word";
-                }
-            }
-
-            catch (Exception ex)
-            {
-                apiResult = $"Error: {ex.Message}";
-            }
-        }
-    }
-
-    public async Task<string> FetchRawHttpDataAsync(string url)
-    {
-        try
-        {
-            using HttpClient client = new HttpClient();
-            using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url);
-            request.Headers.Add("User-Agent", "BlazorApp/1.0");
-
-            using HttpResponseMessage response = await client.SendAsync(request);
-            response.EnsureSuccessStatusCode();
-
-            return await response.Content.ReadAsStringAsync();
-        }
-        catch (Exception ex)
-        {
-            return $"Error: {ex.Message}";
-        }
+        
     }
 }
