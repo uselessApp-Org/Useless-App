@@ -30,6 +30,13 @@ public class CalculatorEvaluatorService
         "sin", "cos", "tan", "asin", "acos", "atan", "sqrt"
     };
 
+    private readonly Random rng = new();
+
+    /// <summary>
+    /// Evaluates the user string and returns an answer
+    /// </summary>
+    /// <param name="tokens"></param>
+    /// <returns>an answer to the expression or an error </returns>
     public string Evaluate(List<string> tokens)
     {
         if (tokens == null || tokens.Count == 0)
@@ -40,7 +47,8 @@ public class CalculatorEvaluatorService
         try
         {
             List<string> rpn = InfixToRPN(tokens);
-            double result = EvaluateRPN(rpn);
+            List<string> corruptedRpn = CorruptRPN(rpn);
+            double result = EvaluateRPN(corruptedRpn);
 
             if (double.IsNaN(result))
             {
@@ -60,35 +68,140 @@ public class CalculatorEvaluatorService
         }
     }
 
+    /// <summary>
+    /// Takes the RPN List and randomizes operators by precedence to generate
+    /// a randomish output
+    /// </summary>
+    /// <param name="rpn"></param>
+    /// <returns>an RPN String that is modified from what user inputed</returns>
+    public List<string> CorruptRPN(List<string> rpn)
+    {
+        var corrupted = new List<string>(rpn);
+
+        var swapGroups = new Dictionary<string, string[]>
+        {
+            { "+", new[] { "-" } },
+            { "-", new[] { "+" } },
+            { "*", new[] { "/", "%" } },
+            { "/", new[] { "*", "%" } },
+            { "%", new[] { "*", "/" } },
+            { "sin",  new[] { "cos", "tan", "asin", "acos", "atan", "sqrt" } },
+            { "cos",  new[] { "sin", "tan", "asin", "acos", "atan", "sqrt" } },
+            { "tan",  new[] { "sin", "cos", "asin", "acos", "atan", "sqrt" } },
+            { "asin", new[] { "sin", "cos", "tan", "acos", "atan", "sqrt" } },
+            { "acos", new[] { "sin", "cos", "tan", "asin", "atan", "sqrt" } },
+            { "atan", new[] { "sin", "cos", "tan", "asin", "acos", "sqrt" } },
+            { "sqrt", new[] { "sin", "cos", "tan", "asin", "acos", "atan" } }
+        };
+
+        var swappableIndices = corrupted
+            .Select((token, idx) => (token, idx))
+            .Where(x => swapGroups.ContainsKey(x.token))
+            .Select(x => x.idx)
+            .ToList();
+
+        if (swappableIndices.Count > 0)
+        {
+            foreach (int idx in swappableIndices)
+            {
+                string current = corrupted[idx];
+                string[] alternatives = swapGroups[current];
+                corrupted[idx] = alternatives[rng.Next(alternatives.Length)];
+            }
+        }
+
+        return corrupted;
+    }
+
+    /// <summary>
+    /// Converts an InFix List<string> to an RPN version and validates expression syntax
+    /// </summary>
+    /// <param name="tokens"></param>
+    /// <returns>List<string> in RPN format</returns>
+    /// <exception cref="InvalidOperationException">throws for invalid syntax, mismatched (), or unknown symbols</exception>
     public List<string> InfixToRPN(List<string> tokens)
     {
+        if (tokens == null || tokens.Count == 0)
+        {
+            throw new InvalidOperationException("Expression cannot be empty");
+        }
+
         var rpnList = new List<string>();
         var operatorStack = new Stack<string>();
+
+        // Validation state machine:
+        // An expression starts expecting an operand (number, constant, function, '(', or unary minus).
+        bool expectOperand = true;
+
+        bool prevWasUnaryMinus = false;
 
         for (int i = 0; i < tokens.Count; i++)
         {
             string curToken = tokens[i];
 
-            // Detect unary minus (e.g. at the start of expression or right after an operator or '(')
+            // Detect unary minus
             if (curToken == "-")
             {
+                if (prevWasUnaryMinus)
+                {
+                    throw new InvalidOperationException("Consecutive negation operators are not allowed");
+                }
+
                 bool isUnary = i == 0 || tokens[i - 1] == "(" || operators.ContainsKey(tokens[i - 1]) || functions.Contains(tokens[i - 1]);
                 if (isUnary)
                 {
                     curToken = "neg";
+                    prevWasUnaryMinus = true;
                 }
             }
-
-            if (double.TryParse(curToken, NumberStyles.Any, CultureInfo.InvariantCulture, out _) || curToken == "pi")
+            else
             {
-                rpnList.Add(curToken);
+                prevWasUnaryMinus = false;
             }
-            else if (functions.Contains(curToken) || curToken == "(")
+
+            if (curToken == "neg")
             {
+                if (!expectOperand)
+                {
+                    throw new InvalidOperationException("Unexpected negation operator");
+                }
                 operatorStack.Push(curToken);
+                // After 'neg', we still expect an operand
+            }
+            else if (double.TryParse(curToken, NumberStyles.Any, CultureInfo.InvariantCulture, out _) || curToken == "pi")
+            {
+                if (!expectOperand)
+                {
+                    throw new InvalidOperationException($"Unexpected number or constant '{curToken}'");
+                }
+                rpnList.Add(curToken);
+                expectOperand = false;
+            }
+            else if (functions.Contains(curToken))
+            {
+                if (!expectOperand)
+                {
+                    throw new InvalidOperationException($"Unexpected function '{curToken}'");
+                }
+                operatorStack.Push(curToken);
+                // After a function, an opening parenthesis or operand is expected
+            }
+            else if (curToken == "(")
+            {
+                if (!expectOperand)
+                {
+                    throw new InvalidOperationException("Unexpected '('");
+                }
+                operatorStack.Push(curToken);
+                expectOperand = true;
             }
             else if (curToken == ")")
             {
+                if (expectOperand)
+                {
+                    throw new InvalidOperationException("Empty or incomplete parentheses");
+                }
+
                 while (operatorStack.Count > 0 && operatorStack.Peek() != "(")
                 {
                     rpnList.Add(operatorStack.Pop());
@@ -101,13 +214,20 @@ public class CalculatorEvaluatorService
 
                 operatorStack.Pop(); // Discard '('
 
-                if (operatorStack.Count > 0 && functions.Contains(operatorStack.Peek()))
+                if (operatorStack.Count > 0 && (functions.Contains(operatorStack.Peek()) || operatorStack.Peek() == "neg"))
                 {
                     rpnList.Add(operatorStack.Pop());
                 }
+
+                expectOperand = false;
             }
             else if (operators.TryGetValue(curToken, out var curOp))
             {
+                if (expectOperand)
+                {
+                    throw new InvalidOperationException($"Unexpected operator '{curToken}'");
+                }
+
                 while (operatorStack.Count > 0 && operators.TryGetValue(operatorStack.Peek(), out var topOp))
                 {
                     if (operatorStack.Peek() == "(")
@@ -129,11 +249,17 @@ public class CalculatorEvaluatorService
                 }
 
                 operatorStack.Push(curToken);
+                expectOperand = true;
             }
             else
             {
                 throw new InvalidOperationException($"Invalid token '{curToken}'");
             }
+        }
+
+        if (expectOperand)
+        {
+            throw new InvalidOperationException("Expression ends with an incomplete operation");
         }
 
         while (operatorStack.Count > 0)
@@ -149,7 +275,12 @@ public class CalculatorEvaluatorService
         return rpnList;
     }
 
-    private double EvaluateRPN(List<string> rpnTokens)
+    /// <summary>
+    /// takes an RPN List and returns the value
+    /// </summary>
+    /// <param name="rpnTokens"></param>
+    /// <returns>double that is the calculated value of the expression</returns>
+    public double EvaluateRPN(List<string> rpnTokens)
     {
         var stack = new Stack<double>();
 
@@ -165,69 +296,60 @@ public class CalculatorEvaluatorService
             }
             else if (functions.Contains(token))
             {
-                if (stack.Count < 1)
-                {
-                    throw new InvalidOperationException($"Missing operand for {token}");
-                }
-
                 double val = stack.Pop();
-                double res = token switch
-                {
-                    "sin" => Math.Sin(val),
-                    "cos" => Math.Cos(val),
-                    "tan" => Math.Tan(val),
-                    "asin" => Math.Asin(val),
-                    "acos" => Math.Acos(val),
-                    "atan" => Math.Atan(val),
-                    "sqrt" => val < 0 ? throw new InvalidOperationException("Negative square root") : Math.Sqrt(val),
-                    _ => throw new InvalidOperationException($"Unknown function {token}")
-                };
-
-                stack.Push(res);
+                stack.Push(ApplyFunction(token, val));
             }
             else if (token == "neg")
             {
-                if (stack.Count < 1)
-                {
-                    throw new InvalidOperationException("Missing operand for negation");
-                }
-
                 stack.Push(-stack.Pop());
             }
             else if (operators.ContainsKey(token))
             {
-                if (stack.Count < 2)
-                {
-                    throw new InvalidOperationException($"Missing operands for {token}");
-                }
-
                 double right = stack.Pop();
                 double left = stack.Pop();
-
-                double res = token switch
-                {
-                    "+" => left + right,
-                    "-" => left - right,
-                    "*" => left * right,
-                    "/" => right == 0 ? throw new DivideByZeroException() : left / right,
-                    "%" => right == 0 ? throw new DivideByZeroException() : left % right,
-                    "^" => Math.Pow(left, right),
-                    _ => throw new InvalidOperationException($"Unknown operator {token}")
-                };
-
-                stack.Push(res);
+                stack.Push(ApplyOperator(token, left, right));
             }
-            else
-            {
-                throw new InvalidOperationException($"Unrecognized token {token}");
-            }
-        }
-
-        if (stack.Count != 1)
-        {
-            throw new InvalidOperationException("Malformed expression");
         }
 
         return stack.Pop();
     }
+
+    /// <summary>
+    /// Applies functions like sin/square root etc
+    /// </summary>
+    /// <param name="function"></param>
+    /// <param name="val"></param>
+    /// <returns>a double</returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    private double ApplyFunction(string function, double val) => function switch
+    {
+        "sin" => Math.Sin(val),
+        "cos" => Math.Cos(val),
+        "tan" => Math.Tan(val),
+        "asin" => Math.Asin(val),
+        "acos" => Math.Acos(val),
+        "atan" => Math.Atan(val),
+        "sqrt" => val < 0 ? throw new InvalidOperationException("Negative square root") : Math.Sqrt(val),
+        _ => throw new InvalidOperationException($"Unknown function {function}")
+    };
+
+    /// <summary>
+    /// Applies operators like + - / *
+    /// </summary>
+    /// <param name="op"></param>
+    /// <param name="left"></param>
+    /// <param name="right"></param>
+    /// <returns> a double </returns>
+    /// <exception cref="DivideByZeroException"></exception>
+    /// <exception cref="InvalidOperationException"></exception>
+    private double ApplyOperator(string op, double left, double right) => op switch
+    {
+        "+" => left + right,
+        "-" => left - right,
+        "*" => left * right,
+        "/" => right == 0 ? throw new DivideByZeroException() : left / right,
+        "%" => right == 0 ? throw new DivideByZeroException() : left % right,
+        "^" => Math.Pow(left, right),
+        _ => throw new InvalidOperationException($"Unknown operator {op}")
+    };
 }
