@@ -23,41 +23,63 @@
         <h2>Search Results</h2>
         <p>@apiResult</p>
 
-        @if (!string.IsNullOrEmpty(finalWord))
+        @if (!string.IsNullOrEmpty(ResultDef))
         {
             <div class="word-card" style="border: 1px solid #444; padding: 15px; border-radius: 8px; background: #222; margin-top: 15px">
-                <h3 style="color: #0d6efd; text-transform: capitalize; margin-top: 0;">@finalWord</h3>
-                <p style="color: white; font-style: italic;">@finalDescription</p>
+                <h3 style="color: #0d6efd; text-transform: capitalize; margin-top: 0;">@ResultString</h3>
+                <p style="color: white; font-style: italic;">@ResultDef</p>
             </div>
         }
 
-        @if (suggestions != null && suggestions.Any())
+        @* @if (defs != null && defs.Any() && )
         {
             <div class="suggestion-card" style="border: 1px solid #ffc107; padding: 15px; border-radius: 8px; background: #332701; margin-top: 15px;">
                 <h4 style="color: #ffc107; margin-top: 0;">Word Not Found. Did you mean?</h4>
                 <ul style="color: white; padding-left: 20px;">
-                    @foreach (var word in suggestions)
+                    @foreach (var word in defs)
                     {
                         <li>@word</li>
                     }
                 </ul>
             </div>
-        }
+        } *@
 
         <hr style="border-color: #444; margin-top: 30px" />
         <h5>Raw JSON Output</h5>
-        <pre role="status" style="background: #111; color: #aaa; padding: 10px; border-radius: 4px; overflow-x: auto; max-height: 200px;">@jsonString</pre>
+        <pre role="status" style="background: #111; color: #aaa; padding: 10px; border-radius: 4px; overflow-x: auto; max-height: 200px;">@rawJson</pre>
     </div>
 </div>
 
 @code {
     private string searchTerm = string.Empty;
+    private List<string> defs = new List<string>();
     private string apiResult = "Enter a search term and click Search.";
-
+    private string ResultString = string.Empty;
+    private string ResultDef = string.Empty;
     private string rawJson = string.Empty;
 
     public async Task ExecuteSearch()
     {
-        
+        apiResult = "Searching...";
+        await MerriamWebsterService.ExecuteSearch();
+
+        ResultString = MerriamWebsterService.ResultString;
+        ResultDef = MerriamWebsterService.ResultDef;
+        rawJson = MerriamWebsterService.RawJson;
+
+        if (!string.IsNullOrEmpty(ResultDef))
+        {
+            // Found a real definition - show it in the word card
+            defs = new List<string> { ResultDef };
+            apiResult = $"Found a definition for \"{searchTerm}\".";
+        }
+        else
+        {
+            // No direct match - OtherResults holds the API suggestions
+            defs = MerriamWebsterService.OtherResults;
+            apiResult = string.IsNullOrEmpty(ResultString)
+                ? "No results found."
+                : "No exact match. Suggestions shown below.";
+        }
     }
 }

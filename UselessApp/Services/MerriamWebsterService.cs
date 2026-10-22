@@ -20,17 +20,19 @@ public class MerriamWebsterService
 {
     private readonly HttpClient _httpClient;
     private readonly string _apiKey = string.Empty;
-    private string ResultString = string.Empty;
+    public string ResultString = string.Empty;
     public string ResultDef = string.Empty;
+    public string RawJson = string.Empty;
+    public List<string> OtherResults = new List<string>();
 
     public MerriamWebsterService(HttpClient httpClient, IConfiguration configuration)
     {
         _httpClient = httpClient;
         _apiKey = configuration["DictionaryApi:ApiKey"]
-            ?? throw new ArgumentNullException("Gemini API key is not configured.");
+            ?? throw new ArgumentNullException("Merriam API key is not configured.");
     }
 
-    public async Task<string> FetchRandomWord()
+    public async Task<(string, List<string>)> FetchRandomWord()
     {
         string randomWordURL = "https://random-word-api.herokuapp.com/word";
         string randomWordJson = await _httpClient.GetStringAsync(randomWordURL);
@@ -38,17 +40,17 @@ public class MerriamWebsterService
         var wordArray = JsonSerializer.Deserialize<List<string>>(randomWordJson);
         string cleanWord = wordArray?.FirstOrDefault() ?? "hogmenay";
 
-        return cleanWord;
+        return (cleanWord, wordArray);
     }
 
     public async Task ExecuteSearch()
     {
-        ResultString = $"Looking up something entirely different...";
 
-        ResultString = await FetchRandomWord();
+        (ResultString, OtherResults) = await FetchRandomWord();
 
         string BaseApiUrl = $"https://dictionaryapi.com/api/v3/references/collegiate/json/{ResultString}?key={_apiKey}";
         ResultString = await FetchRawHttpDataAsync(BaseApiUrl);
+        RawJson = ResultString;
 
         var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
         var results = JsonSerializer.Deserialize<List<DictionaryResult>>(ResultString, options);
