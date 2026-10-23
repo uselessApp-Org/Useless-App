@@ -1,62 +1,123 @@
 @page "/weather"
-@attribute [StreamRendering]
+@rendermode InteractiveServer
 
 <PageTitle>Weather</PageTitle>
 
-<header class="page-heading"><p class="eyebrow">TOOL 02 / THE OUTLOOK</p><h1>Weather</h1><p>A five-day forecast with randomly generated sample data.</p></header>
+<div class="weather-page">
+    <section class="weather-card radar-panel" aria-label="Weather radar">
+        <div class="eyebrow">WEATHER RADAR</div>
+        <div class="radar" aria-hidden="true">
+            <div class="radar-ring ring-one"></div>
+            <div class="radar-ring ring-two"></div>
+            <div class="radar-ring ring-three"></div>
+            <div class="radar-cross"></div>
+            <div class="storm storm-light" style="top: 22%; left: 30%;"></div>
+            <div class="storm storm-medium" style="top: 55%; left: 62%;"></div>
+            <div class="storm storm-heavy" style="top: 60%; left: 66%;"></div>
+            <div class="storm storm-light" style="top: 70%; left: 20%;"></div>
+            <div class="radar-sweep"></div>
+            <div class="radar-center"></div>
+        </div>
+        <p class="radar-caption">Radar is 100% accurate about weather happening somewhere.</p>
+    </section>
 
-@if (forecasts == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <div class="panel table-panel"><table class="table">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th aria-label="Temperature in Celsius">Temp. (C)</th>
-                <th aria-label="Temperature in Fahrenheit">Temp. (F)</th>
-                <th>Summary</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var forecast in forecasts)
+    <section class="weather-card info-panel" aria-label="Current conditions">
+        <div class="eyebrow">CURRENT CONDITIONS</div>
+        <h2 class="location">@location</h2>
+        <p class="updated">Last updated @lastUpdated</p>
+
+        <div class="current-temp">
+            <span class="current-icon" aria-hidden="true">@conditionIcon</span>
+            <span>@(currentTemp)°</span>
+        </div>
+        <p class="condition">@condition</p>
+
+        <dl class="stats">
+            <div>
+                <dt>Humidity</dt>
+                <dd>@(humidity)%</dd>
+            </div>
+            <div>
+                <dt>Wind</dt>
+                <dd>
+                    <span class="wind-arrow" style="transform: rotate(@(windDeg)deg);" aria-hidden="true">↑</span>
+                    @windDirection @windSpeed mph
+                </dd>
+            </div>
+            <div>
+                <dt>Feels like</dt>
+                <dd>@(feelsLike)°</dd>
+            </div>
+        </dl>
+    </section>
+
+    <section class="weather-card forecast-panel" aria-label="Forecast">
+        <div class="forecast-options" role="group" aria-label="Forecast range">
+            <button type="button" class="mode-button" aria-pressed="@(!showDaily)" @onclick="() => SetMode(false)">Hourly</button>
+            <button type="button" class="mode-button" aria-pressed="@showDaily" @onclick="() => SetMode(true)">Daily</button>
+        </div>
+
+        <ul class="forecast-strip">
+            @foreach (var item in showDaily ? daily : hourly)
             {
-                <tr>
-                    <td>@forecast.Date.ToShortDateString()</td>
-                    <td>@forecast.TemperatureC</td>
-                    <td>@forecast.TemperatureF</td>
-                    <td>@forecast.Summary</td>
-                </tr>
+                <li class="forecast-card">
+                    <span class="forecast-label">@item.Label</span>
+                    <span class="forecast-icon" aria-hidden="true">@item.Icon</span>
+                    <span class="forecast-temp">
+                        @(item.Temp)°
+                        @if (item.Low is not null)
+                        {
+                            <small>@(item.Low)°</small>
+                        }
+                    </span>
+                    <span class="forecast-precip">💧 @(item.PrecipChance)%</span>
+                </li>
             }
-        </tbody>
-    </table></div>
-}
+        </ul>
+    </section>
+</div>
 
 @code {
-    private WeatherForecast[]? forecasts;
+    private record ForecastItem(string Label, string Icon, int Temp, int? Low, int PrecipChance);
 
-    protected override async Task OnInitializedAsync()
+    // Sample data until the weather API is wired up
+    private string location = "Menomonie, WI";
+    private string lastUpdated = DateTime.Now.ToString("h:mm tt");
+    private int currentTemp = 58;
+    private string condition = "Partly Indecisive";
+    private string conditionIcon = "⛅";
+    private int humidity = 64;
+    private string windDirection = "NW";
+    private int windDeg = 315;
+    private int windSpeed = 12;
+    private int feelsLike = 55;
+
+    private readonly string[] icons = { "☀", "⛅", "☁", "🌧", "⛈", "🌨" };
+    private List<ForecastItem> hourly = new();
+    private List<ForecastItem> daily = new();
+    private bool showDaily = false;
+
+    protected override void OnInitialized()
     {
-        // Simulate asynchronous loading to demonstrate streaming rendering
-        await Task.Delay(500);
+        var rng = new Random(69);
+        var now = DateTime.Now;
 
-        var startDate = DateOnly.FromDateTime(DateTime.Now);
-        var summaries = new[] { "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching" };
-        forecasts = Enumerable.Range(1, 5).Select(index => new WeatherForecast
+        for (int i = 0; i < 24; i++)
         {
-            Date = startDate.AddDays(index),
-            TemperatureC = Random.Shared.Next(-20, 55),
-            Summary = summaries[Random.Shared.Next(summaries.Length)]
-        }).ToArray();
+            string label = i == 0 ? "Now" : now.AddHours(i).ToString("h tt");
+            hourly.Add(new ForecastItem(label, icons[rng.Next(icons.Length)], rng.Next(45, 66), null, rng.Next(0, 101)));
+        }
+
+        for (int i = 0; i < 7; i++)
+        {
+            string label = i == 0 ? "Today" : now.AddDays(i).ToString("ddd");
+            int high = rng.Next(50, 72);
+            daily.Add(new ForecastItem(label, icons[rng.Next(icons.Length)], high, high - rng.Next(8, 18), rng.Next(0, 101)));
+        }
     }
 
-    private class WeatherForecast
+    private void SetMode(bool daily)
     {
-        public DateOnly Date { get; set; }
-        public int TemperatureC { get; set; }
-        public string? Summary { get; set; }
-        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+        showDaily = daily;
     }
 }
