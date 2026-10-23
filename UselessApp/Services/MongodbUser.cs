@@ -15,17 +15,17 @@ public class MongodbUserService
     public MongodbUserService(IMongoClient client, IOptions<MongoDbSettings> settings)
     {
         try
-{
-    var names = client.ListDatabaseNames().ToList();
-    Console.WriteLine("MongoDB connection SUCCESS");
-    Console.WriteLine("Databases: " + string.Join(", ", names));
-}
-catch (Exception ex)
-{
-    Console.WriteLine("MongoDB connection FAILED: " + ex.Message);
-}
+        {
+            var names = client.ListDatabaseNames().ToList();
+            Console.WriteLine("MongoDB connection SUCCESS");
+            Console.WriteLine("Databases: " + string.Join(", ", names));
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("MongoDB connection FAILED: " + ex.Message);
+        }
 
-    
+
         var db = client.GetDatabase(settings.Value.DatabaseName);
         _user = db.GetCollection<User>("users");
     }
@@ -46,10 +46,10 @@ catch (Exception ex)
         var user = await _user
         .Find(u => u.Username == username)
         .FirstOrDefaultAsync();
-        if (user== null)
-        return null;
+        if (user == null)
+            return null;
         bool isValid = BCrypt.Net.BCrypt.Verify(password, user.Password);
-               return user;
+        return user;
 
     }
 }
