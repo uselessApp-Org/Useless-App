@@ -2,6 +2,11 @@
     display: flex;
     min-height: 100vh
 }
+.login-container {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
 
 .sidebar {
     width: 252px;

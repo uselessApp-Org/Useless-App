@@ -1,0 +1,52 @@
+@page "/signup"
+@using UselessApp.Models
+@using UselessApp.Services
+
+@inject MongodbUserService MongodbUserService
+@inject DisplayNameService DisplayNameService
+@inject  NavigationManager nav
+@rendermode InteractiveServer
+
+
+<section class="panel user-panel">
+        <div>
+            <p class="eyebrow">JOIN THE QUESTIONABLE DECISIONS CLUB</p>
+            <h2>Add a user</h2>
+            <p>Create a user record in your connected database.</p>
+        </div>
+        <div class="user-form"><label for="username">Username</label><input id="username" class="form-control"
+                                                                                @bind="newUser.Username" placeholder="Your username" autocomplete="username" /><label
+            for="password">Password</label><input id="password" class="form-control" type="password"
+                                                  @bind="newUser.Password" placeholder="Your password" autocomplete="new-password" /><label
+            for="displayname">Display Name</label><input id="displayname" class="form-control"
+                                                      @bind="newUser.DisplayName" placeholder="Your display name" />
+            <button class="btn btn-primary" @onclick="AddUser">Add User <span aria-hidden="true">＋</span></button></div>
+        </section>
+@code {
+    private User newUser = new User { Username = string.Empty, Password = string.Empty };
+   private async Task AddUser()
+{
+    // Save new user and get the stored version back
+    var createdUser = await MongodbUserService.AddUserAsync(newUser);
+
+    // Generate a random display name from other users
+    var randomDisplayName = await MongodbUserService.GetRandomDisplayNameAsync(createdUser.Username);
+
+    // If no other users exist, fall back to their own display name
+    await DisplayNameService.SetUserAsync(
+    createdUser.Username,
+    createdUser.DisplayName,
+    randomDisplayName ?? createdUser.DisplayName
+);
+
+    
+
+    // Clear form
+    newUser = new User { Username = string.Empty, Password = string.Empty, DisplayName = string.Empty };
+
+    // Redirect to home page
+    nav.NavigateTo("/");
+}
+
+
+}

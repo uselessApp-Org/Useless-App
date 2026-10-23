@@ -1,0 +1,39 @@
+@inject DisplayNameService DisplayNameService
+@inject  NavigationManager nav
+@rendermode InteractiveServer
+
+<div class="login-container">
+    @if (DisplayNameService.IsLoggedIn)
+    {
+        <span class="user-display">
+            @(DisplayNameService.RandomDisplayName 
+              ?? DisplayNameService.DisplayName 
+              ?? DisplayNameService.Username)
+
+        </span>
+        <a href="#" @onclick="Logout">Logout</a>
+
+    }
+    else
+    {
+        <a href="/signup">Sign Up</a>
+        <a href="/login">Login</a>
+    }
+</div>
+
+@code {
+    private async Task Logout()
+    {
+        await DisplayNameService.LogoutAsync();
+            nav.NavigateTo("/");
+
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            DisplayNameService.OnChange += StateHasChanged;
+            await DisplayNameService.LoadUserAsync();
+        }
+    }
+}

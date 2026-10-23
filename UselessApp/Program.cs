@@ -5,6 +5,8 @@ using MongoDB.Driver;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -71,8 +73,11 @@ builder.Services.AddSingleton<IMongoClient>(sp =>
 });
 
 // Register your data service
-builder.Services.AddSingleton<MongodbUserService>();
-builder.Services.AddSingleton<CalculatorEvaluatorService>();
+builder.Services.AddScoped<MongodbUserService>();
+builder.Services.AddScoped<CalculatorEvaluatorService>();
+
+builder.Services.AddScoped<DisplayNameService>();
+
 
 builder.Services.AddHttpClient("experiments", client => client.Timeout = TimeSpan.FromSeconds(20));
 builder.Services.AddScoped<IExperimentService, ExperimentService>();

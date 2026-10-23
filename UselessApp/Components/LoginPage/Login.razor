@@ -1,7 +1,10 @@
 @page "/login"
 @using UselessApp.Models
 @using UselessApp.Services
+
 @inject MongodbUserService MongodbUserService
+@inject DisplayNameService DisplayNameService
+@inject  NavigationManager nav
 @rendermode InteractiveServer
 
 
@@ -14,27 +17,46 @@
         <div class="user-form"><label for="username">Username</label><input id="username" class="form-control"
                                                                                 @bind="checkUser.Username" placeholder="Your username" autocomplete="username" /><label
             for="password">Password</label><input id="password" class="form-control" type="password"
-                                                  @bind="checkUser.Password" placeholder="Your password" autocomplete="new-password" /><button
+                                                  @bind="checkUser.Password" placeholder="Your password" autocomplete="current-password" /><button
             class="btn btn-primary" @onclick="LoginUser">Login</button></div>
+        @if (!string.IsNullOrEmpty(loginMessage))
+{
+    <p class="loginMessage">@loginMessage</p>
+}
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <p class="error-text">@errorMessage</p>
+}
+
         </section>
 @code {
-    
+
     private User checkUser = new User { Username = string.Empty, Password = string.Empty };
-    private async Task LoginUser()
+    private string loginMessage = string.Empty;
+    private string errorMessage = string.Empty;
+
+   private async Task LoginUser()
 {
-    var result = await MongodbUserService.ValidateLoginAsync(checkUser.Username, checkUser.Password);
+    var (user, randomDisplayName) = await MongodbUserService
+        .ValidateLoginAsync(checkUser.Username, checkUser.Password);
 
-    if (result == null)
+    if (user == null)
     {
-        Console.WriteLine("Invalid username or password");
-    }
-    else
-    {
-        Console.WriteLine($"Welcome, {result.Username}");
+        errorMessage = "Invalid username or password";
+        StateHasChanged();   // force UI update
+        return;              // ← STOP EXECUTION
     }
 
-    checkUser = new User { Username = string.Empty, Password = string.Empty };
-    StateHasChanged();
+    await DisplayNameService.SetUserAsync(
+        user.Username,
+        user.DisplayName,
+        randomDisplayName
+    );
+
+    checkUser = new User { Username = "", Password = "" };
+
+    nav.NavigateTo("/");
 }
 
 }
