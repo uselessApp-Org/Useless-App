@@ -50,6 +50,18 @@ private void NotifyStateChanged() => OnChange?.Invoke();
 
     NotifyStateChanged();
 }
+    public async Task LogoutAsync()
+    {
+        Username = null;
+        DisplayName = null;
+        RandomDisplayName = null;
+
+        await _session.DeleteAsync("username");
+        await _session.DeleteAsync("displayName");
+        await _session.DeleteAsync("randomDisplayName");
+
+        NotifyStateChanged();
+    }
 
    
 }
