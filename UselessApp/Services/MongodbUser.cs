@@ -15,65 +15,86 @@ public class MongodbUserService
     public MongodbUserService(IMongoClient client, IOptions<MongoDbSettings> settings)
     {
         try
-{
-    var names = client.ListDatabaseNames().ToList();
-    Console.WriteLine("MongoDB connection SUCCESS");
-    Console.WriteLine("Databases: " + string.Join(", ", names));
-}
-catch (Exception ex)
-{
-    Console.WriteLine("MongoDB connection FAILED: " + ex.Message);
-}
+        {
+            var names = client.ListDatabaseNames().ToList();
+            Console.WriteLine("MongoDB connection SUCCESS");
+            Console.WriteLine("Databases: " + string.Join(", ", names));
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("MongoDB connection FAILED: " + ex.Message);
+        }
 
-    
+
         var db = client.GetDatabase(settings.Value.DatabaseName);
         _user = db.GetCollection<User>("users");
+
+        var indexKeys = Builders<User>.IndexKeys.Ascending(u => u.Username);
+        var indexOptions = new CreateIndexOptions { Unique = true };
+        var indexModel = new CreateIndexModel<User>(indexKeys, indexOptions);
+        _user.Indexes.CreateOne(indexModel);
+
     }
-public async Task<string?> GetRandomDisplayNameAsync(string currentUsername)
-{
-    var displayNames = await _user
-        .Find(u => u.Username != currentUsername)
-        .Project(u => u.DisplayName)
-        .ToListAsync();
+    public async Task<string?> GetRandomDisplayNameAsync(string currentUsername)
+    {
+        var displayNames = await _user
+            .Find(u => u.Username != currentUsername)
+            .Project(u => u.DisplayName)
+            .ToListAsync();
 
-    if (displayNames.Count == 0)
-        return null;
+        if (displayNames.Count == 0)
+            return null;
 
-    var random = new Random();
-    return displayNames[random.Next(displayNames.Count)];
-}
+        var random = new Random();
+        return displayNames[random.Next(displayNames.Count)];
+    }
 
-public async Task<(User? user, string? randomDisplayName)> ValidateLoginAsync(string username, string password)
-{
-    var user = await _user
-        .Find(u => u.Username == username)
-        .FirstOrDefaultAsync();
+    public async Task<(User? user, string? randomDisplayName)> ValidateLoginAsync(string username, string password)
+    {
+        var user = await _user
+            .Find(u => u.Username == username)
+            .FirstOrDefaultAsync();
 
-    if (user == null)
-        return (null, null);
+        if (user == null)
+            return (null, null);
 
-    bool isValid = BCrypt.Net.BCrypt.Verify(password, user.Password);
-    if (!isValid)
-        return (null, null);
+        bool isValid = BCrypt.Net.BCrypt.Verify(password, user.Password);
+        if (!isValid)
+            return (null, null);
 
-    // Get random display name from other users
-    var randomDisplayName = await GetRandomDisplayNameAsync(username);
+        // Get random display name from other users
+        var randomDisplayName = await GetRandomDisplayNameAsync(username);
 
-    return (user, randomDisplayName);
-}
+        return (user, randomDisplayName);
+    }
 
     public async Task<User> AddUserAsync(User user)
+{
+    Console.WriteLine($"Password received: '{user.Password}'");
 
+    // Check if username already exists
+    var existing = await _user.Find(u => u.Username == user.Username).FirstOrDefaultAsync();
+    if (existing != null)
+        throw new Exception("Username already exists");
+
+    if (string.IsNullOrEmpty(user.Password))
+        throw new ArgumentException("Password cannot be null or empty");
+
+    user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
+
+    try
     {
-        Console.WriteLine($"Password received: '{user.Password}'");
-
-        if (string.IsNullOrEmpty(user.Password))
-            throw new ArgumentException("Password cannot be null or empty");
-        user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
         await _user.InsertOneAsync(user);
-        return user;
     }
-   
-    
-    
+    catch (MongoWriteException ex) when (ex.WriteError.Category == ServerErrorCategory.DuplicateKey)
+    {
+        throw new Exception("Username already exists");
+    }
+
+    return user;
+}
+
+
+
+
 }
