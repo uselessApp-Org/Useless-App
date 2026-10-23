@@ -29,8 +29,40 @@ catch (Exception ex)
         var db = client.GetDatabase(settings.Value.DatabaseName);
         _user = db.GetCollection<User>("users");
     }
+public async Task<string?> GetRandomDisplayNameAsync(string currentUsername)
+{
+    var displayNames = await _user
+        .Find(u => u.Username != currentUsername)
+        .Project(u => u.DisplayName)
+        .ToListAsync();
 
-    public async Task AddUserAsync(User user)
+    if (displayNames.Count == 0)
+        return null;
+
+    var random = new Random();
+    return displayNames[random.Next(displayNames.Count)];
+}
+
+public async Task<(User? user, string? randomDisplayName)> ValidateLoginAsync(string username, string password)
+{
+    var user = await _user
+        .Find(u => u.Username == username)
+        .FirstOrDefaultAsync();
+
+    if (user == null)
+        return (null, null);
+
+    bool isValid = BCrypt.Net.BCrypt.Verify(password, user.Password);
+    if (!isValid)
+        return (null, null);
+
+    // Get random display name from other users
+    var randomDisplayName = await GetRandomDisplayNameAsync(username);
+
+    return (user, randomDisplayName);
+}
+
+    public async Task<User> AddUserAsync(User user)
 
     {
         Console.WriteLine($"Password received: '{user.Password}'");
@@ -39,17 +71,9 @@ catch (Exception ex)
             throw new ArgumentException("Password cannot be null or empty");
         user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
         await _user.InsertOneAsync(user);
+        return user;
     }
-    //Validating Login
-    public async Task<User> ValidateLoginAsync(string username, string password)
-    {
-        var user = await _user
-        .Find(u => u.Username == username)
-        .FirstOrDefaultAsync();
-        if (user== null)
-        return null;
-        bool isValid = BCrypt.Net.BCrypt.Verify(password, user.Password);
-               return user;
-
-    }
+   
+    
+    
 }

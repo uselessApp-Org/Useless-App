@@ -11,4 +11,7 @@ public class User
 
     [BsonElement("Password")]
     public required string Password { get; set; } = "";
+    
+    [BsonElement("DisplayName")]
+    public string DisplayName { get; set; } = "";
 }

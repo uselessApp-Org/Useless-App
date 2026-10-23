@@ -1,0 +1,11 @@
+.loginMessage {
+    color: rgb(0, 203, 254);
+    font-size: 30px;
+    margin-top: 10px;
+}
+
+.error-text {
+    color: red;
+    font-size: 30px;
+    margin-top: 10px;
+}

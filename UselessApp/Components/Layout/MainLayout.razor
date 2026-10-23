@@ -1,10 +1,32 @@
+@namespace UselessApp.Components.Layout
 @inherits LayoutComponentBase
+
+
+@inject DisplayNameService DisplayNameService
+
+
 <div class="page">
     <aside class="sidebar"><NavMenu /></aside>
     <main>
-        <header class="top-row"><span>ALMOST HELPFUL SINCE RIGHT NOW</span><ThemeSelector /><a href="https://github.com/uselessApp-Org/Useless-App" target="_blank" rel="noopener noreferrer">View on GitHub ↗</a></header>
+        <header class="top-row">
+            <span>ALMOST HELPFUL SINCE RIGHT NOW</span>
+
+           
+            <ThemeSelector />
+
+            <Banner />
+        </header>
+
         <article class="content">@Body</article>
-        <footer class="app-footer">UselessApp <span>Results may vary. Mostly in the wrong direction.</span></footer>
+
+        <footer class="app-footer">
+            UselessApp <span>Results may vary. Mostly in the wrong direction.</span>
+            <a href="https://github.com/uselessApp-Org/Useless-App" target="_blank" rel="noopener noreferrer">View on GitHub ↗</a>
+        </footer>
     </main>
 </div>
-<div id="blazor-error-ui" data-nosnippet role="alert">Something went wrong. <a href="." class="reload">Reload</a></div>
+
+<div id="blazor-error-ui" data-nosnippet role="alert">
+    Something went wrong. <a href="." class="reload">Reload</a>
+</div>
+
