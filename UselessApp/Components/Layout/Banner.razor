@@ -1,4 +1,5 @@
 @inject DisplayNameService DisplayNameService
+@inject  NavigationManager nav
 @rendermode InteractiveServer
 
 <div class="login-container">
@@ -8,7 +9,10 @@
             @(DisplayNameService.RandomDisplayName 
               ?? DisplayNameService.DisplayName 
               ?? DisplayNameService.Username)
+
         </span>
+        <a href="#" @onclick="Logout">Logout</a>
+
     }
     else
     {
@@ -18,6 +22,12 @@
 </div>
 
 @code {
+    private async Task Logout()
+    {
+        await DisplayNameService.LogoutAsync();
+            nav.NavigateTo("/");
+
+    }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
