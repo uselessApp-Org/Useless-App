@@ -7,16 +7,14 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 
-
 var builder = WebApplication.CreateBuilder(args);
 
-//Start of google auth configuration
-
-// Add services to the container.
+// ---------------------------
+// GOOGLE AUTH
+// ---------------------------
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-// Configure Cookie Authentication + Google Provider
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie()
     .AddGoogle(options =>
@@ -27,9 +25,35 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 
 builder.Services.AddCascadingAuthenticationState();
 
+// ---------------------------
+// MONGODB + CUSTOM SERVICES
+// ---------------------------
+builder.Services.Configure<MongoDbSettings>(
+    builder.Configuration.GetSection("MongoDB"));
+
+builder.Services.AddSingleton<IMongoClient>(sp =>
+{
+    var cfg = sp.GetRequiredService<IOptions<MongoDbSettings>>().Value;
+    return new MongoClient(cfg.ConnectionString);
+});
+
+builder.Services.AddScoped<MongodbUserService>();
+builder.Services.AddScoped<CalculatorEvaluatorService>();
+builder.Services.AddScoped<DisplayNameService>();
+builder.Services.AddScoped<ProtectedSessionStorage>();
+
+builder.Services.AddHttpClient("experiments", client => client.Timeout = TimeSpan.FromSeconds(20));
+builder.Services.AddScoped<IExperimentService, ExperimentService>();
+builder.Services.AddHttpClient<GeminiService>();
+
+// ---------------------------
+// BUILD APP
+// ---------------------------
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// ---------------------------
+// PIPELINE
+// ---------------------------
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
@@ -40,11 +64,12 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseAntiforgery();
 
-// Essential Middleware
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Map login and logout endpoints
+// ---------------------------
+// AUTH ENDPOINTS
+// ---------------------------
 app.MapGet("/auth/login", (string? returnUrl) =>
     Results.Challenge(
         new AuthenticationProperties { RedirectUri = returnUrl ?? "/" },
@@ -55,59 +80,10 @@ app.MapGet("/auth/logout", () =>
         new AuthenticationProperties { RedirectUri = "/" },
         [CookieAuthenticationDefaults.AuthenticationScheme]));
 
+// ---------------------------
+// RAZOR COMPONENTS
+// ---------------------------
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
-app.Run();
-//End of google auth configuration
-
-// Bind MongoDB settings
-builder.Services.Configure<MongoDbSettings>(
-    builder.Configuration.GetSection("MongoDB"));
-
-// Register MongoClient
-builder.Services.AddSingleton<IMongoClient>(sp =>
-{
-    var cfg = sp.GetRequiredService<IOptions<MongoDbSettings>>().Value;
-    return new MongoClient(cfg.ConnectionString);
-});
-
-// Register your data service
-builder.Services.AddScoped<MongodbUserService>();
-builder.Services.AddScoped<CalculatorEvaluatorService>();
-
-builder.Services.AddScoped<DisplayNameService>();
-
-
-builder.Services.AddHttpClient("experiments", client => client.Timeout = TimeSpan.FromSeconds(20));
-builder.Services.AddScoped<IExperimentService, ExperimentService>();
-
-builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
-
-builder.Services.AddHttpClient<GeminiService>();
-var app = builder.Build();
-
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    app.UseHsts();
-}
-
-app.UseStatusCodePagesWithReExecute("/not-found");
-app.UseHttpsRedirection();
-app.UseAntiforgery();
-app.MapStaticAssets();
-app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode();
-
-app.MapGet("/auth/login", (string? returnUrl) =>
-    Results.Challenge(
-        new AuthenticationProperties { RedirectUri = returnUrl ?? "/" },
-        [GoogleDefaults.AuthenticationScheme]));
-
-app.MapGet("/auth/logout", () =>
-    Results.SignOut(
-        new AuthenticationProperties { RedirectUri = "/" },
-        [CookieAuthenticationDefaults.AuthenticationScheme]));
 app.Run();
