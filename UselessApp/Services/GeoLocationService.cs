@@ -53,7 +53,6 @@ public class GeoLocationService
             LocationString = await response.Content.ReadAsStringAsync();
             if(!string.IsNullOrEmpty(LocationString))
             {
-                // The API wraps matches in a "results" array, which is missing when nothing matches
                 LocationData = JsonSerializer.Deserialize<GeoLocationResponse>(LocationString);
                 return LocationData?.Results?.FirstOrDefault();
             }

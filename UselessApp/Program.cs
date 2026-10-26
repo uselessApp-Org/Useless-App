@@ -21,13 +21,14 @@ builder.Services.AddSingleton<IMongoClient>(sp =>
 builder.Services.AddScoped<MongodbUserService>();
 builder.Services.AddScoped<CalculatorEvaluatorService>();
 builder.Services.AddScoped<DisplayNameService>();
+builder.Services.AddScoped<IExperimentService, ExperimentService>();
 
 
 builder.Services.AddHttpClient("experiments", client => client.Timeout = TimeSpan.FromSeconds(20));
 builder.Services.AddHttpClient<GeoLocationService>();
+builder.Services.AddHttpClient<WeatherService>();
 builder.Services.AddHttpClient<GeminiService>();
 
-builder.Services.AddScoped<IExperimentService, ExperimentService>();
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
