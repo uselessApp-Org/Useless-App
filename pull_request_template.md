@@ -1,5 +1,3 @@
-# {PR TITLE}
-
 [UA-Ticket number](ticket-url)
 ## Description
 -What you did? Why you did it?
