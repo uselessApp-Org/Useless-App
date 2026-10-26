@@ -14,26 +14,21 @@ public class MongodbUserService
 
     public MongodbUserService(IMongoClient client, IOptions<MongoDbSettings> settings)
     {
-        try
-        {
-            var names = client.ListDatabaseNames().ToList();
-            Console.WriteLine("MongoDB connection SUCCESS");
-            Console.WriteLine("Databases: " + string.Join(", ", names));
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("MongoDB connection FAILED: " + ex.Message);
-        }
+       
 
 
-        var db = client.GetDatabase(settings.Value.DatabaseName);
+        var db = client.GetDatabase(settings.Value.DatabaseName, null);
         _user = db.GetCollection<User>("users");
 
-        var indexKeys = Builders<User>.IndexKeys.Ascending(u => u.Username);
-        var indexOptions = new CreateIndexOptions { Unique = true };
-        var indexModel = new CreateIndexModel<User>(indexKeys, indexOptions);
-        _user.Indexes.CreateOne(indexModel);
 
+          
+
+    }
+    public void EnsureIndexes()
+    {
+        var indexKeysDefinition = Builders<User>.IndexKeys.Ascending(u => u.Username);
+        var indexModel = new CreateIndexModel<User>(indexKeysDefinition, new CreateIndexOptions { Unique = true });
+        _user.Indexes.CreateOne(indexModel);
     }
     public async Task<string?> GetRandomDisplayNameAsync(string currentUsername)
     {
@@ -67,14 +62,15 @@ public class MongodbUserService
 
         return (user, randomDisplayName);
     }
-
-    public async Task<User> AddUserAsync(User user)
+public virtual async Task<bool> UserExistsAsync(string username)
 {
-    Console.WriteLine($"Password received: '{user.Password}'");
+    var existing = await _user.Find(u => u.Username == username).FirstOrDefaultAsync();
+    return existing != null;
+}
 
-    // Check if username already exists
-    var existing = await _user.Find(u => u.Username == user.Username).FirstOrDefaultAsync();
-    if (existing != null)
+   public async Task<User> AddUserAsync(User user)
+{
+    if (await UserExistsAsync(user.Username))
         throw new Exception("Username already exists");
 
     if (string.IsNullOrEmpty(user.Password))
@@ -82,14 +78,7 @@ public class MongodbUserService
 
     user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
 
-    try
-    {
-        await _user.InsertOneAsync(user);
-    }
-    catch (MongoWriteException ex) when (ex.WriteError.Category == ServerErrorCategory.DuplicateKey)
-    {
-        throw new Exception("Username already exists");
-    }
+    await _user.InsertOneAsync(user);
 
     return user;
 }
