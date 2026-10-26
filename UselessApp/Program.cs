@@ -2,7 +2,6 @@ using UselessApp.Components;
 using UselessApp.Services;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
-using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,17 +20,18 @@ builder.Services.AddSingleton<IMongoClient>(sp =>
 // Register your data service
 builder.Services.AddScoped<MongodbUserService>();
 builder.Services.AddScoped<CalculatorEvaluatorService>();
-
 builder.Services.AddScoped<DisplayNameService>();
 
 
 builder.Services.AddHttpClient("experiments", client => client.Timeout = TimeSpan.FromSeconds(20));
+builder.Services.AddHttpClient<GeoLocationService>();
+builder.Services.AddHttpClient<GeminiService>();
+
 builder.Services.AddScoped<IExperimentService, ExperimentService>();
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddHttpClient<GeminiService>();
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())

@@ -1,9 +1,5 @@
 using System.Text.Json.Serialization;
-using System;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Threading.Tasks;
+using System.Text.Json;
 public class GeoLocationResponse
 {
     [JsonPropertyName("results")]
@@ -13,25 +9,28 @@ public class GeoLocationResponse
 public class GeoLocationResult
 {
     [JsonPropertyName("id")]
-    public int Id;
+    public int Id { get; set; }
 
     [JsonPropertyName("name")]
-    public string Name = string.Empty;
+    public string Name { get; set; } = string.Empty;
 
     [JsonPropertyName("latitude")]
-    public float Latitude;
+    public float Latitude { get; set; }
 
     [JsonPropertyName("longitude")]
-    public float Longitude;
+    public float Longitude { get; set; }
 
     [JsonPropertyName("country")]
-    public string Country = string.Empty;
+    public string Country { get; set; } = string.Empty;
+
+    [JsonPropertyName("admin1")]
+    public string? Admin1 { get; set; }
 }
 
 public class GeoLocationService
 {
     private readonly HttpClient _httpClient;
-    private readonly string baseURL = "https://geocoding-api.open-meteo.com/v1/search/";
+    private readonly string baseURL = "https://geocoding-api.open-meteo.com/v1/search";
 
     public GeoLocationService(HttpClient httpClient)
     {
@@ -43,12 +42,23 @@ public class GeoLocationService
         if(string.IsNullOrWhiteSpace(City))
             return null;
         
-        string url = $"{baseURL}{City}";
+        string url = $"{baseURL}?name={Uri.EscapeDataString(City.Trim())}&count=1";
 
-        GeoLocationResult LocationData;
+        GeoLocationResponse? LocationData;
+        string LocationString;
         HttpResponseMessage response = await _httpClient.GetAsync(url);
 
         if(response.IsSuccessStatusCode)
-            LocationData = await response.Content.ReadAsAsync<GeoLocationResult>();
+        {
+            LocationString = await response.Content.ReadAsStringAsync();
+            if(!string.IsNullOrEmpty(LocationString))
+            {
+                // The API wraps matches in a "results" array, which is missing when nothing matches
+                LocationData = JsonSerializer.Deserialize<GeoLocationResponse>(LocationString);
+                return LocationData?.Results?.FirstOrDefault();
+            }
+        }
+
+        return null;
     }
 }   

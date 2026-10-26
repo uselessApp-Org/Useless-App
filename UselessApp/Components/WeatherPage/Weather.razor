@@ -1,29 +1,57 @@
 @page "/weather"
 @rendermode InteractiveServer
+@using System.Text.Json
+@using UselessApp.Components.WeatherPage.Components
+@inject GeoLocationService GeoLocation
 
 <PageTitle>Weather</PageTitle>
 
+@if (showLocationPrompt)
+{
+    <div class="location-backdrop">
+        <form class="weather-card location-dialog" role="dialog" aria-modal="true" aria-labelledby="location-title" @onsubmit="SubmitCity">
+            <div class="eyebrow">LOCATION</div>
+            <h2 id="location-title">Where are you?</h2>
+            <p>Enter a city so we can be confidently wrong about your weather.</p>
+
+            <input class="location-input" type="text" placeholder="e.g. Menomonie" aria-label="City name"
+                   @bind="cityInput" @bind:event="oninput" disabled="@isSearching" autofocus />
+
+            @if (locationError is not null)
+            {
+                <p class="location-error" role="alert">@locationError</p>
+            }
+
+            <div class="location-actions">
+                @if (hasLocation)
+                {
+                    <button type="button" class="mode-button" @onclick="() => showLocationPrompt = false">Cancel</button>
+                }
+                <button type="submit" class="mode-button" aria-pressed="true" disabled="@(isSearching || string.IsNullOrWhiteSpace(cityInput))">
+                    @(isSearching ? "Searching..." : "Set location")
+                </button>
+            </div>
+        </form>
+    </div>
+}
+
 <div class="weather-page">
-    <section class="weather-card radar-panel" aria-label="Weather radar">
-        <div class="eyebrow">WEATHER RADAR</div>
-        <div class="radar" aria-hidden="true">
-            <div class="radar-ring ring-one"></div>
-            <div class="radar-ring ring-two"></div>
-            <div class="radar-ring ring-three"></div>
-            <div class="radar-cross"></div>
-            <div class="storm storm-light" style="top: 22%; left: 30%;"></div>
-            <div class="storm storm-medium" style="top: 55%; left: 62%;"></div>
-            <div class="storm storm-heavy" style="top: 60%; left: 66%;"></div>
-            <div class="storm storm-light" style="top: 70%; left: 20%;"></div>
-            <div class="radar-sweep"></div>
-            <div class="radar-center"></div>
-        </div>
-        <p class="radar-caption">Radar is 100% accurate about weather happening somewhere.</p>
+    <section class="weather-card radar-panel" aria-label="Geolocation result">
+        <div class="eyebrow">GEOLOCATION RESULT</div>
+        @if (selectedLocation is null)
+        {
+            <p>No location selected yet.</p>
+        }
+        else
+        {
+            <pre class="location-json">@JsonSerializer.Serialize(selectedLocation, new JsonSerializerOptions { WriteIndented = true })</pre>
+        }
     </section>
 
     <section class="weather-card info-panel" aria-label="Current conditions">
         <div class="eyebrow">CURRENT CONDITIONS</div>
         <h2 class="location">@location</h2>
+        <button type="button" class="change-location" @onclick="OpenLocationPrompt">Change location</button>
         <p class="updated">Last updated @lastUpdated</p>
 
         <div class="current-temp">
@@ -52,34 +80,11 @@
     </section>
 
     <section class="weather-card forecast-panel" aria-label="Forecast">
-        <div class="forecast-options" role="group" aria-label="Forecast range">
-            <button type="button" class="mode-button" aria-pressed="@(!showDaily)" @onclick="() => SetMode(false)">Hourly</button>
-            <button type="button" class="mode-button" aria-pressed="@showDaily" @onclick="() => SetMode(true)">Daily</button>
-        </div>
-
-        <ul class="forecast-strip">
-            @foreach (var item in showDaily ? daily : hourly)
-            {
-                <li class="forecast-card">
-                    <span class="forecast-label">@item.Label</span>
-                    <span class="forecast-icon" aria-hidden="true">@item.Icon</span>
-                    <span class="forecast-temp">
-                        @(item.Temp)°
-                        @if (item.Low is not null)
-                        {
-                            <small>@(item.Low)°</small>
-                        }
-                    </span>
-                    <span class="forecast-precip">💧 @(item.PrecipChance)%</span>
-                </li>
-            }
-        </ul>
+        <ForecastPanel Hourly="hourly" Daily="daily" />
     </section>
 </div>
 
 @code {
-    private record ForecastItem(string Label, string Icon, int Temp, int? Low, int PrecipChance);
-
     // Sample data until the weather API is wired up
     private string location = "Menomonie, WI";
     private string lastUpdated = DateTime.Now.ToString("h:mm tt");
@@ -95,7 +100,14 @@
     private readonly string[] icons = { "☀", "⛅", "☁", "🌧", "⛈", "🌨" };
     private List<ForecastItem> hourly = new();
     private List<ForecastItem> daily = new();
-    private bool showDaily = false;
+
+    // Location prompt
+    private bool showLocationPrompt = true;
+    private bool hasLocation = false;
+    private bool isSearching = false;
+    private string cityInput = string.Empty;
+    private string? locationError;
+    private GeoLocationResult? selectedLocation;
 
     protected override void OnInitialized()
     {
@@ -116,8 +128,45 @@
         }
     }
 
-    private void SetMode(bool daily)
+    private void OpenLocationPrompt()
     {
-        showDaily = daily;
+        cityInput = string.Empty;
+        locationError = null;
+        showLocationPrompt = true;
+    }
+
+    private async Task SubmitCity()
+    {
+        if (string.IsNullOrWhiteSpace(cityInput))
+            return;
+
+        isSearching = true;
+        locationError = null;
+
+        try
+        {
+            var result = await GeoLocation.GetLocationData(cityInput);
+            if (result is null)
+            {
+                locationError = $"Couldn't find \"{cityInput.Trim()}\". Try another city.";
+                return;
+            }
+
+            selectedLocation = result;
+            location = string.IsNullOrEmpty(result.Admin1)
+                ? $"{result.Name}, {result.Country}"
+                : $"{result.Name}, {result.Admin1}";
+            lastUpdated = DateTime.Now.ToString("h:mm tt");
+            hasLocation = true;
+            showLocationPrompt = false;
+        }
+        catch (HttpRequestException)
+        {
+            locationError = "Location lookup failed. Check your connection and try again.";
+        }
+        finally
+        {
+            isSearching = false;
+        }
     }
 }
