@@ -29,7 +29,7 @@
     apply();
     window.uselessPreferences = {
         getTheme: () => theme,
-        getCustomAccent: () => validColor(customColor) ? customColor : "#35a884",
+        getCustomAccent: () => { const color=validColor(customColor) ? customColor : getComputedStyle(document.documentElement).getPropertyValue("--green").trim(); return /^#[0-9a-f]{3}$/i.test(color) ? "#"+color.slice(1).split("").map(c=>c+c).join("") : validColor(color) ? color : "#35a884"; },
         setCustomAccent: value => { if (validColor(value)) {customColor=value;save("useless.customAccent",value);}else{customColor="";try{localStorage.removeItem("useless.customAccent");}catch{}}apply(); },
         setTheme: value => { theme = themes.includes(value) ? value : "midnight"; apply(); save("useless.theme", theme); },
         getSavedColors: savedColors,
@@ -51,22 +51,34 @@
         const f=n=>{const k=(n+h/30)%12;return Math.round((l-a*Math.max(-1,Math.min(k-3,9-k,1)))*255);};
         return rgbToHex(f(0),f(8),f(4));
     };
+    const initializedToggles = new WeakSet();
     const initializeColorEditors = () => document.querySelectorAll('[data-color-editor]').forEach(root => {
-        if(root.dataset.initialized==='true') return;
-        root.dataset.initialized='true';
         const $ = s => root.querySelector(s);
         const panel=$('#accent-panel'),toggle=$('[data-color-toggle]'),hex=$('[data-hex]'),dot=$('[data-accent-dot]'),preview=$('[data-color-preview]');
         const hue=$('[data-hue]'),sat=$('[data-saturation]'),light=$('[data-lightness]'),status=$('[data-color-status]');
         const swatches=$('[data-saved-colors]');
+        const required=[panel,toggle,hex,dot,preview,hue,sat,light,status,swatches,
+            $('[data-color-wheel]'),$('[data-wheel-marker]'),$('[data-color-close]'),
+            $('[data-save-color]'),$('[data-reset-color]'),$('#theme-choice'),
+            $('[data-screen-pick]'),$('[data-image-upload]'),$('[data-image-area]'),
+            $('[data-image-canvas]'),$('[data-close-image]')];
+        if(required.some(element=>!element) || initializedToggles.has(toggle)) return;
+        initializedToggles.add(toggle);
         const notify=text=>status.textContent=text;
-        const updateUI=color=>{
+        const updateUI=(color,sourceHsl)=>{
             hex.value=color;dot.style.backgroundColor=color;preview.style.backgroundColor=color;
-            const hsl=hexToHsl(color);[hue.value,sat.value,light.value]=hsl;
-            hue.style.setProperty('--current-hue',hue.value);
+            const hsl=sourceHsl || hexToHsl(color);[hue.value,sat.value,light.value]=hsl;
+            const [h,s,l]=hsl;
+            hue.style.background=`linear-gradient(to right,${[0,60,120,180,240,300,360].map(v=>`hsl(${v} ${s}% ${l}%)`).join(',')})`;
+            sat.style.background=`linear-gradient(to right,hsl(${h} 0% ${l}%),hsl(${h} 100% ${l}%))`;
+            light.style.background=`linear-gradient(to right,#000,hsl(${h} ${s}% 50%),#fff)`;
+            const wheel=$('[data-color-wheel]'),marker=$('[data-wheel-marker]'),angle=h*Math.PI/180;
+            marker.style.left=`${50+Math.cos(angle)*s/2}%`;marker.style.top=`${50+Math.sin(angle)*s/2}%`;
+            wheel.setAttribute('aria-valuenow',h);wheel.setAttribute('aria-valuetext',`Hue ${h}, saturation ${s}%, lightness ${l}%`);
         };
-        const choose=color=>{
+        const choose=(color,sourceHsl)=>{
             if(!validColor(color)) {notify('Enter a six-digit hex color, like #35a884.');return;}
-            window.uselessPreferences.setCustomAccent(color);updateUI(color);notify('Color applied and saved on this device.');
+            window.uselessPreferences.setCustomAccent(color);updateUI(color,sourceHsl);notify('Color applied and saved on this device.');
         };
         const renderSaved=()=>{
             swatches.replaceChildren();
@@ -80,15 +92,26 @@
         const open=value=>{panel.hidden=!value;toggle.setAttribute('aria-expanded',String(value));if(value){updateUI(window.uselessPreferences.getCustomAccent());renderSaved();}};
         toggle.addEventListener('click',()=>open(panel.hidden));
         $('[data-color-close]').addEventListener('click',()=>open(false));
-        [hue,sat,light].forEach(slider=>slider.addEventListener('input',()=>choose(hslToHex(Number(hue.value),Number(sat.value),Number(light.value)))));
+        [hue,sat,light].forEach(slider=>slider.addEventListener('input',()=>{const hsl=[Number(hue.value),Number(sat.value),Number(light.value)];choose(hslToHex(...hsl),hsl);}));
+        const wheel=$('[data-color-wheel]');
+        const pickWheel=event=>{
+            const rect=wheel.getBoundingClientRect(),dx=(event.clientX-rect.left)/rect.width-.5,dy=(event.clientY-rect.top)/rect.height-.5;
+            choose(hslToHex((Math.atan2(dy,dx)*180/Math.PI+360)%360,Math.min(100,Math.hypot(dx,dy)*200),50));
+        };
+        wheel.addEventListener('pointerdown',event=>{wheel.setPointerCapture(event.pointerId);pickWheel(event);});
+        wheel.addEventListener('pointermove',event=>{if(wheel.hasPointerCapture(event.pointerId))pickWheel(event);});
+        wheel.addEventListener('keydown',event=>{
+            if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.key))return;event.preventDefault();
+            choose(hslToHex((Number(hue.value)+(event.key==='ArrowRight'?3:event.key==='ArrowLeft'?-3:0)+360)%360,Math.max(0,Math.min(100,Number(sat.value)+(event.key==='ArrowUp'?2:event.key==='ArrowDown'?-2:0))),50));
+        });
         hex.addEventListener('change',()=>choose(hex.value.trim()));
         $('[data-save-color]').addEventListener('click',()=>{window.uselessPreferences.saveColor(hex.value);renderSaved();notify('Saved to favorites on this device.');});
-        $('[data-reset-color]').addEventListener('click',()=>{window.uselessPreferences.setCustomAccent('');updateUI('#35a884');notify('Theme default restored.');});
+        $('[data-reset-color]').addEventListener('click',()=>{window.uselessPreferences.setCustomAccent('');updateUI(window.uselessPreferences.getCustomAccent());notify('Theme default restored.');});
         const themeChoice=$('#theme-choice');themeChoice.value=window.uselessPreferences.getTheme();
-        themeChoice.addEventListener('change',()=>window.uselessPreferences.setTheme(themeChoice.value));
+        themeChoice.addEventListener('change',()=>{window.uselessPreferences.setTheme(themeChoice.value);updateUI(window.uselessPreferences.getCustomAccent());});
         const screen=$('[data-screen-pick]');
         {
-            screen.hidden=false;
+            screen.hidden=!(window.isSecureContext && typeof window.EyeDropper === 'function');
             screen.addEventListener('click',async()=>{
                 if(!window.isSecureContext || typeof window.EyeDropper !== 'function') { notify('Screen sampling is not supported by this browser. Choose a photo below and tap a pixel instead.'); return; }
                 try {const result=await new window.EyeDropper().open(); if(result?.sRGBHex) choose(result.sRGBHex);}
@@ -118,9 +141,12 @@
         $('[data-close-image]').addEventListener('click',()=>{area.hidden=true;upload.value='';});
         updateUI(window.uselessPreferences.getCustomAccent());renderSaved();
     });
-    if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',initializeColorEditors);
-    else initializeColorEditors();
-    document.addEventListener('blazor:enhancedload',initializeColorEditors);
-    // Blazor enhanced navigation can replace document attributes.
-    document.addEventListener("blazor:enhancedload", apply);
+    const startColorEditors=()=>{
+        initializeColorEditors();
+        new MutationObserver(initializeColorEditors).observe(document.body,{childList:true,subtree:true});
+        if(window.Blazor?.addEventListener) window.Blazor.addEventListener('enhancedload',()=>{apply();initializeColorEditors();});
+    };
+    if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',startColorEditors,{once:true});
+    else startColorEditors();
+    document.addEventListener('blazor:enhancedload',()=>{apply();initializeColorEditors();});
 })();

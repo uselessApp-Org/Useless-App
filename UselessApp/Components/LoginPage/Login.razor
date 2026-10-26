@@ -38,6 +38,9 @@
 
    private async Task LoginUser()
 {
+    try
+    {
+    errorMessage = string.Empty;
     var (user, randomDisplayName) = await MongodbUserService
         .ValidateLoginAsync(checkUser.Username, checkUser.Password);
 
@@ -57,6 +60,11 @@
     checkUser = new User { Username = "", Password = "" };
 
     nav.NavigateTo("/");
+    }
+    catch (MongoDB.Driver.MongoException)
+    {
+        errorMessage = "Account database unavailable. Check your MongoDB connection string and database credentials. You can still browse the apps.";
+    }
 }
 
 }

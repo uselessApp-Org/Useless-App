@@ -37,7 +37,7 @@ public class CalculatorEvaluatorService
     /// </summary>
     /// <param name="tokens"></param>
     /// <returns>an answer to the expression or an error </returns>
-    public string Evaluate(List<string> tokens)
+    public string Evaluate(List<string> tokens, bool scrambleOperators = true)
     {
         if (tokens == null || tokens.Count == 0)
         {
@@ -47,7 +47,7 @@ public class CalculatorEvaluatorService
         try
         {
             List<string> rpn = InfixToRPN(tokens);
-            List<string> corruptedRpn = CorruptRPN(rpn);
+            List<string> corruptedRpn = scrambleOperators ? CorruptRPN(rpn) : rpn;
             double result = EvaluateRPN(corruptedRpn);
 
             if (double.IsNaN(result))

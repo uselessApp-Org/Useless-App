@@ -21,11 +21,16 @@
             for="displayname">Display Name</label><input id="displayname" class="form-control"
                                                       @bind="newUser.DisplayName" placeholder="Your display name" />
             <button class="btn btn-primary" @onclick="AddUser">Add User <span aria-hidden="true">＋</span></button></div>
+        @if (!string.IsNullOrEmpty(errorMessage)) { <p role="alert">@errorMessage</p> }
         </section>
 @code {
+    private string errorMessage = string.Empty;
     private User newUser = new User { Username = string.Empty, Password = string.Empty };
    private async Task AddUser()
 {
+    try
+    {
+    errorMessage = string.Empty;
     // Save new user and get the stored version back
     var createdUser = await MongodbUserService.AddUserAsync(newUser);
 
@@ -46,6 +51,11 @@
 
     // Redirect to home page
     nav.NavigateTo("/");
+    }
+    catch (MongoDB.Driver.MongoException)
+    {
+        errorMessage = "Account database unavailable. Check your MongoDB connection string and database credentials. You can still browse the apps.";
+    }
 }
 
 

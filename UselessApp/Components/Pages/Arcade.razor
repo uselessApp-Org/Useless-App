@@ -4,7 +4,7 @@
 @inject IJSRuntime JS
 <PageTitle>@Title | UselessApp</PageTitle>
 <header class="page-heading"><p class="eyebrow">THE DEPARTMENT OF PRODUCTIVE NONSENSE</p><h1>@Title</h1><p>@Subtitle</p><a href="/">← All apps</a></header>
-<section class="panel absurd-app">
+<section class="panel absurd-app @(Feature == "calculator" ? "arcade-calculator" : "")">
 @if (Feature == "converter") {
  <h2>Ridiculous Measurements</h2>
  <div class="converter-sentence" aria-label="Convert an amount from one unit to another">
@@ -25,16 +25,35 @@
  @if(conversion is not null){<div class="absurd-result" role="status"><h2>@conversion.Value.ToString("#,##0.##", System.Globalization.CultureInfo.InvariantCulture) @to</h2><p>@amount @from is approximately @conversion.Value.ToString("#,##0.##", System.Globalization.CultureInfo.InvariantCulture) @to.</p><p>@UnitNote</p><h3>Object journey</h3><div class="absurd-journey">@foreach(var i in Enumerable.Range(0,Math.Min(20,(int)Math.Min(20,Math.Ceiling(conversion.Value))))){<span title="One representative object">@UnitEmoji</span>}</div><p class="small-note">Showing up to 20 estimated objects. Values are illustrative, not exact animal/building measurements.</p></div>}
 }
 else if (Feature == "calculator") {
- <h2>Arcade Calculator</h2><label>Game mode<select class="form-control" @bind="calcMode" @bind:after="ResetCalcMode"><option>Catch Me</option><option>Slot Machine</option><option>Math Boss Fight</option></select></label>
+ <div class="calculator-intro"><span class="eyebrow">NUMBERS. WITH CONSEQUENCES.</span><h2>Choose your chaos</h2><p>Catch the answer, chase a jackpot, or take on a math boss.</p></div><label>Game mode<select class="form-control" @bind="calcMode" @bind:after="ResetCalcMode"><option>Catch Me</option><option>Slot Machine</option><option>Math Boss Fight</option></select></label>
  @if(calcMode != "Math Boss Fight"){
-  <label>Expression<input class="form-control" @bind="expression" placeholder="(24 + 6) / 2" /></label>
-  @if(calcMode == "Catch Me") {<label>Difficulty<select class="form-control" @bind="dodgeDifficulty" @bind:after="ResetDodge"><option>Easy</option><option>Medium</option><option>Hard</option><option>Insane</option></select></label><div class="dodge-field"><button class="btn btn-primary runaway" style="transform:translate(@(dodgeX)px,@(dodgeY)px)" @onmouseover="Dodge" @onclick="Calculate">= Catch me!</button></div>}
-  else {<div class="slot-machine"><button class="slot-lever @(leverPulled?"pulled":"")" title="Pull lever" aria-label="Pull slot machine lever" @onclick="Spin">🕹️</button><div class="slot-display @(slotSpins>0?(slotWinner?"slot-correct":"slot-wrong"):"") animated-digits" @key="slotSpins">@slotDisplay</div></div><button class="btn btn-primary" @onclick="Spin">🎰 Spin again</button>@if(slotWinner){<p class="arcade-winner" role="status">WINNER! Correct result!</p>}else if(slotSpins>0){<p role="status">No match this time. Spin again!</p>}<p>Wins: @slotWins / @slotSpins spins · independently 1-in-3 chance per spin</p>}
-  <p class="absurd-result animated-digits" role="status">@calcResult</p>
+  @if(calcMode=="Catch Me"){<label>Expression<input class="form-control" @bind="expression" placeholder="(24 + 6) / 2" /></label>}
+  @if(calcMode == "Catch Me") {<label>Difficulty<select class="form-control" @bind="dodgeDifficulty" @bind:after="ResetDodge"><option>Easy</option><option>Medium</option><option>Hard</option><option>Insane</option></select></label><div class="dodge-field"><button class="btn btn-primary runaway" style="--dodge-x:@(dodgeX)px;--dodge-y:@(dodgeY)px" @onmouseover="Dodge" @onclick="Calculate">= Catch me!</button></div>}
+  else {
+   <div class="slot-cabinet @(slotSpins>0 ? (slotWinner ? "is-jackpot" : "is-miss") : "")">
+    <div class="slot-marquee"><span class="slot-bulb" aria-hidden="true"></span><div><span class="slot-kicker">THE HOUSE ALWAYS ADDS</span><h3>Lucky Numbers</h3></div><span class="slot-bulb" aria-hidden="true"></span></div>
+    <div class="slot-expression"><label for="slot-expression">YOUR EXPRESSION<input id="slot-expression" class="form-control" @bind="expression" @bind:event="oninput" @bind:after="ClearSlotResult" placeholder="(24 + 6) / 2" autocomplete="off" spellcheck="false" /></label></div>
+    <div class="slot-body">
+     <div class="slot-reel-surround">
+      <span class="slot-screen-label">@(slotSpins==0 ? "YOUR ANSWER AWAITS" : slotWinner ? "JACKPOT · CORRECT ANSWER" : "WRONG ANSWER · TRY AGAIN")</span>
+      <div class="slot-readout" @key="slotSpins"><span>@(slotSpins==0 ? "? ? ?" : slotDisplay)</span></div>
+      <div class="slot-screen-footer"><span>CALCULATED CHAOS</span><span aria-hidden="true">✦ ✦ ✦</span></div>
+     </div>
+     <button type="button" class="slot-handle @(leverPulled ? "is-pulled" : "")" @onclick="Spin" aria-label="Pull lever to spin"><span class="slot-handle-knob" aria-hidden="true"></span><span class="slot-handle-stem" aria-hidden="true"></span><span class="slot-handle-base" aria-hidden="true"></span><span class="slot-handle-caption">PULL</span></button>
+    </div>
+    <div class="slot-console">
+     <div class="slot-scoreboard"><div><span>JACKPOTS</span><strong>@slotWins.ToString("D2")</strong></div><div><span>SPINS</span><strong>@slotSpins.ToString("D2")</strong></div><div><span>ODDS</span><strong>1 / 3</strong></div></div>
+     <button type="button" class="slot-spin" @onclick="Spin"><span>SPIN FOR AN ANSWER</span><span aria-hidden="true">↻</span></button>
+     <p class="slot-message" role="status">@(string.IsNullOrEmpty(calcResult) ? "One expression. Three-to-one odds. Questionable mathematics." : calcResult)</p>
+    </div>
+    <div class="slot-cabinet-foot"><span>NO COINS REQUIRED</span><span>NO REFUNDS ON MATH</span></div>
+   </div>
+  }
+  @if(calcMode=="Catch Me"){<p class="absurd-result animated-digits" role="status">@calcResult</p>}
  } else {
   <div class="absurd-row"><label>Boss difficulty<select class="form-control" @bind="bossDifficulty" @bind:after="RestartBattle"><option>Easy</option><option>Normal</option><option>Hard</option><option>Nightmare</option></select></label><label>Answer style<select class="form-control" @bind="bossAnswerMode" @bind:after="NextQuestion"><option>Multiple Choice</option><option>Type Answer</option></select></label></div><h3>Battle @bossLevel: @bossName</h3><div class="absurd-row"><div>🧙 You: @playerHp HP <progress max="100" value="@playerHp"></progress></div><div>👹 Boss: @bossHp HP <progress max="100" value="@bossHp"></progress></div></div>
   <p class="absurd-big">@questionA @questionOperator @questionB = ?</p>
-  @if(bossAnswerMode=="Multiple Choice"){<div class="trivia-options">@foreach(var choice in BossChoices){<button class="btn btn-secondary" @onclick="()=>AttackChoice(choice)">@choice</button>}</div>}else{<div class="absurd-row"><input class="form-control" type="number" @bind="bossAnswer" /><button class="btn btn-primary" @onclick="Attack">Attack</button></div>}<button class="btn btn-secondary" @onclick="RestartBattle">Restart</button>
+  @if(bossAnswerMode=="Multiple Choice"){<div class="trivia-options">@foreach(var choice in BossChoices){<button class="btn btn-secondary" @onclick="()=>AttackChoice(choice)">@choice</button>}</div>}else{<div class="absurd-row"><input class="form-control" type="number" aria-label="Your answer" placeholder="Your answer" @bind="bossAnswer" /><button class="btn btn-primary" @onclick="Attack">Attack</button></div>}<button class="btn btn-secondary" @onclick="RestartBattle">Restart</button>
   <p role="status">@battleMessage</p>
  }
 }
@@ -98,11 +117,12 @@ else {<h2>Page not found</h2><a href="/">Return home</a>}
  private string UnitEmoji=>to.ToLowerInvariant() switch {var x when x.Contains("banana")=>"🍌",var x when x.Contains("eagle")=>"🦅",var x when x.Contains("giraffe")=>"🦒",var x when x.Contains("lion")=>"🦁",var x when x.Contains("whale")=>"🐋",var x when x.Contains("bus")=>"🚌",_=>"📏"};
  private void Convert(){try{var source=AbsurdConversions.Units.First(x=>x.Name.Equals(from,StringComparison.OrdinalIgnoreCase));var target=AbsurdConversions.Units.First(x=>x.Name.Equals(to,StringComparison.OrdinalIgnoreCase));if(amount is null || amount < 0){conversionError="Enter a nonnegative amount.";conversion=null;return;}conversion=AbsurdConversions.Convert(amount.Value,source.Name,target.Name);conversionError="";approved=false;}catch(Exception ex) when(ex is ArgumentException or InvalidOperationException){conversion=null;conversionError="Select compatible known units and a nonnegative amount.";}}
  private string calcMode="Catch Me",expression="12+3",calcResult="",slotDisplay="🎰 🎰 🎰",dodgeDifficulty="Medium";private int dodgeX,dodgeY,slotSpins,slotWins;private bool slotWinner,leverPulled;
- private void ResetCalcMode(){calcResult="";slotDisplay="🎰 🎰 🎰";slotSpins=0;slotWinner=false;dodgeX=0;dodgeY=0;RestartBattle();}
+ private void ResetCalcMode(){calcResult="";slotDisplay="🎰 🎰 🎰";slotSpins=0;slotWins=0;slotWinner=false;dodgeX=0;dodgeY=0;RestartBattle();}
  private void ResetDodge(){dodgeX=0;dodgeY=0;}
  private void Dodge(){var range=dodgeDifficulty switch {"Easy"=>30,"Medium"=>100,"Hard"=>175,_=>260};dodgeX=Random.Shared.Next(-range,range+1);dodgeY=Random.Shared.Next(0,Math.Min(range,115)+1);}
- private string CalculateExpression()=>new CalculatorEvaluatorService().Evaluate(System.Text.RegularExpressions.Regex.Matches(expression.Replace(" ", ""), @"(?:\d+(?:\.\d+)?|\.\d+)|[A-Za-z]+|[+*/%^()\-]").Select(m => m.Value).ToList());
+ private string CalculateExpression()=>new CalculatorEvaluatorService().Evaluate(System.Text.RegularExpressions.Regex.Matches(expression.Replace(" ", ""), @"(?:\d+(?:\.\d+)?|\.\d+)|[A-Za-z]+|[+*/%^()\-]").Select(m => m.Value).ToList(), scrambleOperators: false);
  private void Calculate(){calcResult=CalculateExpression();}
+ private void ClearSlotResult(){slotSpins=0;slotWins=0;slotWinner=false;calcResult="";}
  private void Spin(){var actual=CalculateExpression();if(!double.TryParse(actual,System.Globalization.NumberStyles.Float,System.Globalization.CultureInfo.InvariantCulture,out var answer)){calcResult=actual;return;}leverPulled=!leverPulled;slotWinner=Random.Shared.Next(3)==0;slotSpins++;if(slotWinner)slotWins++;var shown=slotWinner?answer:answer+(Random.Shared.Next(1,10)*(Random.Shared.Next(2)==0?-1:1));slotDisplay=shown.ToString("G8",System.Globalization.CultureInfo.InvariantCulture);calcResult=slotWinner?"Correct! The house briefly respects mathematics.":"Try again to reveal the correct result.";}
  private int playerHp=100,bossHp=100,bossLevel=1,questionA=4,questionB=7;private int? bossAnswer;private char questionOperator='+';private string battleMessage="Answer correctly to damage the boss.";private string bossName=>bossLevel switch {1=>"Addition Goblin",2=>"Subtraction Ogre",3=>"Multiplication Dragon",_=>"The Final Exam"};
  private string bossDifficulty="Normal",bossAnswerMode="Multiple Choice";private int[] BossChoices=[11,12,13,14];
@@ -163,7 +183,8 @@ else {<h2>Page not found</h2><a href="/">Return home</a>}
  ];
  private TrickQuestion CurrentQuestion=>questionBank[questionIndex];private int questionIndex,triviaScore,triviaAttempts;private string[] triviaAnswers=["", "", "", ""];private int triviaOdd;private bool answered;private string triviaFeedback="Choose the most out-of-place answer.";
  protected override void OnInitialized(){NewTrivia();}
- private void NewTrivia(){questionIndex=Random.Shared.Next(questionBank.Length);var q=CurrentQuestion;var shuffled=Enumerable.Range(0,4).OrderBy(_=>Random.Shared.Next()).ToArray();triviaAnswers=shuffled.Select(i=>q.Options[i]).ToArray();triviaOdd=Array.IndexOf(shuffled,q.Odd);answered=false;triviaFeedback="Three fit; one really doesn't.";}
+ private int[] triviaDeck=[];private int triviaCursor;
+ private void NewTrivia(){if(triviaCursor>=triviaDeck.Length){var previous=triviaDeck.Length>0?questionIndex:-1;triviaDeck=Enumerable.Range(0,questionBank.Length).ToArray();Random.Shared.Shuffle(triviaDeck);if(triviaDeck.Length>1&&triviaDeck[0]==previous)(triviaDeck[0],triviaDeck[1])=(triviaDeck[1],triviaDeck[0]);triviaCursor=0;}questionIndex=triviaDeck[triviaCursor++];var q=CurrentQuestion;var shuffled=Enumerable.Range(0,4).ToArray();Random.Shared.Shuffle(shuffled);triviaAnswers=shuffled.Select(i=>q.Options[i]).ToArray();triviaOdd=Array.IndexOf(shuffled,q.Odd);answered=false;triviaFeedback="Three fit; one really doesn't.";}
  private void ChooseTrivia(int choice){if(answered)return;answered=true;triviaAttempts++;if(choice==triviaOdd){triviaScore++;triviaFeedback="Correct! "+CurrentQuestion.Explanation;}else triviaFeedback="Not quite. "+CurrentQuestion.Explanation;}
  private bool[] bubbles=new bool[25];private int pops,sheets,points,totalBubblePoints,combo;private bool goldBubbles,doublePoints;
  private string bubbleMessage="The bubbles are waiting for your highly important work.";

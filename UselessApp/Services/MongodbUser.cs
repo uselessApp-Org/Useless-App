@@ -14,26 +14,16 @@ public class MongodbUserService
 
     public MongodbUserService(IMongoClient client, IOptions<MongoDbSettings> settings)
     {
-        try
-        {
-            var names = client.ListDatabaseNames().ToList();
-            Console.WriteLine("MongoDB connection SUCCESS");
-            Console.WriteLine("Databases: " + string.Join(", ", names));
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("MongoDB connection FAILED: " + ex.Message);
-        }
-
-
         var db = client.GetDatabase(settings.Value.DatabaseName);
         _user = db.GetCollection<User>("users");
 
+    }
+
+    private async Task EnsureIndexesAsync()
+    {
         var indexKeys = Builders<User>.IndexKeys.Ascending(u => u.Username);
         var indexOptions = new CreateIndexOptions { Unique = true };
-        var indexModel = new CreateIndexModel<User>(indexKeys, indexOptions);
-        _user.Indexes.CreateOne(indexModel);
-
+        await _user.Indexes.CreateOneAsync(new CreateIndexModel<User>(indexKeys, indexOptions));
     }
     public async Task<string?> GetRandomDisplayNameAsync(string currentUsername)
     {
@@ -70,7 +60,7 @@ public class MongodbUserService
 
     public async Task<User> AddUserAsync(User user)
 {
-    Console.WriteLine($"Password received: '{user.Password}'");
+    await EnsureIndexesAsync();
 
     // Check if username already exists
     var existing = await _user.Find(u => u.Username == user.Username).FirstOrDefaultAsync();

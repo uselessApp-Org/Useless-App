@@ -99,3 +99,108 @@ input.form-control::placeholder,textarea.form-control::placeholder,
 input[type="text"]::placeholder,input[type="search"]::placeholder {
   color: var(--muted, #555) !important; opacity: 1;
 }
+/* Shared controls follow the active theme, including custom accent contrast. */
+.accent-dot{background:var(--green);flex-shrink:0}
+.accent-wheel{position:relative;width:220px;max-width:100%;aspect-ratio:1;margin:16px auto;border-radius:50%;background:radial-gradient(circle closest-side,#808080,transparent),conic-gradient(from 90deg,red,#ff0,#0f0,#0ff,#00f,#f0f,red);cursor:crosshair;touch-action:none;border:2px solid var(--line)}
+.accent-wheel [data-wheel-marker]{position:absolute;left:50%;top:50%;width:14px;height:14px;border:2px solid white;outline:1px solid #111;border-radius:50%;transform:translate(-50%,-50%);pointer-events:none}
+.accent-advanced summary{cursor:pointer;padding:12px 0;font-weight:600;font-size:13px;color:var(--ink)}
+.accent-slider-row input[type=range]{appearance:none;height:14px;min-height:14px;border-radius:20px;border:1px solid var(--line)}
+.accent-slider-row input[type=range]::-webkit-slider-thumb{appearance:none;width:22px;height:22px;border-radius:50%;background:var(--surface);border:2px solid var(--ink);box-shadow:0 1px 4px #0005}
+.accent-slider-row input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--surface);border:2px solid var(--ink)}
+.category-chooser{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.category-choice{display:flex;align-items:center;gap:14px;text-align:left;min-height:100px;padding:22px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);cursor:pointer;transition:transform .15s,border-color .15s}
+.category-choice strong{font-size:17px;flex:1}.category-choice span{font-size:12px;color:var(--muted)}
+.category-choice:hover{transform:translateY(-3px);border-color:var(--green);background:var(--hero)}
+.category-back{margin-bottom:20px}
+.login-container{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.login-container a,.page-heading>a,.back-link{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:10px 16px;min-height:44px;text-decoration:none;font-size:13px;font-weight:600}
+.login-container a[href='/signup']{background:var(--green);border-color:var(--green);color:var(--button-text)}
+.login-container a:hover,.page-heading>a:hover,.back-link:hover{box-shadow:0 0 0 2px var(--line);text-decoration:underline}
+.rps-choice{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;min-height:200px;padding:26px 12px;border-radius:18px;border:2px solid var(--line);background:var(--surface);color:var(--ink);font-size:22px;cursor:pointer}
+.rps-choice .rps-icon{font-size:72px;line-height:1.2}.rps-choice:hover:enabled{background:var(--hero);border-color:var(--green);transform:translateY(-3px)}
+button:disabled{cursor:not-allowed;opacity:.65}
+@media(max-width:540px){.category-chooser{grid-template-columns:1fr}.rps-choice{min-height:160px;padding:20px 6px;font-size:16px}.rps-choice .rps-icon{font-size:52px}}
+.btn-primary:hover,.btn-primary:focus,.btn-primary:active{filter:none;box-shadow:0 0 0 3px var(--line)}
+
+/* Arcade calculator: roomy game controls and readable themed displays. */
+.arcade-calculator{max-width:960px;padding:clamp(22px,4vw,44px);border-radius:24px;box-shadow:0 12px 32px #0000000a}
+.arcade-calculator .calculator-intro{padding-bottom:24px;margin-bottom:28px;border-bottom:1px solid var(--line)}
+.arcade-calculator .calculator-intro .eyebrow{display:block;color:var(--muted);margin-bottom:12px}
+.arcade-calculator .calculator-intro h2{font-size:clamp(28px,4vw,38px);letter-spacing:-1px;margin:0 0 10px}
+.arcade-calculator .calculator-intro p{margin:0;font-size:16px}
+.arcade-calculator label{display:grid;gap:10px;font-size:14px;font-weight:650;color:var(--ink);margin-bottom:22px;min-width:0}
+.arcade-calculator .form-control{width:100%;min-height:58px;padding:14px 18px;border-radius:12px;font-size:18px;line-height:1.5}
+.arcade-calculator input:not([type=range]){font-family:ui-monospace,Consolas,monospace;font-size:clamp(22px,3vw,30px)}
+.arcade-calculator .btn{min-height:56px;padding:15px 24px;font-size:17px;border-radius:12px}
+.arcade-calculator .absurd-row{display:flex;flex-wrap:wrap;gap:18px;align-items:center;margin:22px 0}
+.arcade-calculator .absurd-row>label,.arcade-calculator .absurd-row>div{flex:1 1 220px}
+.arcade-calculator .absurd-row>input{flex:1 1 180px;width:0;min-width:140px}
+.arcade-calculator .absurd-row>div{padding:18px;border:1px solid var(--line);border-radius:14px;background:var(--field);font-weight:650;font-size:17px}
+.arcade-calculator progress{display:block;width:100%;height:18px;margin-top:14px;accent-color:var(--green);border:0;border-radius:20px;overflow:hidden}
+.arcade-calculator progress::-webkit-progress-bar{background:var(--line);border-radius:20px}
+.arcade-calculator progress::-webkit-progress-value{background:var(--green);border-radius:20px}
+.arcade-calculator progress::-moz-progress-bar{background:var(--green);border-radius:20px}
+.arcade-calculator .absurd-big{padding:32px 18px;border:1px solid var(--line);border-radius:18px;background:var(--field);text-align:center;font:700 clamp(32px,6vw,60px)/1.3 ui-monospace,Consolas,monospace;color:var(--ink);overflow-wrap:anywhere}
+.arcade-calculator .trivia-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:22px 0}
+.arcade-calculator .trivia-options .btn{min-height:90px;font:700 28px ui-monospace,Consolas,monospace;background:var(--field);color:var(--ink);border:2px solid var(--line)}
+.arcade-calculator .trivia-options .btn:hover{border-color:var(--green);background:var(--hero)}
+.arcade-calculator .dodge-field{position:relative;min-height:280px;border:1px dashed var(--line);border-radius:18px;margin:24px 0;background:radial-gradient(circle,var(--line) 1px,transparent 1px) 0 0/18px 18px,var(--field)}
+.arcade-calculator .runaway{position:absolute;top:calc(40px + var(--dodge-y,0px));left:clamp(100px,calc(50% + var(--dodge-x,0px)),calc(100% - 100px));transform:translateX(-50%);min-width:180px;white-space:nowrap}
+.arcade-calculator .slot-machine{display:grid;grid-template-columns:minmax(0,1fr) 88px;align-items:center;gap:18px;padding:24px;margin:28px 0 22px;border:2px solid var(--line);border-radius:22px;background:var(--hero);box-shadow:inset 0 2px 6px #0000000d}
+.arcade-calculator .slot-display{grid-column:1;grid-row:1;min-height:150px;display:grid;place-items:center;padding:20px;border:2px solid var(--line);border-radius:16px;background:var(--surface);color:var(--ink);font:700 clamp(28px,5vw,54px)/1.3 ui-monospace,Consolas,monospace;text-align:center;overflow-wrap:anywhere;min-width:0}
+.arcade-calculator .slot-lever{grid-column:2;grid-row:1;min-height:110px;border:1px solid var(--line);border-radius:18px;background:var(--surface);color:var(--ink);font-size:46px;cursor:pointer;transition:transform .18s}
+.arcade-calculator .slot-lever:hover{background:var(--field);border-color:var(--green)}
+.arcade-calculator .slot-lever.pulled{transform:rotate(12deg)}
+.arcade-calculator .slot-correct{border-color:var(--green);box-shadow:0 0 0 4px var(--line)}
+.arcade-calculator .arcade-winner{font-weight:750;font-size:22px;color:var(--ink)}
+.arcade-calculator .absurd-result:not(:empty),.arcade-calculator>p[role=status]:not(:empty){margin:24px 0 0;padding:20px 24px;border-left:4px solid var(--green);border-radius:12px;background:var(--field);color:var(--ink);font-size:18px;overflow-wrap:anywhere}
+.arcade-calculator .absurd-result:empty{display:none}
+@media(max-width:540px){.arcade-calculator .slot-machine{padding:14px;gap:10px;grid-template-columns:minmax(0,1fr) 60px}.arcade-calculator .slot-lever{font-size:34px;min-height:88px}.arcade-calculator .slot-display{min-height:125px;padding:12px;font-size:26px}.arcade-calculator .btn{font-size:16px}.arcade-calculator .trivia-options .btn{min-height:76px}.arcade-calculator .runaway{min-width:160px;left:clamp(85px,calc(50% + var(--dodge-x,0px)),calc(100% - 85px))}}
+@media(prefers-reduced-motion:reduce){.arcade-calculator .slot-lever{transition:none}}
+
+/* Lucky Numbers cabinet */
+.slot-cabinet{--slot-gold:#f4d795;--slot-dark:#141b24;margin:32px auto 8px;max-width:720px;border:1px solid #536071;border-radius:28px;background:linear-gradient(145deg,#303b4a,#1c2531 55%,#141b24);color:#f5f1e7;box-shadow:0 14px 0 -6px #10161e,0 24px 36px #0003;overflow:hidden}
+.slot-marquee{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:28px 30px;text-align:center;background:linear-gradient(135deg,#493a27,#252a32);border-bottom:1px solid #786445}
+.slot-kicker{font-size:10px;font-weight:750;letter-spacing:3px;color:var(--slot-gold)}
+.arcade-calculator .slot-marquee h3{font-family:Georgia,serif;font-size:clamp(32px,6vw,52px);font-weight:700;letter-spacing:-1px;color:#fff3d4;margin:5px 0 0;text-shadow:0 3px 0 #0005}
+.slot-bulb{width:12px;height:12px;flex-shrink:0;border-radius:50%;background:#ffe4a8;box-shadow:0 0 16px #ffd58988,0 24px 0 #e2b96a,0 -24px 0 #e2b96a}
+.slot-body{display:grid;grid-template-columns:minmax(0,1fr) 62px;gap:20px;padding:30px 26px 22px}
+.slot-reel-surround{min-width:0;padding:16px;border-radius:18px;border:1px solid #647181;background:linear-gradient(#465261,#232d39);box-shadow:inset 0 2px 2px #ffffff18,0 6px 12px #0004}
+.slot-screen-label{display:block;text-align:center;font-size:10px;font-weight:750;letter-spacing:2px;color:#f4d795;margin:0 0 14px}
+.slot-readout{display:flex;align-items:center;justify-content:center;min-height:158px;padding:20px 10px;background:linear-gradient(#d9d8d0,#fffdf4 28%,#fffdf4 72%,#d9d8d0);border:4px solid #10161e;border-radius:10px;box-shadow:inset 0 6px 12px #0003;color:#18222c;text-align:center;overflow:hidden}
+.slot-readout span{font:800 clamp(28px,5vw,62px)/1.2 ui-monospace,Consolas,monospace;letter-spacing:2px;overflow-wrap:anywhere;min-width:0;animation:slot-reveal .3s ease-out}
+.slot-screen-footer{display:flex;justify-content:space-between;gap:10px;margin-top:12px;font-size:9px;font-weight:700;letter-spacing:1.5px;color:#c6cdd6}
+.slot-screen-footer span:last-child{color:var(--slot-gold)}
+.slot-handle{position:relative;align-self:center;height:184px;width:62px;border:0;background:transparent;color:#e3e7ed;cursor:pointer;border-radius:14px}
+.slot-handle-stem{position:absolute;left:27px;top:30px;width:10px;height:106px;background:linear-gradient(90deg,#687585,#f6f8fa,#657181);border-radius:8px;transform-origin:bottom;transition:transform .18s}
+.slot-handle-knob{position:absolute;left:10px;top:8px;width:44px;height:44px;border-radius:50%;background:radial-gradient(circle at 32% 25%,#ffb4a6,#de5847 45%,#862e28);box-shadow:0 4px 8px #0006,inset 0 1px 2px #fff8;z-index:1;transition:transform .18s}
+.slot-handle-base{position:absolute;left:15px;top:117px;width:36px;height:34px;border-radius:10px;background:linear-gradient(135deg,#929ca9,#3d4856);border:2px solid #151c25;box-shadow:0 3px 6px #0005}
+.slot-handle-caption{position:absolute;bottom:6px;left:0;width:100%;font-size:10px;font-weight:700;letter-spacing:2px;color:#c6cdd6}
+.slot-handle:hover .slot-handle-knob,.slot-handle.is-pulled .slot-handle-knob{transform:translateY(20px)}
+.slot-handle:hover .slot-handle-stem,.slot-handle.is-pulled .slot-handle-stem{transform:scaleY(.8)}
+.slot-console{padding:0 30px 20px}
+.slot-scoreboard{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid #435060;border-radius:12px;background:#111923;margin:0 0 22px;padding:16px 0}
+.slot-scoreboard>div{text-align:center;border-right:1px solid #435060}.slot-scoreboard>div:last-child{border-right:0}
+.slot-scoreboard span{display:block;font-size:9px;letter-spacing:2px;font-weight:700;color:#aebac9;margin-bottom:6px}
+.slot-scoreboard strong{font:700 24px ui-monospace,Consolas,monospace;color:#f4d795}
+.slot-spin{display:flex;align-items:center;justify-content:center;gap:20px;width:100%;min-height:70px;padding:18px;border:1px solid var(--green);border-radius:14px;background:var(--green);color:var(--button-text);font-size:15px;font-weight:800;letter-spacing:1px;box-shadow:0 5px 0 #0005,inset 0 1px 0 #ffffff40;cursor:pointer;transition:transform .15s,box-shadow .15s}
+.slot-spin span:last-child{font-size:30px;line-height:1}.slot-spin:hover{transform:translateY(-2px)}.slot-spin:active{transform:translateY(3px);box-shadow:0 1px 0 #0005}
+.arcade-calculator .slot-message{min-height:48px;text-align:center;margin:22px 0 0;font-size:14px;line-height:1.6;color:#d1dae5}
+.slot-cabinet-foot{display:flex;justify-content:space-between;gap:12px;padding:15px 30px;border-top:1px solid #435060;background:#111923;font-size:8px;font-weight:700;letter-spacing:1.5px;color:#aebac9}
+.is-jackpot .slot-reel-surround{border-color:#f4d795;box-shadow:0 0 24px #f4d79533}.is-jackpot .slot-screen-label{color:#fff0bd}
+@keyframes slot-reveal{from{transform:translateY(-35px);opacity:.2}to{transform:translateY(0);opacity:1}}
+@media(max-width:540px){.slot-cabinet{border-radius:20px;margin-top:24px}.slot-marquee{padding:24px 20px}.slot-kicker{letter-spacing:1.5px;font-size:8px}.slot-body{padding:20px 14px;gap:6px;grid-template-columns:minmax(0,1fr) 48px}.slot-handle{width:48px;transform:scale(.85);transform-origin:center}.slot-reel-surround{padding:10px}.slot-readout{min-height:132px;padding:16px 5px}.slot-readout span{font-size:clamp(20px,6vw,32px);letter-spacing:0}.slot-screen-label{font-size:8px;letter-spacing:1px}.slot-screen-footer{font-size:7px;letter-spacing:.5px}.slot-console{padding:0 18px 14px}.slot-spin{font-size:12px;letter-spacing:.5px;gap:10px}.slot-scoreboard strong{font-size:20px}.slot-scoreboard span{font-size:8px;letter-spacing:1px}.slot-cabinet-foot{padding:14px 18px;font-size:7px;letter-spacing:.5px}}
+@media(prefers-reduced-motion:reduce){.slot-readout span{animation:none}.slot-spin,.slot-handle-knob,.slot-handle-stem{transition:none}}
+
+.slot-expression{padding:24px 26px 0}
+.arcade-calculator .slot-expression label{margin:0;gap:12px;color:#d7e0ec;font-size:10px;letter-spacing:2px}
+.arcade-calculator .slot-expression .form-control{background:#111923!important;color:#fff3d4!important;border:1px solid #647181!important;border-radius:12px;font-size:28px;letter-spacing:0;box-shadow:inset 0 3px 8px #0005}
+.arcade-calculator .slot-expression .form-control:focus{outline:2px solid #f4d795;outline-offset:3px}
+.arcade-calculator .slot-expression .form-control::placeholder{color:#aebac9!important}
+.slot-cabinet.is-miss .slot-readout{color:#991b1b;background:linear-gradient(#fecaca,#fff1f2 30%,#fff1f2 70%,#fecaca);border-color:#dc2626}
+.slot-cabinet.is-miss .slot-screen-label,.slot-cabinet.is-miss .slot-message{color:#fca5a5}
+.slot-cabinet.is-miss .slot-reel-surround{border-color:#f87171}
+.slot-cabinet.is-jackpot .slot-readout{color:#166534;background:linear-gradient(#bbf7d0,#f0fdf4 30%,#f0fdf4 70%,#bbf7d0);border-color:#16a34a}
+.slot-cabinet.is-jackpot .slot-screen-label,.slot-cabinet.is-jackpot .slot-message{color:#86efac}
+.slot-cabinet.is-jackpot .slot-reel-surround{border-color:#4ade80;box-shadow:0 0 24px #4ade8033}
+@media(max-width:540px){.slot-expression{padding:20px 14px 0}.arcade-calculator .slot-expression .form-control{font-size:24px}}

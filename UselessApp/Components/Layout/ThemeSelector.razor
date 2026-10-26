@@ -1,7 +1,7 @@
-<div class="theme-picker" data-color-editor>
+<div id="global-theme-picker" class="theme-picker" data-color-editor data-permanent>
     <label for="theme-choice">Theme</label>
     <select id="theme-choice" class="form-control" aria-label="Choose theme">
-        <option value="midnight">Light mode</option><option value="garden">Dark mode</option>
+        <option value="midnight">Dark mode</option><option value="garden">Light mode</option>
         <option value="bubblegum">Bubblegum disaster</option><option value="blueprint">Bad blueprint</option>
         <option value="sunset">Sunset incident</option><option value="terminal">Hacker-ish</option>
         <option value="lavender">Lavender panic</option><option value="coffee">Coffee break</option>
@@ -12,11 +12,13 @@
     </button>
     <section id="accent-panel" class="accent-panel" aria-label="Theme color editor" hidden>
         <div class="accent-panel-head"><strong>Custom accent color</strong><button type="button" class="accent-icon-btn" data-color-close aria-label="Close color editor">✕</button></div>
-        <p class="accent-note">Pick a color right here. Everything works in this webpage on mobile and desktop.</p>
+        <p class="accent-note">Choose a color on the wheel. Open advanced options to fine tune it.</p>
+        <div class="accent-wheel" data-color-wheel role="slider" tabindex="0" aria-label="Color wheel: arrows change hue and saturation" aria-valuemin="0" aria-valuemax="360"><span data-wheel-marker></span></div>
         <div class="accent-color-preview" data-color-preview aria-label="Selected color preview"></div>
+        <details class="accent-advanced"><summary>Advanced color options</summary>
         <div class="accent-slider-row"><label for="accent-hue">Hue</label><input id="accent-hue" data-hue type="range" min="0" max="360" value="160" /></div>
         <div class="accent-slider-row"><label for="accent-saturation">Saturation</label><input id="accent-saturation" data-saturation type="range" min="0" max="100" value="50" /></div>
-        <div class="accent-slider-row"><label for="accent-lightness">Lightness</label><input id="accent-lightness" data-lightness type="range" min="5" max="95" value="44" /></div>
+        <div class="accent-slider-row"><label for="accent-lightness">Lightness</label><input id="accent-lightness" data-lightness type="range" min="0" max="100" value="44" /></div>
         <div class="accent-panel-row"><label for="accent-hex">Hex</label><input id="accent-hex" data-hex class="form-control accent-hex" maxlength="7" placeholder="#35a884" spellcheck="false" autocapitalize="off" autocomplete="off" /></div>
         <div class="accent-panel-row accent-tools">
             <button type="button" class="accent-tool" data-save-color>+ Save</button>
@@ -32,6 +34,7 @@
             <canvas data-image-canvas aria-label="Photo color sampler" tabindex="0"></canvas>
             <button type="button" class="accent-tool" data-close-image>Close photo</button>
         </div>
+        </details>
         <div class="accent-swatch-list" data-saved-colors aria-label="Saved colors"></div>
         <p class="accent-note" role="status" aria-live="polite" data-color-status></p>
     </section>
