@@ -31,6 +31,7 @@ builder.Services.AddAuthentication(options =>
         options.ClientSecret = builder.Configuration["Google:ClientSecret"]!;
 
         // Ensure correlation cookie works smoothly on localhost
+        options.CorrelationCookie.SameSite = SameSiteMode.Lax;
         options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
     });
 
@@ -86,11 +87,19 @@ app.MapGet("/auth/login", (string? returnUrl) =>
         new AuthenticationProperties { RedirectUri = returnUrl ?? "/" },
         [GoogleDefaults.AuthenticationScheme]));
 
-app.MapGet("/auth/logout", () =>
-    Results.SignOut(
-        new AuthenticationProperties { RedirectUri = "/" },
-        [CookieAuthenticationDefaults.AuthenticationScheme]));
+app.MapGet("/auth/logout", async (HttpContext context) =>
+{
+    // Clear the authentication cookie
+    await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
+    // Prevent the browser from caching the logged-in state (BFCache fix)
+    context.Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+    context.Response.Headers["Pragma"] = "no-cache";
+    context.Response.Headers["Expires"] = "0";
+
+    // Force a hard redirect back to home
+    context.Response.Redirect("/login", permanent: false);
+});
 // ---------------------------
 // RAZOR COMPONENTS
 // ---------------------------
