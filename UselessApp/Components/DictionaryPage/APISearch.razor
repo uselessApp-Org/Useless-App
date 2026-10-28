@@ -4,6 +4,8 @@
 @using System.Text.Json
 @using System.Threading.Tasks
 @inject IConfiguration Configuration
+@inject MerriamAPI merriamAPI
+@inject UrbanAPI urbanAPI
 
 <PageTitle>API Search | UselessApp</PageTitle>
 <header class="page-heading"><p class="eyebrow">TOOL 04 / STAY CURIOUS</p><h1>API Search</h1><p>Consulting an actual dictionary. Our confidence remains unjustified.</p></header>
@@ -53,6 +55,22 @@
     </div>
 </div>
 
+<div class="form-group">
+    <label for="myDropdown">Select an API:</label>
+    <select id="myDropdown" class="form-control" @bind="selectedItemValue">
+        <option value="">-- Choose an API --</option>
+        @if (dropdownOptions != null)
+        {
+            @foreach (var option in dropdownOptions)
+            {
+                <option value="@option.Id">@option.Name</option>
+            }
+        }
+    </select>
+</div>
+
+<p>Selected API: @selectedItemValue</p>
+
 @code {
     private const string BaseApiUrl = "https://dictionaryapi.com/api/v3/references/collegiate/json/";
 
@@ -63,26 +81,30 @@
     string jsonString = "";
 
     string finalWord = "";
-    string finalDescription = "";
+    string finalDescription = ""; 
 
     List<string> suggestions = new List<string>();
 
-    public class DictionaryEntry
-    {
-        [System.Text.Json.Serialization.JsonPropertyName("meta")]
-        public MetaData Meta { get; set; }
+    //List<string> results = new List<string>();
 
-        [System.Text.Json.Serialization.JsonPropertyName("shortdef")]
-        public List<string> ShortDef { get; set; }
+    private string selectedItemValue { get; set; } = "Merriam Webster Dictionary";
+
+    private List<DropdownItem> dropdownOptions = new();
+
+    public class DropdownItem
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
     }
 
-    public class MetaData
+    protected override void OnInitialized()
     {
-        [System.Text.Json.Serialization.JsonPropertyName(name: "id")]
-        public string ID { get; set; }
-    }
-
-    private async Task ExecuteSearch()
+        dropdownOptions = new List<DropdownItem>
+        {
+            new DropdownItem { Id = "Merriam Webster Dictionary", Name = "Merriam Webster Dictionary API" },
+            new DropdownItem { Id = "Urban Dictionary", Name = "Urban Dictionary API" }
+        };
+    }    private async Task ExecuteSearch()
     {
         if (string.IsNullOrWhiteSpace(searchTerm))
         {
@@ -92,55 +114,84 @@
 
         apiResult = $"Looking up something entirely different...";
 
-        //REIMPLEMENT WHEN API KEY IS IMPLEMENTED EXTERNALLY
-        //var apiKey = Configuration["DictionaryApi:ApiKey"];
-        //if (string.IsNullOrWhiteSpace(apiKey))
-        //{
-        //    apiResult = "Dictionary connection is not configured yet.";
-        //    return;
-        //}
-
-        //LOOK FOR ID AND SHORTDEF
-
         await FetchRandomWord();
     }
 
     public async Task FetchRandomWord()
     {
-        using (HttpClient client = new HttpClient())
         {
-            try
+            if (selectedItemValue == "Merriam Webster Dictionary")
             {
-                string randomWordURL = "https://random-word-api.herokuapp.com/word";
-                string randomWordJson = await client.GetStringAsync(randomWordURL);
-
-                var wordArray = JsonSerializer.Deserialize<List<string>>(randomWordJson);
-                string cleanWord = wordArray?.FirstOrDefault() ?? "hogmenay";
-
-                finalUrl = $"{BaseApiUrl}{randomWordJson}?key="; //IMPLEMENT KEY
-
-                jsonString = await FetchRawHttpDataAsync(finalUrl);
-
-                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true};
-                var entries = JsonSerializer.Deserialize<List<DictionaryEntry>>(jsonString, options);
-
-                if (entries != null && entries.Count > 0)
+                try
                 {
-                    finalWord = entries[0].Meta?.ID;
-                    finalDescription = entries[0].ShortDef != null ? string.Join("; ", entries[0].ShortDef) : "No definition found.";
+                    string randomWordURL = "https://random-word-api.herokuapp.com/word";
+                    string randomWordJson = await merriamAPI._httpClient.GetStringAsync(randomWordURL);
 
-                    apiResult = $"Found something else";
+                    var wordArray = JsonSerializer.Deserialize<List<string>>(randomWordJson);
+                    string cleanWord = wordArray?.FirstOrDefault() ?? "hogmenay";
+
+                    finalUrl = $"https://dictionaryapi.com/api/v3/references/collegiate/json/{randomWordJson}?key={merriamAPI._apiKey}";
+
+                    jsonString = await FetchRawHttpDataAsync(finalUrl);
+
+                    var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true};
+                    var entries = JsonSerializer.Deserialize<List<DictionaryEntry>>(jsonString, options);
+
+                    if (entries != null && entries.Count > 0)
+                    {
+                        finalWord = entries[0].Meta?.ID;
+                        finalDescription = entries[0].ShortDef != null ? string.Join("; ", entries[0].ShortDef) : "No definition found.";
+
+                        apiResult = $"Found something else";
+                    }
+
+                    else
+                    {
+                        apiResult = "No dictionary entries found for this word";
+                    }
                 }
 
-                else
+                catch (Exception ex)
                 {
-                    apiResult = "No dictionary entries found for this word";
+                    apiResult = $"Error: {ex.Message}";
                 }
             }
 
-            catch (Exception ex)
+            else if (selectedItemValue == "Urban Dictionary")
             {
-                apiResult = $"Error: {ex.Message}";
+                try
+                {
+                    finalUrl = "https://api.urbandictionary.com/v0/random";
+
+                    jsonString = await urbanAPI._httpClient.GetStringAsync(finalUrl);
+
+                    //jsonString = await FetchRawHttpDataAsync(finalUrl);
+
+                    var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true};
+                    var responseObj = JsonSerializer.Deserialize<UrbanDictionaryResponse>(jsonString, options);
+
+                    if (responseObj?.List != null && responseObj.List.Count > 0)
+                    {
+                        var firstEntry = responseObj.List[0];
+
+                        finalWord = firstEntry.Word;
+                        finalDescription = !string.IsNullOrWhiteSpace(firstEntry.Definition) 
+                        ? firstEntry.Definition 
+                        : "No definition found.";
+
+                        apiResult = $"Found something else";
+                    }
+
+                    else
+                    {
+                        apiResult = $"No dictionary entries found for this word";
+                    }
+                } 
+                
+                catch (Exception ex) 
+                {
+                    apiResult = $"Error: {ex.Message}";
+                }
             }
         }
     }
