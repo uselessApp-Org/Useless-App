@@ -3,6 +3,7 @@
 @using System.Text.Json
 @using UselessApp.Components.WeatherPage.Components
 @inject GeoLocationService GeoLocation
+@inject WeatherService WeatherService
 
 <PageTitle>Weather</PageTitle>
 
@@ -45,6 +46,21 @@
         else
         {
             <pre class="location-json">@JsonSerializer.Serialize(selectedLocation, new JsonSerializerOptions { WriteIndented = true })</pre>
+        }
+
+        @* TEMP: raw weather point data for debugging *@
+        <div class="eyebrow">WEATHER POINT DATA</div>
+        @if (weatherPointError is not null)
+        {
+            <p class="location-error">@weatherPointError</p>
+        }
+        else if (weatherPoint is null)
+        {
+            <p>No weather point data yet.</p>
+        }
+        else
+        {
+            <pre class="location-json">@JsonSerializer.Serialize(weatherPoint, new JsonSerializerOptions { WriteIndented = true })</pre>
         }
     </section>
 
@@ -108,6 +124,8 @@
     private string cityInput = string.Empty;
     private string? locationError;
     private GeoLocationResult? selectedLocation;
+    private WeatherProperties? weatherPoint;
+    private string? weatherPointError;
 
     protected override void OnInitialized()
     {
@@ -159,6 +177,9 @@
             lastUpdated = DateTime.Now.ToString("h:mm tt");
             hasLocation = true;
             showLocationPrompt = false;
+
+            // TEMP: fetch weather point data so it can be inspected on the page
+            (weatherPoint, weatherPointError) = await WeatherService.GetWeatherPointData(result.Latitude, result.Longitude);
         }
         catch (HttpRequestException)
         {

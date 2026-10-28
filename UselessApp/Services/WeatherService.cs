@@ -1,11 +1,7 @@
-// first use coords with
-// /points/{latitude},{longitude}
-// this will return a string url for both hourly and daily
-// forecast hourly  forecast daily
-// can also get information for current weather box
-
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
+#region Weather Point Data
 public class WeatherPointsResponse
 {
     [JsonPropertyName("properties")]
@@ -43,11 +39,26 @@ public class AstronomicalData
 
     [JsonPropertyName("sunset")]
     public DateTimeOffset? Sunset { get; set; }
+
+    [JsonPropertyName("civilTwilightBegin")]
+    public DateTimeOffset? Dawn { get; set; }
+
+    [JsonPropertyName("civilTwilightEnd")]
+    public DateTimeOffset? Dusk { get; set; }
 }
+
+#endregion
+
+#region Hourly Weather Data
+
+
+
+#endregion
 
 public class WeatherService
 {
     private readonly HttpClient _httpClient;
+    private readonly string basePointURL = "https://api.weather.gov/points/"; //{latitude, longitude}
 
     public WeatherService(HttpClient httpClient)
     {
@@ -55,8 +66,28 @@ public class WeatherService
         _httpClient.DefaultRequestHeaders.Add("User-Agent", "UselessApp_UWSTOUT_WI");
     }
 
-    public async Task GetWeatherData(float longitude, float latitude)
+    /// <summary>
+    /// Gets Required weather data into classes for use
+    /// </summary>
+    /// <param name="Latitude"></param>
+    /// <param name="Longitude"></param>
+    /// <returns>the class that makes the weater data</returns>
+    public async Task<(WeatherProperties? Properties, string? Error)> GetWeatherPointData(float Latitude, float Longitude)
     {
-        
+        string finalURL = $"{basePointURL}{Latitude},{Longitude}";
+
+        WeatherPointsResponse? PointResponse;
+        string PointResponseString = string.Empty;
+        HttpResponseMessage responseMessage = await _httpClient.GetAsync(finalURL);
+
+        if(!responseMessage.IsSuccessStatusCode)
+        {
+            return (null, $"Error: {(int)responseMessage.StatusCode} {responseMessage.ReasonPhrase}");
+        }
+
+        PointResponseString = await responseMessage.Content.ReadAsStringAsync();
+        PointResponse = JsonSerializer.Deserialize<WeatherPointsResponse>(PointResponseString);
+
+        return (PointResponse?.Properties, null);
     }
 }
