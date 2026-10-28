@@ -71,6 +71,12 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
     app.UseHsts();
 }
+//Mongo Indexs
+using (var scope = app.Services.CreateScope())
+{
+    var userService = scope.ServiceProvider.GetRequiredService<MongodbUserService>();
+    userService.EnsureIndexes();
+}
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
