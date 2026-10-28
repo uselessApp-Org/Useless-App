@@ -30,6 +30,9 @@ builder.Services.AddHttpClient<WeatherService>();
 builder.Services.AddHttpClient<GeminiService>();
 
 
+builder.Services.AddHttpClient<MerriamAPI>();
+builder.Services.AddHttpClient<UrbanAPI>();
+
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
@@ -39,6 +42,12 @@ if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
     app.UseHsts();
+}
+//Mongo Indexs
+using (var scope = app.Services.CreateScope())
+{
+    var userService = scope.ServiceProvider.GetRequiredService<MongodbUserService>();
+    userService.EnsureIndexes();
 }
 
 app.UseStatusCodePagesWithReExecute("/not-found");

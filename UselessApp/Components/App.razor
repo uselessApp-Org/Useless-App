@@ -16,8 +16,10 @@
 
 <body>
     <Routes />
+    <script src="absurd-arcade.js"></script>
+    <script src="arcade-extras.js"></script>
     <script src="_framework/blazor.web.js"></script>
-    <script>Blazor.addEventListener("enhancedload", () => uselessPreferences.setTheme(uselessPreferences.getTheme()));</script>
+    <script>if (window.Blazor && window.uselessPreferences) Blazor.addEventListener("enhancedload", () => { try { uselessPreferences.setTheme(uselessPreferences.getTheme()); } catch (e) { console.warn("Theme refresh:", e); } });</script>
 </body>
 
 </html>

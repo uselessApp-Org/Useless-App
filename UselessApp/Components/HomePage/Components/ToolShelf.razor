@@ -25,25 +25,66 @@
     </section>
     <div class="section-heading"><h3>Current apps</h3><span>The original suspects</span></div>
     <div class="tool-grid">
-        @foreach (var app in VisibleApps.Where(a => a.Route != null))
+        @foreach (var app in VisibleApps.Where(a => a.Route != null && !a.Id.StartsWith("arcade-", StringComparison.Ordinal)))
         {
             @AppCard(app)
         }
     </div>
 </section>
 <section id="other-apps" class="other-apps">
-    <div class="section-heading"><h2>Other apps</h2><span>The experimental department</span></div>
-    <p class="shelf-intro">Try the demos now. External connections can be set up one tool at a time.</p>
-    <div class="tool-grid">
-        @foreach (var app in VisibleApps.Where(a => a.Route == null))
+    <div class="section-heading"><h2>Other apps</h2><span>The experimental department, now organized</span></div>
+    <p class="shelf-intro">Browse by activity. Every app retains its original route and functionality.</p>
+    @if (expandedCategory is null)
+    {
+        <div class="category-chooser">
+            @foreach (var category in OtherAppCategories)
+            {
+                var apps = OtherApps.Where(a => CategoryFor(a) == category.Key).ToArray();
+                @if (apps.Length > 0)
+                {
+                    <button type="button" class="category-choice" @onclick="() => expandedCategory = category.Key">
+                        <strong>@category.Value</strong><span>@apps.Length apps</span><span aria-hidden="true">→</span>
+                    </button>
+                }
+            }
+        </div>
+    }
+    else
+    {
+        <button type="button" class="btn btn-secondary category-back" @onclick="() => expandedCategory = null">← Back to categories</button>
+        @foreach (var category in OtherAppCategories.Where(c => c.Key == expandedCategory))
         {
-            @AppCard(app)
+            <section class="app-category" aria-label="@category.Value">
+                <div class="section-heading"><h3>@category.Value</h3><span>@OtherApps.Count(a => CategoryFor(a) == category.Key) apps</span></div>
+                <div class="tool-grid">
+                    @foreach (var app in OtherApps.Where(a => CategoryFor(a) == category.Key))
+                    {
+                        @AppCard(app)
+                    }
+                </div>
+            </section>
         }
-    </div>
+    }
 </section>
 </div>
 @code {
+    private string? expandedCategory;
+    private static readonly (string Key, string Value)[] OtherAppCategories =
+    [
+        ("games", "Games & Challenges"),
+        ("tools", "Converters & Useful-ish Tools"),
+        ("creative", "Creative & Random"),
+        ("other", "More Experiments")
+    ];
+    private static string CategoryFor(UselessApp.Services.ToolCatalog.AppIdea app) => app.Id switch
+    {
+        "arcade-gym" or "arcade-converter" or "arcade-translator" or "arcade-todo" => "tools",
+        "arcade-captcha" or "arcade-rps" or "arcade-platformer" or "arcade-calculator" or "arcade-counter" or "arcade-trivia" or "arcade-bubbles" or "trivia" => "games",
+        "arcade-travel" or "arcade-sounds" or "arcade-rock" => "creative",
+        _ => "other"
+    };
     private static readonly UselessApp.Services.ToolCatalog.AppIdea[] Apps = UselessApp.Services.ToolCatalog.Apps;
+    private IEnumerable<UselessApp.Services.ToolCatalog.AppIdea> OtherApps => VisibleApps.Where(a => a.Id.StartsWith("arcade-", StringComparison.Ordinal));
     private string query = "";
     private string filter = "all";
     private bool compact;
