@@ -30,7 +30,12 @@ builder.Services.AddAuthentication(options =>
         options.ClientId = builder.Configuration["Google:ClientId"]!;
         options.ClientSecret = builder.Configuration["Google:ClientSecret"]!;
 
-        // Ensure correlation cookie works smoothly on localhost
+        // TEMPORARY DEBUG CHECK:
+        // This logs the first few characters of your Client ID to the Azure log stream 
+        // so you can verify Azure is injecting the environment variable correctly.
+        var clientIdSnippet = options.ClientId.Length > 10 ? options.ClientId.Substring(0, 10) + "..." : "NULL/EMPTY";
+        Console.WriteLine($"[DEBUG] Loaded Google Client ID: {clientIdSnippet}");
+            // Ensure correlation cookie works smoothly on localhost
         options.CorrelationCookie.SameSite = SameSiteMode.Lax;
         options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
     });
