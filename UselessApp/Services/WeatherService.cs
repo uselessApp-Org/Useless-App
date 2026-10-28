@@ -5,7 +5,6 @@
 // can also get information for current weather box
 
 using System.Text.Json.Serialization;
-using System.Text.Json;
 
 public class WeatherPointsResponse
 {
@@ -46,7 +45,18 @@ public class AstronomicalData
     public DateTimeOffset? Sunset { get; set; }
 }
 
-public class WeatherService()
+public class WeatherService
 {
     private readonly HttpClient _httpClient;
+
+    public WeatherService(HttpClient httpClient)
+    {
+        _httpClient = httpClient;
+        _httpClient.DefaultRequestHeaders.Add("User-Agent", "UselessApp_UWSTOUT_WI");
+    }
+
+    public async Task GetWeatherData(float longitude, float latitude)
+    {
+        
+    }
 }
