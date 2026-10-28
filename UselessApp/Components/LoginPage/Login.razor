@@ -44,8 +44,7 @@
     if (user == null)
     {
         errorMessage = "Invalid username or password";
-        StateHasChanged();   // force UI update
-        return;              // ← STOP EXECUTION
+        return;              
     }
 
     await DisplayNameService.SetUserAsync(
