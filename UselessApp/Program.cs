@@ -28,6 +28,9 @@ builder.Services.AddScoped<DisplayNameService>();
 builder.Services.AddHttpClient("experiments", client => client.Timeout = TimeSpan.FromSeconds(20));
 builder.Services.AddScoped<IExperimentService, ExperimentService>();
 
+builder.Services.AddHttpClient<MerriamAPI>();
+builder.Services.AddHttpClient<UrbanAPI>();
+
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
