@@ -1,0 +1,17 @@
+<li class="forecast-card">
+    <span class="forecast-label">@Item.Label</span>
+    <span class="forecast-icon" aria-hidden="true">@Item.Icon</span>
+    <span class="forecast-temp">
+        @(Item.Temp)°
+        @if (Item.Low is not null)
+        {
+            <small>@(Item.Low)°</small>
+        }
+    </span>
+    <span class="forecast-precip">💧 @(Item.PrecipChance)%</span>
+</li>
+
+@code {
+    [Parameter, EditorRequired]
+    public ForecastItem Item { get; set; } = default!;
+}

@@ -14,66 +14,76 @@ public class MongodbUserService
 
     public MongodbUserService(IMongoClient client, IOptions<MongoDbSettings> settings)
     {
-        try
-{
-    var names = client.ListDatabaseNames().ToList();
-    Console.WriteLine("MongoDB connection SUCCESS");
-    Console.WriteLine("Databases: " + string.Join(", ", names));
-}
-catch (Exception ex)
-{
-    Console.WriteLine("MongoDB connection FAILED: " + ex.Message);
-}
+       
 
-    
-        var db = client.GetDatabase(settings.Value.DatabaseName);
+
+        var db = client.GetDatabase(settings.Value.DatabaseName, null);
         _user = db.GetCollection<User>("users");
+
+
+          
+
     }
-public async Task<string?> GetRandomDisplayNameAsync(string currentUsername)
-{
-    var displayNames = await _user
-        .Find(u => u.Username != currentUsername)
-        .Project(u => u.DisplayName)
-        .ToListAsync();
-
-    if (displayNames.Count == 0)
-        return null;
-
-    var random = new Random();
-    return displayNames[random.Next(displayNames.Count)];
-}
-
-public async Task<(User? user, string? randomDisplayName)> ValidateLoginAsync(string username, string password)
-{
-    var user = await _user
-        .Find(u => u.Username == username)
-        .FirstOrDefaultAsync();
-
-    if (user == null)
-        return (null, null);
-
-    bool isValid = BCrypt.Net.BCrypt.Verify(password, user.Password);
-    if (!isValid)
-        return (null, null);
-
-    // Get random display name from other users
-    var randomDisplayName = await GetRandomDisplayNameAsync(username);
-
-    return (user, randomDisplayName);
-}
-
-    public async Task<User> AddUserAsync(User user)
-
+    public void EnsureIndexes()
     {
-        Console.WriteLine($"Password received: '{user.Password}'");
-
-        if (string.IsNullOrEmpty(user.Password))
-            throw new ArgumentException("Password cannot be null or empty");
-        user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
-        await _user.InsertOneAsync(user);
-        return user;
+        var indexKeysDefinition = Builders<User>.IndexKeys.Ascending(u => u.Username);
+        var indexModel = new CreateIndexModel<User>(indexKeysDefinition, new CreateIndexOptions { Unique = true });
+        _user.Indexes.CreateOne(indexModel);
     }
-   
-    
-    
+    public async Task<string?> GetRandomDisplayNameAsync(string currentUsername)
+    {
+        var displayNames = await _user
+            .Find(u => u.Username != currentUsername)
+            .Project(u => u.DisplayName)
+            .ToListAsync();
+
+        if (displayNames.Count == 0)
+            return null;
+
+        var random = new Random();
+        return displayNames[random.Next(displayNames.Count)];
+    }
+
+    public async Task<(User? user, string? randomDisplayName)> ValidateLoginAsync(string username, string password)
+    {
+        var user = await _user
+            .Find(u => u.Username == username)
+            .FirstOrDefaultAsync();
+
+        if (user == null)
+            return (null, null);
+
+        bool isValid = BCrypt.Net.BCrypt.Verify(password, user.Password);
+        if (!isValid)
+            return (null, null);
+
+        // Get random display name from other users
+        var randomDisplayName = await GetRandomDisplayNameAsync(username);
+
+        return (user, randomDisplayName);
+    }
+public virtual async Task<bool> UserExistsAsync(string username)
+{
+    var existing = await _user.Find(u => u.Username == username).FirstOrDefaultAsync();
+    return existing != null;
+}
+
+   public async Task<User> AddUserAsync(User user)
+{
+    if (await UserExistsAsync(user.Username))
+        throw new Exception("Username already exists");
+
+    if (string.IsNullOrEmpty(user.Password))
+        throw new ArgumentException("Password cannot be null or empty");
+
+    user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
+
+    await _user.InsertOneAsync(user);
+
+    return user;
+}
+
+
+
+
 }

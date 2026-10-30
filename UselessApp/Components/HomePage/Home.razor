@@ -2,6 +2,7 @@
 @using UselessApp.Services
 @using UselessApp.Models
 @using UselessApp.Components.HomePage.Components
+@using Microsoft.AspNetCore.Components.Authorization
 @rendermode InteractiveServer
 @inject MongodbUserService MongodbUserService
 @inject DisplayNameService DisplayNameService
@@ -19,4 +20,15 @@
         class="art-chip chip-three">⌕</span><span class="art-caption">A FEW USELESS POSSIBILITIES</span></div>
     </section>
     <ToolShelf />
-    
+@code {
+    private User newUser = new User { Username = string.Empty, Password = string.Empty };
+    private async Task AddUser()
+{
+    await MongodbUserService.AddUserAsync(newUser);
+
+    // Force a clean UI re-render
+    newUser = new User { Username = string.Empty, Password = string.Empty };
+    StateHasChanged();
+}
+
+}

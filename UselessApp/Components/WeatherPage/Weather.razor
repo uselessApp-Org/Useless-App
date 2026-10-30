@@ -1,62 +1,193 @@
 @page "/weather"
-@attribute [StreamRendering]
+@rendermode InteractiveServer
+@using System.Text.Json
+@using UselessApp.Components.WeatherPage.Components
+@inject GeoLocationService GeoLocation
+@inject WeatherService WeatherService
 
 <PageTitle>Weather</PageTitle>
 
-<header class="page-heading"><p class="eyebrow">TOOL 02 / THE OUTLOOK</p><h1>Weather</h1><p>A five-day forecast with randomly generated sample data.</p></header>
+@if (showLocationPrompt)
+{
+    <div class="location-backdrop">
+        <form class="weather-card location-dialog" role="dialog" aria-modal="true" aria-labelledby="location-title" @onsubmit="SubmitCity">
+            <div class="eyebrow">LOCATION</div>
+            <h2 id="location-title">Where are you?</h2>
+            <p>Enter a city so we can be confidently wrong about your weather.</p>
 
-@if (forecasts == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <div class="panel table-panel"><table class="table">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th aria-label="Temperature in Celsius">Temp. (C)</th>
-                <th aria-label="Temperature in Fahrenheit">Temp. (F)</th>
-                <th>Summary</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var forecast in forecasts)
+            <input class="location-input" type="text" placeholder="e.g. Menomonie" aria-label="City name"
+                   @bind="cityInput" @bind:event="oninput" disabled="@isSearching" autofocus />
+
+            @if (locationError is not null)
             {
-                <tr>
-                    <td>@forecast.Date.ToShortDateString()</td>
-                    <td>@forecast.TemperatureC</td>
-                    <td>@forecast.TemperatureF</td>
-                    <td>@forecast.Summary</td>
-                </tr>
+                <p class="location-error" role="alert">@locationError</p>
             }
-        </tbody>
-    </table></div>
+
+            <div class="location-actions">
+                @if (hasLocation)
+                {
+                    <button type="button" class="mode-button" @onclick="() => showLocationPrompt = false">Cancel</button>
+                }
+                <button type="submit" class="mode-button" aria-pressed="true" disabled="@(isSearching || string.IsNullOrWhiteSpace(cityInput))">
+                    @(isSearching ? "Searching..." : "Set location")
+                </button>
+            </div>
+        </form>
+    </div>
 }
+
+<div class="weather-page">
+    <section class="weather-card radar-panel" aria-label="Geolocation result">
+        <div class="eyebrow">GEOLOCATION RESULT</div>
+        @if (selectedLocation is null)
+        {
+            <p>No location selected yet.</p>
+        }
+        else
+        {
+            <pre class="location-json">@JsonSerializer.Serialize(selectedLocation, new JsonSerializerOptions { WriteIndented = true })</pre>
+        }
+
+        @* TEMP: raw weather point data for debugging *@
+        <div class="eyebrow">WEATHER POINT DATA</div>
+        @if (weatherPointError is not null)
+        {
+            <p class="location-error">@weatherPointError</p>
+        }
+        else if (weatherPoint is null)
+        {
+            <p>No weather point data yet.</p>
+        }
+        else
+        {
+            <pre class="location-json">@JsonSerializer.Serialize(weatherPoint, new JsonSerializerOptions { WriteIndented = true })</pre>
+        }
+    </section>
+
+    <section class="weather-card info-panel" aria-label="Current conditions">
+        <div class="eyebrow">CURRENT CONDITIONS</div>
+        <h2 class="location">@location</h2>
+        <button type="button" class="change-location" @onclick="OpenLocationPrompt">Change location</button>
+        <p class="updated">Last updated @lastUpdated</p>
+
+        <div class="current-temp">
+            <span class="current-icon" aria-hidden="true">@conditionIcon</span>
+            <span>@(currentTemp)°</span>
+        </div>
+        <p class="condition">@condition</p>
+
+        <dl class="stats">
+            <div>
+                <dt>Humidity</dt>
+                <dd>@(humidity)%</dd>
+            </div>
+            <div>
+                <dt>Wind</dt>
+                <dd>
+                    <span class="wind-arrow" style="transform: rotate(@(windDeg)deg);" aria-hidden="true">↑</span>
+                    @windDirection @windSpeed mph
+                </dd>
+            </div>
+            <div>
+                <dt>Feels like</dt>
+                <dd>@(feelsLike)°</dd>
+            </div>
+        </dl>
+    </section>
+
+    <section class="weather-card forecast-panel" aria-label="Forecast">
+        <ForecastPanel Hourly="hourly" Daily="daily" />
+    </section>
+</div>
 
 @code {
-    private WeatherForecast[]? forecasts;
+    // Sample data until the weather API is wired up
+    private string location = "Menomonie, WI";
+    private string lastUpdated = DateTime.Now.ToString("h:mm tt");
+    private int currentTemp = 58;
+    private string condition = "Partly Indecisive";
+    private string conditionIcon = "⛅";
+    private int humidity = 64;
+    private string windDirection = "NW";
+    private int windDeg = 315;
+    private int windSpeed = 12;
+    private int feelsLike = 55;
 
-    protected override async Task OnInitializedAsync()
+    private readonly string[] icons = { "☀", "⛅", "☁", "🌧", "⛈", "🌨" };
+    private List<ForecastItem> hourly = new();
+    private List<ForecastItem> daily = new();
+
+    // Location prompt
+    private bool showLocationPrompt = true;
+    private bool hasLocation = false;
+    private bool isSearching = false;
+    private string cityInput = string.Empty;
+    private string? locationError;
+    private GeoLocationResult? selectedLocation;
+    private WeatherProperties? weatherPoint;
+    private string? weatherPointError;
+
+    protected override void OnInitialized()
     {
-        // Simulate asynchronous loading to demonstrate streaming rendering
-        await Task.Delay(500);
+        var rng = new Random(69);
+        var now = DateTime.Now;
 
-        var startDate = DateOnly.FromDateTime(DateTime.Now);
-        var summaries = new[] { "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching" };
-        forecasts = Enumerable.Range(1, 5).Select(index => new WeatherForecast
+        for (int i = 0; i < 24; i++)
         {
-            Date = startDate.AddDays(index),
-            TemperatureC = Random.Shared.Next(-20, 55),
-            Summary = summaries[Random.Shared.Next(summaries.Length)]
-        }).ToArray();
+            string label = i == 0 ? "Now" : now.AddHours(i).ToString("h tt");
+            hourly.Add(new ForecastItem(label, icons[rng.Next(icons.Length)], rng.Next(45, 66), null, rng.Next(0, 101)));
+        }
+
+        for (int i = 0; i < 7; i++)
+        {
+            string label = i == 0 ? "Today" : now.AddDays(i).ToString("ddd");
+            int high = rng.Next(50, 72);
+            daily.Add(new ForecastItem(label, icons[rng.Next(icons.Length)], high, high - rng.Next(8, 18), rng.Next(0, 101)));
+        }
     }
 
-    private class WeatherForecast
+    private void OpenLocationPrompt()
     {
-        public DateOnly Date { get; set; }
-        public int TemperatureC { get; set; }
-        public string? Summary { get; set; }
-        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+        cityInput = string.Empty;
+        locationError = null;
+        showLocationPrompt = true;
+    }
+
+    private async Task SubmitCity()
+    {
+        if (string.IsNullOrWhiteSpace(cityInput))
+            return;
+
+        isSearching = true;
+        locationError = null;
+
+        try
+        {
+            var result = await GeoLocation.GetLocationData(cityInput);
+            if (result is null)
+            {
+                locationError = $"Couldn't find \"{cityInput.Trim()}\". Try another city.";
+                return;
+            }
+
+            selectedLocation = result;
+            location = string.IsNullOrEmpty(result.Admin1)
+                ? $"{result.Name}, {result.Country}"
+                : $"{result.Name}, {result.Admin1}";
+            lastUpdated = DateTime.Now.ToString("h:mm tt");
+            hasLocation = true;
+            showLocationPrompt = false;
+
+            // TEMP: fetch weather point data so it can be inspected on the page
+            (weatherPoint, weatherPointError) = await WeatherService.GetWeatherPointData(result.Latitude, result.Longitude);
+        }
+        catch (HttpRequestException)
+        {
+            locationError = "Location lookup failed. Check your connection and try again.";
+        }
+        finally
+        {
+            isSearching = false;
+        }
     }
 }
