@@ -17,27 +17,30 @@
     
     <div class="user-form">
         <label for="username">Username</label>
-        <input id="username" class="form-control" @bind="checkUser.Username" placeholder="Your username" autocomplete="username" />
+        <input id="username" class="form-control" @bind="checkUser.Username" placeholder="Your username"
+               autocomplete="username" />
         
         <label for="password">Password</label>
-        <input id="password" class="form-control" type="password" @bind="checkUser.Password" placeholder="Your password" autocomplete="current-password" />
+        <input id="password" class="form-control" type="password" @bind="checkUser.Password" placeholder="Your password"
+               autocomplete="current-password" />
 
-    <AuthorizeView>
-        <Authorized>
-            <div class="alert alert-success d-flex align-items-center justify-content-between mt-3" role="alert" style="max-width: 400px;">
-                <span>You are logged in as <strong>@context.User.Identity?.Name</strong></span>
+        <AuthorizeView>
+            <Authorized>
+                <div class="alert alert-success d-flex align-items-center justify-content-between mt-3" role="alert"
+                     style="max-width: 400px;">
+                    <span>You are logged in as <strong>@context.User.Identity?.Name</strong></span>
                 
-                <!-- Change this from an <a> tag to a button with forceLoad -->
-                <button class="btn btn-outline-danger btn-sm" @onclick="LogoutUser">Sign Out</button>
-            </div>
-        </Authorized>
-        <NotAuthorized>
-            <div class="d-flex gap-2 align-items-center mt-3">
-                <button class="btn btn-primary" @onclick="LoginUser">Login</button>
-                <a href="/auth/login" class="btn btn-outline-primary">Sign in with Google</a>
-            </div>
-        </NotAuthorized>
-    </AuthorizeView>
+                    <!-- Change this from an <a> tag to a button with forceLoad -->
+                    <button class="btn btn-outline-danger btn-sm" @onclick="LogoutUser">Sign Out</button>
+                </div>
+            </Authorized>
+            <NotAuthorized>
+                <div class="d-flex gap-2 align-items-center mt-3">
+                    <button class="btn btn-primary" @onclick="LoginUser">Login</button>
+                    <a href="/auth/login" class="btn btn-outline-primary">Sign in with Google</a>
+                </div>
+            </NotAuthorized>
+        </AuthorizeView>
     </div>
 
     @if (!string.IsNullOrEmpty(loginMessage))
@@ -64,8 +67,7 @@
         if (user == null)
         {
             errorMessage = "Invalid username or password";
-            StateHasChanged();   // force UI update
-            return;              // ← STOP EXECUTION
+            return; // ← STOP EXECUTION
         }
 
         await DisplayNameService.SetUserAsync(
@@ -79,8 +81,8 @@
         nav.NavigateTo("/");
     }
     private void LogoutUser()
-{
-    // forceLoad: true completely destroys the Blazor circuit and forces a hard browser reload
-    nav.NavigateTo("/auth/logout", forceLoad: true);
-}
+    {
+        // forceLoad: true completely destroys the Blazor circuit and forces a hard browser reload
+        nav.NavigateTo("/auth/logout", forceLoad: true);
+    }
 }
