@@ -9,34 +9,23 @@ using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// A missing database is allowed only for local Development previews.
-var localPreview = builder.Environment.IsDevelopment()
-    && (builder.Configuration.GetValue<bool>("LocalPreview")
-        || string.IsNullOrWhiteSpace(builder.Configuration["MongoDB:ConnectionString"])
-        || builder.Configuration["MongoDB:ConnectionString"] == "YOUR_CONNECTION_STRING");
-
 // ---------------------------
 // GOOGLE AUTH
 // ---------------------------
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-var authentication = builder.Services.AddAuthentication(options =>
+builder.Services.AddAuthentication(options =>
 {
     options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = localPreview
-        ? CookieAuthenticationDefaults.AuthenticationScheme
-        : GoogleDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
 })
 .AddCookie(options =>
 {
     // Allow cookies over HTTP for local testing
     options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
-});
-
-if (!localPreview)
-{
-    authentication.AddGoogle(options =>
+})
+    .AddGoogle(options =>
     {
         options.ClientId = builder.Configuration["Google:ClientId"]!;
         options.ClientSecret = builder.Configuration["Google:ClientSecret"]!;
@@ -45,7 +34,6 @@ if (!localPreview)
         options.CorrelationCookie.SameSite = SameSiteMode.Lax;
         options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
     });
-}
 
 builder.Services.AddCascadingAuthenticationState();
 
@@ -54,17 +42,6 @@ builder.Services.AddCascadingAuthenticationState();
 // ---------------------------
 builder.Services.Configure<MongoDbSettings>(
     builder.Configuration.GetSection("MongoDB"));
-
-if (localPreview)
-{
-    // Construct collection handles for existing component injection without
-    // contacting a database. Account routes are unavailable in this mode.
-    builder.Services.PostConfigure<MongoDbSettings>(settings =>
-    {
-        settings.ConnectionString = "mongodb://127.0.0.1:27017/?serverSelectionTimeoutMS=1000";
-        settings.DatabaseName = "LocalPreview";
-    });
-}
 
 builder.Services.AddSingleton<IMongoClient>(sp =>
 {
@@ -107,35 +84,13 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 //Mongo Indexs
-if (!localPreview)
 using (var scope = app.Services.CreateScope())
 {
     var userService = scope.ServiceProvider.GetRequiredService<MongodbUserService>();
     userService.EnsureIndexes();
 }
 
-if (localPreview)
-{
-    app.Logger.LogWarning("Local preview: MongoDB is not configured. Account features are unavailable.");
-    app.Use(async (context, next) =>
-    {
-        var requestPath = context.Request.Path;
-        if (requestPath.Equals("/login", StringComparison.OrdinalIgnoreCase)
-            || requestPath.Equals("/signup", StringComparison.OrdinalIgnoreCase)
-            || requestPath.StartsWithSegments("/auth"))
-        {
-            context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
-            context.Response.ContentType = "text/html; charset=utf-8";
-            await context.Response.WriteAsync("<!doctype html><html lang=\"en\"><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>Local preview</title><body><h1>Local preview</h1><p>Account features require a MongoDB connection string. You can still test the local tools and themes.</p><a href=\"/\">Return to apps</a></body></html>");
-            return;
-        }
-        await next(context);
-    });
-}
-else
-{
-    app.UseHttpsRedirection();
-}
+app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseAntiforgery();
 

@@ -18,9 +18,9 @@ dotnet restore UselessApp.sln
 dotnet build UselessApp.sln --no-restore
 ```
 
-Choose either run option below. Both use http://localhost:5238/. Keep the terminal open and press **Ctrl+C** to stop.
+The HTTP profile uses http://localhost:5238/. Keep the terminal open and press **Ctrl+C** to stop.
 
-## Run with a database
+## Configure and run
 
 Use the team-provided MongoDB database name and provider settings. Store credentials in user secrets rather than committed configuration files. Replace the placeholders with real values:
 
@@ -31,19 +31,11 @@ dotnet user-secrets set "Google:ClientSecret" "<Google client secret>" --project
 dotnet run --project UselessApp --launch-profile http --no-build
 ```
 
-This starts the app with account features and initializes database indexes. MongoDB must be reachable.
-
-## Run without a database
-
-```powershell
-dotnet run --project UselessApp --launch-profile preview --no-build
-```
-
-This Development-only profile runs local tools, games, and themes without MongoDB. Sign-in and signup are unavailable. Saved database credentials are not changed.
+This starts the app with account features and initializes database indexes. MongoDB must be reachable. In MongoDB Atlas, add your current development IP to the project IP access list. Update that entry if your public IP changes.
 
 ## External services
 
-AI, dictionary, and live weather need their own service configuration and network access in either run mode. For Gemini:
+AI, dictionary, and live weather need their own service configuration and network access. For Gemini:
 
 ```powershell
 dotnet user-secrets set "Gemini:ApiKey" "<Gemini API key>" --project UselessApp
@@ -60,21 +52,18 @@ dotnet build UselessApp.sln --no-restore
 dotnet test UselessApp.sln --no-build --no-restore
 ```
 
-Restart using either run command above. For automatic rebuilds, choose the matching command:
+Restart using the run command above. For automatic rebuilds:
 
 ```powershell
-# With a database
 dotnet watch --project UselessApp --launch-profile http
 
-# Without a database
-dotnet watch --project UselessApp --launch-profile preview
 ```
 
 ## Common startup problems
 
 - **Address already in use:** stop the other instance on port 5238 before starting another.
 - **Executable is locked during build:** stop the running app, then rebuild.
-- **Empty/invalid connection string:** configure real credentials for `http`, or use `preview`.
+- **Empty/invalid connection string:** configure your MongoDB user secrets and confirm your development IP is allowed in Atlas.
 - **Old styling or controls:** rebuild, restart, then refresh with Ctrl+F5.
 - **Missing API key:** configure the relevant external service.
 
