@@ -154,3 +154,6 @@ nav ::deep .nav-link.active{font-weight:650}
 nav ::deep .nav-link:focus-visible{outline:2px solid var(--sidebar-text);outline-offset:3px}
 
 nav ::deep .nav-link:hover:not(.active){background:color-mix(in srgb,var(--sidebar-text) 12%,transparent);color:var(--sidebar-text)}
+
+.brand-mark{flex-shrink:0;overflow:hidden;background:var(--surface);border:1px solid var(--line)}
+.brand-mark img{display:block;width:100%;height:100%;object-fit:contain;border-radius:inherit}
