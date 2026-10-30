@@ -12,7 +12,11 @@
             <span>ALMOST HELPFUL SINCE RIGHT NOW</span>
 
            
-            <ThemeSelector />
+            <div class="appearance-shell">
+                <input id="appearance-toggle" class="mobile-control-toggle" type="checkbox" aria-label="Show appearance settings" aria-controls="appearance-controls" />
+                <label class="mobile-control-label" for="appearance-toggle"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" /></svg><span>Appearance</span><span class="control-chevron" aria-hidden="true">&#8964;</span></label>
+                <div id="appearance-controls" class="appearance-controls"><ThemeSelector /></div>
+            </div>
 
             <Banner />
         </header>

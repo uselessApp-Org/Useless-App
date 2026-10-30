@@ -3,13 +3,13 @@
 @using UselessApp.Services
 <div class="@(compact ? "shelf compact" : "shelf")">
 <section id="tools">
-    <div class="section-heading"><h2>Your toolkit</h2><span>Questionable decisions, neatly organized.</span></div>
+    <div class="section-heading"><h2>@(OtherAppsOnly ? "Browse all apps" : "Your toolkit")</h2><span>Questionable decisions, neatly organized.</span></div>
     <p class="shelf-intro">Pick a tool. Lower your expectations. Have a lovely time.</p>
     <div class="shelf-controls"><label class="sr-only" for="tool-search">Search tools</label><input id="tool-search" class="form-control" placeholder="Find your next bad idea…" @bind="query" @bind:event="oninput" /><label class="sr-only" for="tool-filter">Filter tools</label><select id="tool-filter" class="form-control" @bind="filter"><option value="all">All apps</option><option value="pinned">Pinned only</option></select><button class="btn btn-secondary" @onclick="() => compact = !compact" aria-pressed="@(compact ? "true" : "false")">@(compact ? "Roomy view" : "Compact view")</button><button class="btn btn-primary" @onclick="SurpriseMe" disabled="@(!VisibleApps.Any())">Surprise me</button></div>
     @if (!VisibleApps.Any()) { <p role="status" class="empty-pins">Nothing here. Even our bad ideas have limits. Try another search.</p> }
     <section class="pinned-shelf" aria-labelledby="pinned-heading">
-        <div class="section-heading"><h3 id="pinned-heading">Pinned apps</h3><span>@pins.Count pinned</span></div>
-        @if (pins.Count == 0)
+        <div class="section-heading"><h3 id="pinned-heading">Pinned apps</h3><span>@pins.Count(id => !OtherAppsOnly || Apps.Any(a => a.Id == id && (a.Id.StartsWith("arcade-", StringComparison.Ordinal) || a.Route is null))) pinned</span></div>
+        @if (!VisibleApps.Any(a => pins.Contains(a.Id)))
         {
             <p class="empty-pins">Your collection of bad ideas starts here. Pin any app below.</p>
         }
@@ -23,52 +23,53 @@
             </div>
         }
     </section>
+    @if (!OtherAppsOnly)
+    {
     <div class="section-heading"><h3>Current apps</h3><span>The original suspects</span></div>
     <div class="tool-grid">
         @foreach (var app in VisibleApps.Where(a => a.Route != null && !a.Id.StartsWith("arcade-", StringComparison.Ordinal)))
         {
             @AppCard(app)
         }
+        <a id="other-apps" class="tool-card app-card other-apps-card" href="other-apps">
+            <div class="card-top"><span class="tool-icon mint" aria-hidden="true">&#9783;</span></div>
+            <span class="app-status">Explore</span>
+            <h3>Other apps</h3>
+            <p>Browse the converter, calculator, CPS test, and more games and tools.</p>
+            <span class="tool-action">Open apps <span aria-hidden="true">&#8599;</span></span>
+        </a>
     </div>
+    }
+
 </section>
-<section id="other-apps" class="other-apps">
-    <div class="section-heading"><h2>Other apps</h2><span>The experimental department, now organized</span></div>
-    <p class="shelf-intro">Browse by activity. Every app retains its original route and functionality.</p>
-    @if (expandedCategory is null)
-    {
-        <div class="category-chooser">
-            @foreach (var category in OtherAppCategories)
-            {
-                var apps = OtherApps.Where(a => CategoryFor(a) == category.Key).ToArray();
-                @if (apps.Length > 0)
-                {
-                    <button type="button" class="category-choice" @onclick="() => expandedCategory = category.Key">
-                        <strong>@category.Value</strong><span>@apps.Length apps</span><span aria-hidden="true">→</span>
-                    </button>
-                }
-            }
+@if (OtherAppsOnly)
+{
+    <section class="featured-apps" aria-labelledby="featured-apps-heading">
+        <div class="section-heading"><h2 id="featured-apps-heading">Featured apps</h2><span>Three excellent ways to waste a minute.</span></div>
+        <div class="tool-grid featured-app-grid">
+            @foreach (var app in VisibleApps.Where(IsFeatured)) { @AppCard(app) }
         </div>
-    }
-    else
-    {
-        <button type="button" class="btn btn-secondary category-back" @onclick="() => expandedCategory = null">← Back to categories</button>
-        @foreach (var category in OtherAppCategories.Where(c => c.Key == expandedCategory))
+    </section>
+    <section class="app-categories" aria-label="All other apps by category">
+        @foreach (var category in OtherAppCategories)
         {
-            <section class="app-category" aria-label="@category.Value">
-                <div class="section-heading"><h3>@category.Value</h3><span>@OtherApps.Count(a => CategoryFor(a) == category.Key) apps</span></div>
-                <div class="tool-grid">
-                    @foreach (var app in OtherApps.Where(a => CategoryFor(a) == category.Key))
-                    {
-                        @AppCard(app)
-                    }
-                </div>
-            </section>
+            var apps = OtherApps.Where(a => CategoryFor(a) == category.Key).ToArray();
+            @if (apps.Length > 0)
+            {
+                <details class="app-category-dropdown" @key="category.Key">
+                    <summary><strong>@category.Value</strong><span>@apps.Length apps</span></summary>
+                    <div class="tool-grid">
+                        @foreach (var app in apps) { @AppCard(app) }
+                    </div>
+                </details>
+            }
         }
-    }
-</section>
+    </section>
+}
 </div>
 @code {
-    private string? expandedCategory;
+    [Parameter] public bool OtherAppsOnly { get; set; }
+    private static bool IsFeatured(ToolCatalog.AppIdea app) => app.Id is "arcade-converter" or "arcade-calculator" or "arcade-counter";
     private static readonly (string Key, string Value)[] OtherAppCategories =
     [
         ("games", "Games & Challenges"),
@@ -84,11 +85,11 @@
         _ => "other"
     };
     private static readonly UselessApp.Services.ToolCatalog.AppIdea[] Apps = UselessApp.Services.ToolCatalog.Apps;
-    private IEnumerable<UselessApp.Services.ToolCatalog.AppIdea> OtherApps => VisibleApps.Where(a => a.Id.StartsWith("arcade-", StringComparison.Ordinal));
+    private IEnumerable<UselessApp.Services.ToolCatalog.AppIdea> OtherApps => VisibleApps.Where(a => !IsFeatured(a));
     private string query = "";
     private string filter = "all";
     private bool compact;
-    private IEnumerable<UselessApp.Services.ToolCatalog.AppIdea> VisibleApps => Apps.Where(a => (filter != "pinned" || pins.Contains(a.Id)) && (a.Name.Contains(query, StringComparison.OrdinalIgnoreCase) || a.Description.Contains(query, StringComparison.OrdinalIgnoreCase)));
+    private IEnumerable<UselessApp.Services.ToolCatalog.AppIdea> VisibleApps => Apps.Where(a => (!OtherAppsOnly || a.Id.StartsWith("arcade-", StringComparison.Ordinal) || a.Route is null) && (filter != "pinned" || pins.Contains(a.Id)) && (a.Name.Contains(query, StringComparison.OrdinalIgnoreCase) || a.Description.Contains(query, StringComparison.OrdinalIgnoreCase)));
     private void SurpriseMe() { var candidates = VisibleApps.ToArray(); if (candidates.Length > 0) { var app = candidates[Random.Shared.Next(candidates.Length)]; Navigation.NavigateTo(app.Route ?? $"lab/{app.Id}"); } }
     private HashSet<string> pins = new();
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -104,9 +105,9 @@
         await JS.InvokeVoidAsync("uselessPreferences.setPins", pins.ToArray());
     }
     private RenderFragment AppCard(ToolCatalog.AppIdea app) => @<article class="tool-card app-card" @key="app.Id">
-        <div class="card-top"><span class="tool-icon @app.Color" aria-hidden="true">@app.Icon</span><button type="button" class="pin-button" aria-label="@(pins.Contains(app.Id) ? $"Unpin {app.Name}" : $"Pin {app.Name}")" aria-pressed="@(pins.Contains(app.Id) ? "true" : "false")" @onclick="() => TogglePin(app.Id)">@(pins.Contains(app.Id) ? "Unpin" : "Pin +")</button></div>
+        <div class="card-top"><span class="tool-icon @app.Color" aria-hidden="true">@if (app.Id is "calculator" or "arcade-calculator") { <CalculatorIcon /> } else { @app.Icon }</span><button type="button" class="pin-button" aria-label="@(pins.Contains(app.Id) ? $"Unpin {app.Name}" : $"Pin {app.Name}")" aria-pressed="@(pins.Contains(app.Id) ? "true" : "false")" @onclick="() => TogglePin(app.Id)">@(pins.Contains(app.Id) ? "Unpin" : "Pin +")</button></div>
         <span class="app-status">@app.Status</span>
-        <h3>@app.Name</h3><p>@app.Description</p>
+        <h3>@(app.Id switch { "arcade-counter" => "CPS Test", "arcade-converter" => "Converter", _ => app.Name })</h3><p>@app.Description</p>
         @if (app.Route != null)
         {
             <a class="tool-action" href="@app.Route">Open app <span aria-hidden="true">↗</span></a>
