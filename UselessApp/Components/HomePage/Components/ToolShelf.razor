@@ -42,7 +42,7 @@
                 var apps = OtherApps.Where(a => CategoryFor(a) == category.Key).ToArray();
                 @if (apps.Length > 0)
                 {
-                    <button type="button" class="category-choice" @onclick="() => expandedCategory = category.Key">
+                    <button type="button" class="btn btn-secondary category-choice" @onclick="() => expandedCategory = category.Key">
                         <strong>@category.Value</strong><span>@apps.Length apps</span><span aria-hidden="true">→</span>
                     </button>
                 }

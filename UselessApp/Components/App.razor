@@ -5,21 +5,39 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <base href="/" />
-    <script src="preferences.js"></script>
+    <script src="@Assets["preferences.js"]"></script>
     <link rel="stylesheet" href="@Assets["lib/bootstrap/dist/css/bootstrap.min.css"]" />
     <link rel="stylesheet" href="@Assets["app.css"]" />
     <link rel="stylesheet" href="@Assets["UselessApp.styles.css"]" />
+    <link rel="stylesheet" href="@Assets["themes.css"]" />
     <ImportMap />
-    <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="icon" type="image/png" href="@Assets["UselessAppIcon.png"]" />
     <HeadOutlet />
 </head>
 
 <body>
+    <div id="theme-effects" class="theme-effects" data-permanent aria-hidden="true">
+<span class="shooting-star" style="--x:12%;--y:6%;--delay:0s"></span>
+<span class="shooting-star" style="--x:28%;--y:16%;--delay:-1.7s"></span>
+<span class="shooting-star" style="--x:44%;--y:26%;--delay:-3.4s"></span>
+<span class="shooting-star" style="--x:60%;--y:36%;--delay:-5.1s"></span>
+<span class="shooting-star" style="--x:76%;--y:46%;--delay:-6.8s"></span>
+<span class="lava-blob" style="--x:0%;--y:25%;--delay:0s"></span>
+<span class="lava-blob" style="--x:35%;--y:40%;--delay:-3s"></span>
+<span class="lava-blob" style="--x:70%;--y:55%;--delay:-6s"></span>
+<span class="theme-bubble" style="--x:6%;--size:18px;--delay:0s"></span>
+<span class="theme-bubble" style="--x:20%;--size:24px;--delay:-2s"></span>
+<span class="theme-bubble" style="--x:34%;--size:30px;--delay:-4s"></span>
+<span class="theme-bubble" style="--x:48%;--size:36px;--delay:-6s"></span>
+<span class="theme-bubble" style="--x:62%;--size:42px;--delay:-8s"></span>
+<span class="theme-bubble" style="--x:76%;--size:48px;--delay:-10s"></span>
+<span class="theme-bubble" style="--x:90%;--size:54px;--delay:-12s"></span>
+</div>
     <Routes />
     <script src="absurd-arcade.js"></script>
     <script src="arcade-extras.js"></script>
     <script src="_framework/blazor.web.js"></script>
-    <script>if (window.Blazor && window.uselessPreferences) Blazor.addEventListener("enhancedload", () => { try { uselessPreferences.setTheme(uselessPreferences.getTheme()); } catch (e) { console.warn("Theme refresh:", e); } });</script>
+    <script>if (window.Blazor && window.uselessPreferences) Blazor.addEventListener("enhancedload", () => { try { uselessPreferences.refresh(); } catch (e) { console.warn("Theme refresh:", e); } });</script>
 </body>
 
 </html>

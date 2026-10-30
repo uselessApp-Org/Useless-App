@@ -1,48 +1,83 @@
 # Useless-App
-Welcome to Useless App we hope you find **no real information** while using our application!
 
-## Versioning Practices
-1. Fetch then Pull main into your local repo
-2. Create a new branch in the following format from main(usually):
-   * UA-<##>-Few-Word-Description
-   * replace <##> with the number of your ticket from Jira
-3. Do your work
-4. Create a pull-request on Github or through VS Code or GitHub Desktop.
-   * Fill out the PR Template
-5. Notify team of your pull request so it can gain its two required approvals
+A Blazor app of deliberately unhelpful tools, Arcade games, and customizable themes. Built with .NET 9.
 
-## Setting up the Environment
-1. Ensure you have .Net 9.0 installed
-   * `dotnet --version`
-   * If you don't have the correct version run
-   * `winget install Microsoft.DotNet.SDK.9`
-2. Create the solution file if you need to
-   * `dotnet new sln --name UselessApp --format sln`
-3. Ensure you have the required NuGet Dependencies
-   * `dotnet restore UselessApp/`
-4. Build the project
-   * `dotnet build UselessApp/`
-5. Run the project with live updates
-   * `dotnet watch --project UselessApp/`
+## Setup
 
-## Database Set-up (should not need this)
+Run commands from the repository folder containing UselessApp.sln. Install the .NET 9 SDK if needed:
 
- 'dotnet add package MongoDB.Driver'
- Create an account on MongoDB so you can access the database and see if the connection went through. 
+```powershell
+winget install Microsoft.DotNet.SDK.9
+```
 
-## Database Notes
+Restore and build:
 
- Database may not connect with the connection string,we are currently working on that, if you need to connect to the database let Caleb know
- 
- In the appsettings.json file, there is a connection string. DO NOT change this, if that gets changed you will not be able to connect to the database without the connection string changed back.
-## Setting up Gemini API
-1. Getting API key
-   * Go to https://aistudio.google.com/api-keys
-   * Click create API Key
-   * pick a coneveastion to run it out of
-2. Using API Key
-   * Add the API key to the user secrets
-3. Add service to call API Key
-   * See example in Services/GeminiService
-4. Adding Blazor Component
-   * See example of model and Blozor component in Components/Pages/AskAI.razor
+```powershell
+dotnet --version
+dotnet restore UselessApp.sln
+dotnet build UselessApp.sln --no-restore
+```
+
+Choose either run option below. Both use http://localhost:5238/. Keep the terminal open and press **Ctrl+C** to stop.
+
+## Run with a database
+
+Use the team-provided MongoDB database name and provider settings. Store credentials in user secrets rather than committed configuration files. Replace the placeholders with real values:
+
+```powershell
+dotnet user-secrets set "MongoDB:ConnectionString" "<team MongoDB connection string>" --project UselessApp
+dotnet user-secrets set "Google:ClientId" "<Google client ID>" --project UselessApp
+dotnet user-secrets set "Google:ClientSecret" "<Google client secret>" --project UselessApp
+dotnet run --project UselessApp --launch-profile http --no-build
+```
+
+This starts the app with account features and initializes database indexes. MongoDB must be reachable.
+
+## Run without a database
+
+```powershell
+dotnet run --project UselessApp --launch-profile preview --no-build
+```
+
+This Development-only profile runs local tools, games, and themes without MongoDB. Sign-in and signup are unavailable. Saved database credentials are not changed.
+
+## External services
+
+AI, dictionary, and live weather need their own service configuration and network access in either run mode. For Gemini:
+
+```powershell
+dotnet user-secrets set "Gemini:ApiKey" "<Gemini API key>" --project UselessApp
+```
+
+## Rebuild and test
+
+Stop the running app with **Ctrl+C**, then run:
+
+```powershell
+dotnet clean UselessApp.sln
+dotnet restore UselessApp.sln
+dotnet build UselessApp.sln --no-restore
+dotnet test UselessApp.sln --no-build --no-restore
+```
+
+Restart using either run command above. For automatic rebuilds, choose the matching command:
+
+```powershell
+# With a database
+dotnet watch --project UselessApp --launch-profile http
+
+# Without a database
+dotnet watch --project UselessApp --launch-profile preview
+```
+
+## Common startup problems
+
+- **Address already in use:** stop the other instance on port 5238 before starting another.
+- **Executable is locked during build:** stop the running app, then rebuild.
+- **Empty/invalid connection string:** configure real credentials for `http`, or use `preview`.
+- **Old styling or controls:** rebuild, restart, then refresh with Ctrl+F5.
+- **Missing API key:** configure the relevant external service.
+
+## Contributing
+
+Branch from current main using `UA-<ticket>-<description>`. Use the pull-request template and request the team's two approvals before merging.
