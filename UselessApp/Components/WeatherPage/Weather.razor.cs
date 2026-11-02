@@ -7,14 +7,7 @@ public partial class Weather
     // Sample data until the weather API is wired up
     private string location = "Menomonie, WI";
     private string lastUpdated = DateTime.Now.ToString("h:mm tt");
-    private int currentTemp = 58;
-    private string condition = "Partly Indecisive";
-    private string conditionIcon = "⛅";
-    private int humidity = 64;
-    private string windDirection = "NW";
-    private int windDeg = 315;
-    private int windSpeed = 12;
-    private int feelsLike = 55;
+    private CurrentConditions currentConditions = new("Partly Indecisive", "⛅", 58, 55, 64, "NW", 315, 12);
 
     private readonly string[] icons = { "☀", "⛅", "☁", "🌧", "⛈", "🌨" };
     private List<ForecastItem> hourly = new();
@@ -23,9 +16,6 @@ public partial class Weather
     // Location prompt
     private bool showLocationPrompt = true;
     private bool hasLocation = false;
-    private bool isSearching = false;
-    private string cityInput = string.Empty;
-    private string? locationError;
     private GeoLocationResult? selectedLocation;
     private WeatherProperties? weatherPoint;
     private string? weatherPointError;
@@ -49,48 +39,20 @@ public partial class Weather
         }
     }
 
-    private void OpenLocationPrompt()
+    // LocationPrompt is removed from the tree when hidden, so it opens with a fresh input each time
+    private void OpenLocationPrompt() => showLocationPrompt = true;
+
+    private async Task SetLocation(GeoLocationResult result)
     {
-        cityInput = string.Empty;
-        locationError = null;
-        showLocationPrompt = true;
-    }
+        selectedLocation = result;
+        location = string.IsNullOrEmpty(result.Admin1)
+            ? $"{result.Name}, {result.Country}"
+            : $"{result.Name}, {result.Admin1}";
+        lastUpdated = DateTime.Now.ToString("h:mm tt");
+        hasLocation = true;
+        showLocationPrompt = false;
 
-    private async Task SubmitCity()
-    {
-        if (string.IsNullOrWhiteSpace(cityInput))
-            return;
-
-        isSearching = true;
-        locationError = null;
-
-        try
-        {
-            var result = await GeoLocation.GetLocationData(cityInput);
-            if (result is null)
-            {
-                locationError = $"Couldn't find \"{cityInput.Trim()}\". Try another city.";
-                return;
-            }
-
-            selectedLocation = result;
-            location = string.IsNullOrEmpty(result.Admin1)
-                ? $"{result.Name}, {result.Country}"
-                : $"{result.Name}, {result.Admin1}";
-            lastUpdated = DateTime.Now.ToString("h:mm tt");
-            hasLocation = true;
-            showLocationPrompt = false;
-
-            // TEMP: fetch weather point data so it can be inspected on the page
-            (weatherPoint, weatherPointError) = await WeatherService.GetWeatherPointData(result.Latitude, result.Longitude);
-        }
-        catch (HttpRequestException)
-        {
-            locationError = "Location lookup failed. Check your connection and try again.";
-        }
-        finally
-        {
-            isSearching = false;
-        }
+        // TEMP: fetch weather point data so it can be inspected on the page
+        (weatherPoint, weatherPointError) = await WeatherService.GetWeatherPointData(result.Latitude, result.Longitude);
     }
 }

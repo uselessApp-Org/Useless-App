@@ -1,0 +1,42 @@
+<div class="eyebrow">CURRENT CONDITIONS</div>
+<h2 class="location">@Location</h2>
+<button type="button" class="change-location" @onclick="OnChangeLocation">Change location</button>
+<p class="updated">Last updated @LastUpdated</p>
+
+<div class="current-temp">
+    <span class="current-icon" aria-hidden="true">@Conditions.Icon</span>
+    <span>@(Conditions.Temp)°</span>
+</div>
+<p class="condition">@Conditions.Condition</p>
+
+<dl class="stats">
+    <div>
+        <dt>Humidity</dt>
+        <dd>@(Conditions.Humidity)%</dd>
+    </div>
+    <div>
+        <dt>Wind</dt>
+        <dd>
+            <span class="wind-arrow" style="transform: rotate(@(Conditions.WindDeg)deg);" aria-hidden="true">↑</span>
+            @Conditions.WindDirection @Conditions.WindSpeed mph
+        </dd>
+    </div>
+    <div>
+        <dt>Feels like</dt>
+        <dd>@(Conditions.FeelsLike)°</dd>
+    </div>
+</dl>
+
+@code {
+    [Parameter, EditorRequired]
+    public CurrentConditions Conditions { get; set; } = default!;
+
+    [Parameter]
+    public string Location { get; set; } = string.Empty;
+
+    [Parameter]
+    public string LastUpdated { get; set; } = string.Empty;
+
+    [Parameter]
+    public EventCallback OnChangeLocation { get; set; }
+}

@@ -2,41 +2,16 @@
 @rendermode InteractiveServer
 @using System.Text.Json
 @using UselessApp.Components.WeatherPage.Components
-@inject GeoLocationService GeoLocation
 @inject WeatherService WeatherService
 
 <PageTitle>Weather</PageTitle>
 
-@if (showLocationPrompt)
-{
-    <div class="location-backdrop">
-        <form class="weather-card location-dialog" role="dialog" aria-modal="true" aria-labelledby="location-title" @onsubmit="SubmitCity">
-            <div class="eyebrow">LOCATION</div>
-            <h2 id="location-title">Where are you?</h2>
-            <p>Enter a City.</p>
-
-            <input class="location-input" type="text" placeholder="e.g. Menomonie, Wisconsin" aria-label="City name"
-                   @bind="cityInput" @bind:event="oninput" disabled="@isSearching" autofocus />
-
-            @if (locationError is not null)
-            {
-                <p class="location-error" role="alert">@locationError</p>
-            }
-
-            <div class="location-actions">
-                @if (hasLocation)
-                {
-                    <button type="button" class="mode-button" @onclick="() => showLocationPrompt = false">Cancel</button>
-                }
-                <button type="submit" class="mode-button" aria-pressed="true" disabled="@(isSearching || string.IsNullOrWhiteSpace(cityInput))">
-                    @(isSearching ? "Searching..." : "Set location")
-                </button>
-            </div>
-        </form>
-    </div>
-}
-
 <div class="weather-page">
+    @if (showLocationPrompt)
+    {
+        <LocationPrompt CanCancel="hasLocation" OnCancel="() => showLocationPrompt = false" OnLocationSelected="SetLocation" />
+    }
+
     <section class="weather-card radar-panel" aria-label="Geolocation result">
         <div class="eyebrow">GEOLOCATION RESULT</div>
         @if (selectedLocation is null)
@@ -48,7 +23,6 @@
             <pre class="location-json">@JsonSerializer.Serialize(selectedLocation, new JsonSerializerOptions { WriteIndented = true })</pre>
         }
 
-        @* TEMP: raw weather point data for debugging *@
         <div class="eyebrow">WEATHER POINT DATA</div>
         @if (weatherPointError is not null)
         {
@@ -65,34 +39,7 @@
     </section>
 
     <section class="weather-card info-panel" aria-label="Current conditions">
-        <div class="eyebrow">CURRENT CONDITIONS</div>
-        <h2 class="location">@location</h2>
-        <button type="button" class="change-location" @onclick="OpenLocationPrompt">Change location</button>
-        <p class="updated">Last updated @lastUpdated</p>
-
-        <div class="current-temp">
-            <span class="current-icon" aria-hidden="true">@conditionIcon</span>
-            <span>@(currentTemp)°</span>
-        </div>
-        <p class="condition">@condition</p>
-
-        <dl class="stats">
-            <div>
-                <dt>Humidity</dt>
-                <dd>@(humidity)%</dd>
-            </div>
-            <div>
-                <dt>Wind</dt>
-                <dd>
-                    <span class="wind-arrow" style="transform: rotate(@(windDeg)deg);" aria-hidden="true">↑</span>
-                    @windDirection @windSpeed mph
-                </dd>
-            </div>
-            <div>
-                <dt>Feels like</dt>
-                <dd>@(feelsLike)°</dd>
-            </div>
-        </dl>
+        <CurrentConditionsPanel Conditions="currentConditions" Location="@location" LastUpdated="@lastUpdated" OnChangeLocation="OpenLocationPrompt" />
     </section>
 
     <section class="weather-card forecast-panel" aria-label="Forecast">

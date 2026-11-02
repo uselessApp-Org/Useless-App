@@ -1,0 +1,71 @@
+@inject GeoLocationService GeoLocation
+
+<div class="location-backdrop">
+    <form class="location-dialog" role="dialog" aria-modal="true" aria-labelledby="location-title" @onsubmit="SubmitCity">
+        <div class="eyebrow">LOCATION</div>
+        <h2 id="location-title">Where are you?</h2>
+        <p>Enter a City.</p>
+
+        <input class="location-input" type="text" placeholder="e.g. Menomonie, Wisconsin" aria-label="City name"
+               @bind="cityInput" @bind:event="oninput" disabled="@isSearching" autofocus />
+
+        @if (locationError is not null)
+        {
+            <p class="location-error" role="alert">@locationError</p>
+        }
+
+        <div class="location-actions">
+            @if (CanCancel)
+            {
+                <button type="button" class="mode-button" @onclick="OnCancel">Cancel</button>
+            }
+            <button type="submit" class="mode-button" aria-pressed="true" disabled="@(isSearching || string.IsNullOrWhiteSpace(cityInput))">
+                @(isSearching ? "Searching..." : "Set location")
+            </button>
+        </div>
+    </form>
+</div>
+
+@code {
+    [Parameter]
+    public bool CanCancel { get; set; }
+
+    [Parameter]
+    public EventCallback OnCancel { get; set; }
+
+    [Parameter]
+    public EventCallback<GeoLocationResult> OnLocationSelected { get; set; }
+
+    private bool isSearching = false;
+    private string cityInput = string.Empty;
+    private string? locationError;
+
+    private async Task SubmitCity()
+    {
+        if (string.IsNullOrWhiteSpace(cityInput))
+            return;
+
+        isSearching = true;
+        locationError = null;
+
+        try
+        {
+            var result = await GeoLocation.GetLocationData(cityInput);
+            if (result is null)
+            {
+                locationError = $"Couldn't find \"{cityInput.Trim()}\". Try another city.";
+                return;
+            }
+
+            await OnLocationSelected.InvokeAsync(result);
+        }
+        catch (HttpRequestException)
+        {
+            locationError = "Location lookup failed. Check your connection and try again.";
+        }
+        finally
+        {
+            isSearching = false;
+        }
+    }
+}
