@@ -3,18 +3,12 @@
 @inject IJSRuntime JS
 @implements IAsyncDisposable
 <PageTitle>@Title | UselessApp</PageTitle>
-<header class="page-heading"><p class="eyebrow">MORE QUESTIONABLE ACTIVITIES</p><h1>@Title</h1><p>@Subtitle</p><a href="/#other-apps">← Other apps</a></header>
+<header class="page-heading"><p class="eyebrow">MORE QUESTIONABLE ACTIVITIES</p><h1>@Title</h1><p>@Subtitle</p><a href="/other-apps">← Other apps</a></header>
 <section class="panel extra-game">
 @if(Game=="gym"){
  <h2>Password Strength Gym</h2><p>Train your imaginary lifter by typing a <strong>made-up example password</strong>. Real passwords are best kept out of demos. This input runs entirely in browser JavaScript; no password is sent to the Blazor server, stored, or logged.</p>
  <div id="local-password-gym"><label for="private-gym-password">Training password</label><input id="private-gym-password" data-private-password class="form-control" type="password" autocomplete="off" spellcheck="false" placeholder="Try a fictional password" /><div class="gym-platform" aria-hidden="true"><div class="gym-lifter" data-gym-lifter>🏋️</div></div><div class="gym-progress"><span data-gym-bar></span></div><p data-gym-result role="status">Enter a made-up password to start lifting.</p></div>
  <p class="small-note">Estimates are educational, not a crack-time guarantee. Length, predictable patterns, and character variety affect the lifting estimate.</p>
-}
-else if(Game=="coin"){
- <h2>Ultimate Coin Flip Championship</h2><p>Pick a side. Watch a needlessly dramatic coin toss. Every flip is generated with a fair 50/50 browser random draw.</p>
- <div class="extra-row"><label>Your call <select class="form-control" @bind="coinPick"><option>Heads</option><option>Tails</option></select></label><button class="btn btn-primary" disabled="@flipping" @onclick="Toss">@(flipping?"In slow motion…":"FLIP THE COIN")</button><button class="btn btn-secondary" @onclick="ResetCoin">Reset standings</button></div>
- <div class="championship-coin" data-coin-disk id="coin-arena">?</div><h3 role="status">@coinCommentary</h3>
- <div class="extra-stats"><span>Wins: <strong>@coinWins</strong></span><span>Losses: <strong>@coinLosses</strong></span><span>Heads: <strong>@heads</strong></span><span>Tails: <strong>@tails</strong></span><span>Streak: <strong>@coinStreak</strong></span></div>
 }
 else if(Game=="captcha"){
  <h2>Unnecessary CAPTCHA</h2><p>Prove you're human by spotting the one item that is suspiciously out of place. These are puzzle challenges, <strong>not real security verification</strong>.</p>

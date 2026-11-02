@@ -87,9 +87,9 @@ p { line-height: 1.75; }
     font-size: 11px;
     font-weight: 600;
 }
-.category-choice.btn { min-height: 88px; padding: 20px; border-radius: 12px; }
-.category-choice strong { font-size: 15px; font-weight: 650; }
-.category-choice span { font-size: 12px; }
+
+
+
 .form-control {
     min-height: 44px;
     border-radius: var(--radius-control);
@@ -177,7 +177,7 @@ textarea:focus-visible, summary:focus-visible {
     .tool-card h3 { font-size: 15px; }
     .tool-card p { font-size: 12px; }
     .section-heading > span { font-size: 11px; }
-    .category-choice.btn { min-height: 72px; padding: 16px; }
+
     .login-container a { min-height: 40px; padding: 8px 12px; }
 }
 @media (prefers-reduced-motion: reduce) {

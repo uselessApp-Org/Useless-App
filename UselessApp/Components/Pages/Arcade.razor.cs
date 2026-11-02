@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using UselessApp.Services;
+using System.Security.Cryptography;
 
 namespace UselessApp.Components.Pages;
 
@@ -22,11 +23,12 @@ public partial class Arcade
  private string UnitEmoji=>to.ToLowerInvariant() switch {var x when x.Contains("banana")=>"🍌",var x when x.Contains("eagle")=>"🦅",var x when x.Contains("giraffe")=>"🦒",var x when x.Contains("lion")=>"🦁",var x when x.Contains("whale")=>"🐋",var x when x.Contains("bus")=>"🚌",_=>"📏"};
  private void Convert(){try{var source=AbsurdConversions.Units.First(x=>x.Name.Equals(from,StringComparison.OrdinalIgnoreCase));var target=AbsurdConversions.Units.First(x=>x.Name.Equals(to,StringComparison.OrdinalIgnoreCase));if(amount is null || amount < 0){conversionError="Enter a nonnegative amount.";conversion=null;return;}conversion=AbsurdConversions.Convert(amount.Value,source.Name,target.Name);conversionError="";approved=false;}catch(Exception ex) when(ex is ArgumentException or InvalidOperationException){conversion=null;conversionError="Select compatible known units and a nonnegative amount.";}}
  private string calcMode="Catch Me",expression="12+3",calcResult="",slotDisplay="🎰 🎰 🎰",dodgeDifficulty="Medium";private int dodgeX,dodgeY,slotSpins,slotWins;private bool slotWinner,leverPulled;
- private void ResetCalcMode(){calcResult="";slotDisplay="🎰 🎰 🎰";slotSpins=0;slotWinner=false;dodgeX=0;dodgeY=0;RestartBattle();}
+ private void ResetCalcMode(){calcResult="";slotDisplay="🎰 🎰 🎰";slotSpins=0;slotWins=0;slotWinner=false;dodgeX=0;dodgeY=0;RestartBattle();}
  private void ResetDodge(){dodgeX=0;dodgeY=0;}
  private void Dodge(){var range=dodgeDifficulty switch {"Easy"=>30,"Medium"=>100,"Hard"=>175,_=>260};dodgeX=Random.Shared.Next(-range,range+1);dodgeY=Random.Shared.Next(0,Math.Min(range,115)+1);}
  private string CalculateExpression()=>new CalculatorEvaluatorService().Evaluate(System.Text.RegularExpressions.Regex.Matches(expression.Replace(" ", ""), @"(?:\d+(?:\.\d+)?|\.\d+)|[A-Za-z]+|[+*/%^()\-]").Select(m => m.Value).ToList(), scrambleOperators: false);
  private void Calculate(){calcResult=CalculateExpression();}
+ private void ClearSlotResult(){slotSpins=0;slotWins=0;slotWinner=false;calcResult="";}
  private void Spin(){var actual=CalculateExpression();if(!double.TryParse(actual,System.Globalization.NumberStyles.Float,System.Globalization.CultureInfo.InvariantCulture,out var answer)){calcResult=actual;return;}leverPulled=!leverPulled;slotWinner=Random.Shared.Next(3)==0;slotSpins++;if(slotWinner)slotWins++;var shown=slotWinner?answer:answer+(Random.Shared.Next(1,10)*(Random.Shared.Next(2)==0?-1:1));slotDisplay=shown.ToString("G8",System.Globalization.CultureInfo.InvariantCulture);calcResult=slotWinner?"Correct! The house briefly respects mathematics.":"Try again to reveal the correct result.";}
  private int playerHp=100,bossHp=100,bossLevel=1,questionA=4,questionB=7;private int? bossAnswer;private char questionOperator='+';private string battleMessage="Answer correctly to damage the boss.";private string bossName=>bossLevel switch {1=>"Addition Goblin",2=>"Subtraction Ogre",3=>"Multiplication Dragon",_=>"The Final Exam"};
  private string bossDifficulty="Normal",bossAnswerMode="Multiple Choice";private int[] BossChoices=[11,12,13,14];
@@ -86,8 +88,9 @@ public partial class Arcade
   new("Which can have a ring?",["A phone","A planet","A wedding ceremony","A shadow on an empty wall by itself"],3,"The shadow by itself has no ring."),
  ];
  private TrickQuestion CurrentQuestion=>questionBank[questionIndex];private int questionIndex,triviaScore,triviaAttempts;private string[] triviaAnswers=["", "", "", ""];private int triviaOdd;private bool answered;private string triviaFeedback="Choose the most out-of-place answer.";
- protected override void OnInitialized(){NewTrivia();}
- private void NewTrivia(){questionIndex=Random.Shared.Next(questionBank.Length);var q=CurrentQuestion;var shuffled=Enumerable.Range(0,4).OrderBy(_=>Random.Shared.Next()).ToArray();triviaAnswers=shuffled.Select(i=>q.Options[i]).ToArray();triviaOdd=Array.IndexOf(shuffled,q.Odd);answered=false;triviaFeedback="Three fit; one really doesn't.";}
+ protected override void OnInitialized(){NewTrivia();RestartBattle();}
+ private int[] triviaDeck=[];private int triviaCursor;
+ private void NewTrivia(){if(triviaCursor>=triviaDeck.Length){var previous=triviaDeck.Length>0?questionIndex:-1;triviaDeck=Enumerable.Range(0,questionBank.Length).ToArray();Random.Shared.Shuffle(triviaDeck);if(triviaDeck.Length>1&&triviaDeck[0]==previous)(triviaDeck[0],triviaDeck[1])=(triviaDeck[1],triviaDeck[0]);triviaCursor=0;}questionIndex=triviaDeck[triviaCursor++];var q=CurrentQuestion;var shuffled=Enumerable.Range(0,4).ToArray();Random.Shared.Shuffle(shuffled);triviaAnswers=shuffled.Select(i=>q.Options[i]).ToArray();triviaOdd=Array.IndexOf(shuffled,q.Odd);answered=false;triviaFeedback="Three fit; one really doesn't.";}
  private void ChooseTrivia(int choice){if(answered)return;answered=true;triviaAttempts++;if(choice==triviaOdd){triviaScore++;triviaFeedback="Correct! "+CurrentQuestion.Explanation;}else triviaFeedback="Not quite. "+CurrentQuestion.Explanation;}
  private bool[] bubbles=new bool[25];private int pops,sheets,points,totalBubblePoints,combo;private bool goldBubbles,doublePoints;
  private string bubbleMessage="The bubbles are waiting for your highly important work.";
@@ -104,7 +107,5 @@ public partial class Arcade
  private void NewSheet(){bubbles=new bool[25];combo=0;bubbleMessage="Fresh sheet issued. The excitement is immeasurable.";}
  private void BuyUpgrade(){if(points<30||goldBubbles)return;points-=30;goldBubbles=true;bubbleMessage="Gold bubble coating acquired. Pure luxury.";}
  private void BuyDouble(){if(points<50||doublePoints)return;points-=50;doublePoints=true;bubbleMessage="Double points activated. Your imaginary fortune grows.";}
-
- private void ClearSlotResult(){slotSpins=0;slotWins=0;slotWinner=false;calcResult="";}
 
 }

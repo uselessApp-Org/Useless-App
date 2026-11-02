@@ -3,7 +3,7 @@
 @using UselessApp.Services
 @inject IJSRuntime JS
 <PageTitle>@Title | UselessApp</PageTitle>
-<header class="page-heading"><p class="eyebrow">THE DEPARTMENT OF PRODUCTIVE NONSENSE</p><h1>@Title</h1><p>@Subtitle</p><a href="/">← All apps</a></header>
+<header class="page-heading"><p class="eyebrow">THE DEPARTMENT OF PRODUCTIVE NONSENSE</p><h1>@Title</h1><p>@Subtitle</p><a href="/other-apps">← All apps</a></header>
 <section class="panel absurd-app @(Feature == "calculator" ? "arcade-calculator" : "")">
 @if (Feature == "converter") {
  <h2>Ridiculous Measurements</h2>
@@ -98,5 +98,5 @@ else if (Feature == "bubbles") {
  <p class="bubble-feedback" role="status">@bubbleMessage</p>
  <p class="small-note">+@BaseBubblePoints points per pop · Every 5 consecutive pops adds a combo bonus, up to ×3. Complete a sheet for +10 points.</p>
 }
-else {<h2>Page not found</h2><a href="/">Return home</a>}
+else {<h2>Page not found</h2><a href="/other-apps">Return home</a>}
 </section>

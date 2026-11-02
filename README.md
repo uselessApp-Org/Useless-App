@@ -25,16 +25,27 @@ Welcome to Useless App we hope you find **no real information** while using our 
 5. Run the project with live updates
    * `dotnet watch --project UselessApp/`
 
-## Database Set-up (should not need this)
+## Database Set-up
 
- 'dotnet add package MongoDB.Driver'
- Create an account on MongoDB so you can access the database and see if the connection went through. 
+The team database is hosted on MongoDB Atlas; you do not need to install a local database or add MongoDB.Driver manually. The package is already included in the project.
+
+Ask the team for the database connection string and access to the correct Atlas project. Allow your current public IP in that project's network access list. Use the database user's credentials in the connection string, rather than your Atlas website login.
 
 ## Database Notes
 
- Database may not connect with the connection string,we are currently working on that, if you need to connect to the database let Caleb know
- 
- In the appsettings.json file, there is a connection string. DO NOT change this, if that gets changed you will not be able to connect to the database without the connection string changed back.
+Keep your actual connection string in local user secrets, not committed appsettings files. This project already has a UserSecretsId, and the Development launch profiles load its secrets automatically. Merge these keys into your existing user-secrets file, replacing the example value:
+
+```json
+{
+  "MongoDB:ConnectionString": "YOUR_COMPLETE_ATLAS_CONNECTION_STRING",
+  "MongoDB:DatabaseName": "Users"
+}
+```
+
+Keep any other existing secret entries. Restart the server after changing settings. An authentication error means the database rejected the supplied credentials; check the database username/password and connection-string encoding with the team. Startup initializes the username index against the hosted database; signup and login use that connection too.
+
+For the copyable restore, build, and run commands, see [QUICKSTART.md](QUICKSTART.md). Configure the hosted connection before testing accounts; no alternate offline build is needed.
+
 ## Setting up Gemini API
 1. Getting API key
    * Go to https://aistudio.google.com/api-keys

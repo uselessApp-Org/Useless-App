@@ -9,8 +9,8 @@
     @if (DisplayNameService.IsLoggedIn)
     {
         <span class="user-display">
-            @(DisplayNameService.RandomDisplayName 
-              ?? DisplayNameService.DisplayName 
+            @(DisplayNameService.RandomDisplayName
+              ?? DisplayNameService.DisplayName
               ?? DisplayNameService.Username)
 
         </span>
@@ -23,7 +23,8 @@
         <a href="/login">Login</a>
     }
 </div>
-</div>
+
+</div>
 
 @code {
     private async Task Logout()

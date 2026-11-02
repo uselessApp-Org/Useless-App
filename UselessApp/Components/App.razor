@@ -1,3 +1,5 @@
+@inject Microsoft.AspNetCore.Mvc.ViewFeatures.IFileVersionProvider FileVersions
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -5,14 +7,14 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <base href="/" />
-    <script src="@Assets["preferences.js"]"></script>
-    <link rel="stylesheet" href="@Assets["lib/bootstrap/dist/css/bootstrap.min.css"]" />
-    <link rel="stylesheet" href="@Assets["app.css"]" />
-    <link rel="stylesheet" href="@Assets["UselessApp.styles.css"]" />
-    <link rel="stylesheet" href="@Assets["themes.css"]" />
-    <link rel="stylesheet" href="@Assets["polish.css"]" />
+    <script src="@AssetUrl("preferences.js")"></script>
+    <link rel="stylesheet" href="@AssetUrl("lib/bootstrap/dist/css/bootstrap.min.css")" />
+    <link rel="stylesheet" href="@AssetUrl("app.css")" />
+    <link rel="stylesheet" href="@AssetUrl("UselessApp.styles.css")" />
+    <link rel="stylesheet" href="@AssetUrl("themes.css")" />
+    <link rel="stylesheet" href="@AssetUrl("polish.css")" />
     <ImportMap />
-    <link rel="icon" type="image/png" href="@Assets["favicon.png"]" />
+    <link rel="icon" type="image/png" href="@AssetUrl("favicon.png")" />
     <HeadOutlet />
 </head>
 
@@ -35,11 +37,15 @@
 <span class="theme-bubble" style="--x:90%;--size:54px;--delay:-12s"></span>
 </div>
     <Routes />
-    <script src="absurd-arcade.js"></script>
-    <script src="arcade-extras.js"></script>
+    <script src="@AssetUrl("absurd-arcade.js")"></script>
+    <script src="@AssetUrl("arcade-extras.js")"></script>
     <script src="_framework/blazor.web.js"></script>
-    <script src="@Assets["navigation.js"]"></script>
+    <script src="@AssetUrl("navigation.js")"></script>
     <script>if (window.Blazor && window.uselessPreferences) Blazor.addEventListener("enhancedload", () => { try { uselessPreferences.refresh(); } catch (e) { console.warn("Theme refresh:", e); } });</script>
 </body>
 
 </html>
+
+@code {
+    private string AssetUrl(string path) => FileVersions.AddFileVersionToPath("", path);
+}
