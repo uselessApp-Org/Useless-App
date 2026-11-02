@@ -94,8 +94,12 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
-app.MapStaticAssets();
+// Development assets change on disk while the app runs. Serve them directly,
+// rather than mixing live files with build-time compressed asset endpoints.
+if (app.Environment.IsDevelopment())
+    app.UseStaticFiles();
+else
+    app.MapStaticAssets();
 app.UseAntiforgery();
 
 app.UseAuthentication();

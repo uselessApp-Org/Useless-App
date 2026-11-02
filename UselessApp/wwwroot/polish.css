@@ -401,3 +401,28 @@ a{color:var(--text-accent,var(--green))}
 #blazor-error-ui{color:#352512}
 .location-input::placeholder{color:var(--text-muted,var(--muted));opacity:1}
 .eyebrow,.app-status,.tool-number,.section-heading>span,.theme-menu-note,.accent-note,.app-footer{color:var(--text-muted,var(--muted))}
+
+/* Alerts must use a matched theme pair, including nested authentication buttons. */
+.alert{--bs-alert-color:var(--ink);--bs-alert-bg:var(--field);--bs-alert-border-color:var(--line);color:var(--ink);background-color:var(--field);border-color:var(--line)}
+.alert>span,.alert>p,.alert strong{color:inherit}
+.account-status{gap:16px;flex-wrap:wrap}
+.account-status .account-signout{background:var(--surface);color:var(--ink);border:1px solid var(--ink);margin:0;flex-shrink:0;white-space:nowrap}
+.account-status .account-signout:hover,.account-status .account-signout:active{background:var(--ink);color:var(--surface);border-color:var(--ink);filter:none}
+.account-status .account-signout:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+
+/* Bootstrap focus and checked states use the same readable theme pairs. */
+.btn-primary{--bs-btn-color:var(--button-text);--bs-btn-bg:var(--green);--bs-btn-hover-color:var(--button-text);--bs-btn-hover-bg:var(--green);--bs-btn-active-color:var(--button-text);--bs-btn-active-bg:var(--green);--bs-btn-disabled-color:var(--button-text);--bs-btn-disabled-bg:var(--green)}
+.btn-secondary{--bs-btn-color:var(--ink);--bs-btn-bg:var(--surface);--bs-btn-hover-color:var(--ink);--bs-btn-hover-bg:var(--field);--bs-btn-active-color:var(--ink);--bs-btn-active-bg:var(--field);--bs-btn-disabled-color:var(--ink);--bs-btn-disabled-bg:var(--surface)}
+
+.theme-picker .theme-label,.theme-label,.theme-category>summary span{color:var(--ink)}
+
+/* Switch theme text and its background together, without a low-contrast fade. */
+.btn{transition-property:transform,box-shadow,border-color}
+
+/* Icon tiles have their own ink: dark themes can still contain pastel tiles. */
+:root{--icon-tile-ink:#253047}
+:root:is([data-theme=midnight],[data-theme=lava],[data-theme=disco],[data-theme=cosmic],[data-theme=aurora],[data-theme=festive],[data-theme=halloween],[data-theme=newyear]){--icon-tile-ink:#ffffff}
+.tool-icon{color:var(--icon-tile-ink)}
+.tool-icon svg{color:inherit}
+.chip-one{color:var(--ink)}
+.chip-two,.chip-three{color:var(--icon-tile-ink)}

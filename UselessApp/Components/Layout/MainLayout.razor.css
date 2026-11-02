@@ -34,7 +34,7 @@ main {
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 2px;
-    color: var(--muted)
+    color: var(--text-muted, var(--muted))
 }
 
 .top-row a {
@@ -54,7 +54,7 @@ main {
     padding-top: 20px;
     border-top: 1px solid var(--line);
     font-size: 12px;
-    color: var(--muted);
+    color: var(--text-muted, var(--muted));
     display: flex;
     justify-content: space-between
 }

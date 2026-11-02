@@ -31,7 +31,7 @@
 
 /* Browser color editor + universal theme-readable controls */
 
-:root{--placeholder-ink:var(--muted)}
+:root{--placeholder-ink:var(--ink)}
 :root[data-theme=midnight],:root[data-theme=terminal],:root[data-theme=ocean]{color-scheme:dark}
 :root[data-theme=garden],:root[data-theme=bubblegum],:root[data-theme=blueprint],:root[data-theme=sunset],:root[data-theme=lavender],:root[data-theme=coffee],:root[data-theme=paper]{color-scheme:light}
 body,main,article,.panel,.tool-card,.app-card,.extra-game,.absurd-app{color:var(--ink)}
@@ -39,7 +39,7 @@ input:not([type=checkbox]):not([type=radio]):not([type=color]),textarea,select,.
 input:not([type=checkbox]):not([type=radio]):not([type=color]):focus,textarea:focus,select:focus,.form-control:focus,.form-select:focus{
  background-color:var(--field);color:var(--ink);border-color:var(--line);opacity:1;
 }
-input::placeholder,textarea::placeholder,.form-control::placeholder{color:var(--muted);opacity:1}
+input::placeholder,textarea::placeholder,.form-control::placeholder{color:var(--placeholder-ink,var(--ink));opacity:1}
 select option{background-color:var(--field);color:var(--ink)}
 input:disabled,select:disabled,textarea:disabled{opacity:.7}
 .btn-primary,.btn-primary:hover,.btn-primary:focus,.btn-primary:active{color:var(--button-text);background-color:var(--green);border-color:var(--green)}
@@ -86,7 +86,7 @@ input:disabled,select:disabled,textarea:disabled{opacity:.7}
 
 /* Legibility fix: existing dictionary markup requests white text on a pale field. */
 #search-term.form-control, #search-term.form-control:focus{color:var(--ink) !important;background-color:var(--field) !important;caret-color:var(--ink) !important;border:1px solid var(--line) !important;}
-#search-term::placeholder{color:var(--muted) !important;opacity:1 !important;}
+#search-term::placeholder{color:var(--placeholder-ink,var(--ink)) !important;opacity:1 !important;}
 
 /* Accessibility override: apply to original API Search without touching its program logic. */
 input.form-control,textarea.form-control,select.form-control,
@@ -97,7 +97,7 @@ input[type="text"],input[type="search"],input[type="number"] {
 }
 input.form-control::placeholder,textarea.form-control::placeholder,
 input[type="text"]::placeholder,input[type="search"]::placeholder {
-  color: var(--muted, #555) !important; opacity: 1;
+  color: var(--placeholder-ink, var(--ink)) !important; opacity: 1;
 }
 /* Shared controls follow the active theme, including custom accent contrast. */
 .accent-dot{background:var(--green);flex-shrink:0}
@@ -198,7 +198,7 @@ button:disabled{cursor:not-allowed;opacity:.65}
 .arcade-calculator .slot-expression .form-control:focus{outline:2px solid #f4d795;outline-offset:3px}
 .arcade-calculator .slot-expression .form-control::placeholder{color:#aebac9!important}
 .slot-cabinet.is-miss .slot-readout{color:#991b1b;background:linear-gradient(#fecaca,#fff1f2 30%,#fff1f2 70%,#fecaca);border-color:#dc2626}
-.slot-cabinet.is-miss .slot-screen-label,.slot-cabinet.is-miss .slot-message{color:#fca5a5}
+.slot-cabinet.is-miss .slot-screen-label,.slot-cabinet.is-miss .slot-message{color:#fecaca}
 .slot-cabinet.is-miss .slot-reel-surround{border-color:#f87171}
 .slot-cabinet.is-jackpot .slot-readout{color:#166534;background:linear-gradient(#bbf7d0,#f0fdf4 30%,#f0fdf4 70%,#bbf7d0);border-color:#16a34a}
 .slot-cabinet.is-jackpot .slot-screen-label,.slot-cabinet.is-jackpot .slot-message{color:#86efac}

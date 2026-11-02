@@ -33,10 +33,13 @@ public class StaticAssetTests
         builder.WebHost.UseStaticWebAssets();
         builder.WebHost.UseTestServer();
         await using var app = builder.Build();
-        app.UseStaticFiles();
-        app.MapStaticAssets(endpointManifest);
+        if (fingerprinted)
+            app.MapStaticAssets(endpointManifest);
+        else
+            app.UseStaticFiles();
         await app.StartAsync();
         var client = app.GetTestClient();
+        client.DefaultRequestHeaders.AcceptEncoding.ParseAdd("gzip, deflate, br");
         using var manifest = JsonDocument.Parse(await File.ReadAllTextAsync(endpointManifest));
         var required = new[] { "app.css", "themes.css", "polish.css", "UselessApp.styles.css", "preferences.js", "navigation.js" };
         foreach (var file in required)
@@ -49,6 +52,11 @@ public class StaticAssetTests
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             Assert.NotEmpty(await response.Content.ReadAsByteArrayAsync());
             Assert.Contains(file.EndsWith(".css") ? "css" : "javascript", response.Content.Headers.ContentType!.MediaType!);
+            if (!fingerprinted)
+            {
+                Assert.Empty(response.Content.Headers.ContentEncoding);
+                Assert.Single(response.Headers.GetValues("ETag"));
+            }
         }
     }
 }

@@ -115,3 +115,89 @@
 @keyframes season-flutter{0%{transform:translate3d(-15vw,25vh,0) rotate(-10deg)}50%{transform:translate3d(8vw,15vh,0) rotate(12deg)}100%{transform:translate3d(18vw,70vh,0) rotate(-10deg)}}
 @keyframes season-rain{from{transform:translate3d(8vw,-10vh,0) rotate(15deg)}to{transform:translate3d(-8vw,120vh,0) rotate(15deg)}}
 @media(prefers-reduced-motion:reduce){.season-particle{display:none!important;animation:none!important}}
+
+/* Distinct atmospheres; reading surfaces remain opaque and use semantic ink. */
+:root[data-theme=midnight]{--paper:#111827;--surface:#1c2638;--field:#273449;--ink:#edf2ff;--muted:#b8c6df;--line:#4b5c76;--sidebar:#0b1120;--sidebar-text:#edf2ff;--green:#a9c8ff;--button-text:#101a2b;--accent:#c9bbff;--accent-ink:#161126;--hero:#24314a;--art-line:#64789b;--art-shadow:#354363;--emphasis:#c9bbff;--mint:#28433f;--peach:#4a3740;--lilac:#3b3457;--yellow:#48422b}
+.theme-option[data-theme-option="midnight"]{--option-bg:#111827;--option-ink:#edf2ff;--option-accent:#a9c8ff}
+:root[data-theme=cosmic]{--paper:#080d24;--surface:#151d3b;--field:#202b4d;--hero:#182344;--sidebar:#060a1b;--line:#455785;--accent:#c6afff;--accent-ink:#100d29;--green:#b8dfff;--button-text:#080d24;--emphasis:#d5b9ff}
+:root[data-theme=cosmic] body::before{
+    opacity:.8;
+    background-image:radial-gradient(circle at 23% 31%,#fff 1.4px,transparent 2px),radial-gradient(circle at 77% 62%,#b9dfff 1.8px,transparent 2.8px),radial-gradient(circle at 41% 83%,#e5c4ff 1px,transparent 2px);
+    background-size:173px 229px,307px 283px,113px 197px;
+    animation:star-parallax 100s linear infinite;
+}
+:root[data-theme=cosmic] .theme-effects{background:radial-gradient(ellipse at 85% 20%,#9459db25,transparent 45%),radial-gradient(ellipse at 35% 80%,#328ab52b,transparent 50%)}
+:root[data-theme=cosmic] .cosmic-planet{
+    display:block;right:4vw;top:14vh;width:clamp(100px,16vw,240px);aspect-ratio:1;border-radius:50%;
+    background:radial-gradient(circle at 30% 25%,#f0d7ff88,transparent 40%),repeating-linear-gradient(165deg,#8e75c3 0 18px,#655f9f 22px 35px,#bc91bc 40px 49px);
+    box-shadow:inset -35px -20px 35px #080d24bb,inset 5px 5px 12px #d9d2ff66,0 0 55px #9785ff25;
+    transform:rotate(-18deg);
+}
+.cosmic-planet::after{content:"";position:absolute;inset:35% -35%;border:12px solid #c9abdc88;border-left-color:#c9abdc22;border-radius:50%;transform:rotate(-15deg);box-shadow:0 0 0 4px #8279b733}
+:root[data-theme=cosmic] .cosmic-big-bang.is-bursting{display:block;left:74%;top:28%;width:20px;height:20px;border-radius:50%;background:radial-gradient(circle,#fff4d9,#d3b3ff66 30%,transparent 70%);animation:cosmic-burst 6s ease-out both}
+.cosmic-big-bang::after{content:"";position:absolute;inset:0;border:1px solid #e2c7ff99;border-radius:50%}
+@keyframes cosmic-burst{0%{opacity:0;transform:scale(.1)}12%{opacity:.65}65%{opacity:.2}100%{opacity:0;transform:scale(38)}}
+@keyframes star-parallax{to{background-position:100px 70px,60px 100px,130px 45px}}
+:root[data-theme=cosmic] .hero-art{background:radial-gradient(ellipse at 80% 15%,#7555a855,transparent 65%),var(--hero);border-color:#8d77bc}
+
+:root[data-theme=disco]{--paper:#160d26;--surface:#291638;--field:#392048;--sidebar:#10081e;--ink:#fff1ff;--line:#785789;--green:#ff9de2;--button-text:#230c2c;--accent:#8df1eb;--accent-ink:#111d2b;--hero:#331b48;--emphasis:#ffd37b;--mint:#23483f;--peach:#503029;--lilac:#493062;--yellow:#4c4025}
+:root[data-theme=disco] .theme-effects{display:block;background:radial-gradient(ellipse at 15% 15%,#ff36b34d,transparent 40%),radial-gradient(ellipse at 85% 70%,#28e9e54d,transparent 42%),radial-gradient(ellipse at 50% 100%,#8d4bff55,transparent 45%)}
+:root[data-theme=disco] .theme-effects::before{content:"";position:absolute;inset:-50%;background:conic-gradient(from 0deg at 50% 15%,transparent 0 15deg,#ff5bb51c 20deg 35deg,transparent 40deg 65deg,#49e4ff20 70deg 85deg,transparent 90deg 150deg,#ffe16b22 155deg 170deg,transparent 175deg 250deg,#9a6bff26 255deg 275deg,transparent 280deg);animation:disco-sweep 32s ease-in-out infinite alternate}
+:root[data-theme=disco] body::before{opacity:.45;background-image:radial-gradient(circle,#ff72cb 2px,transparent 3px),radial-gradient(circle,#60f2e7 2px,transparent 3px),radial-gradient(circle,#ffe078 2px,transparent 3px);background-size:91px 103px,137px 149px,211px 173px}
+:root[data-theme=disco] .disco-ball{display:block;right:7vw;top:9vh;width:100px;height:100px;border-radius:50%;background:repeating-linear-gradient(0deg,transparent 0 11px,#16102066 12px 14px),repeating-linear-gradient(90deg,transparent 0 11px,#16102066 12px 14px),radial-gradient(circle at 30% 25%,#fff,#d5c7ff 25%,#7b7cbb 65%,#413064);box-shadow:0 0 65px #f0bbff55;animation:disco-float 9s ease-in-out infinite alternate}
+:root[data-theme=disco] .hero-art{background:radial-gradient(circle at 15% 20%,#ff61bb44,transparent 60%),radial-gradient(circle at 85% 80%,#42dfdf44,transparent 60%),var(--hero);border-color:#d986ca}
+:root[data-theme=disco] .tool-card{border-top:3px solid #ff9de2}
+:root[data-theme=disco] .tool-card:nth-child(3n+2){border-top-color:#8df1eb}
+:root[data-theme=disco] .tool-card:nth-child(3n){border-top-color:#ffd37b}
+@keyframes disco-sweep{from{transform:rotate(-18deg)}to{transform:rotate(24deg)}}
+@keyframes disco-float{to{transform:translateY(16px) rotate(12deg)}}
+
+/* An infinite gradient on an oversized sheet, never a repeating square tile. */
+:root[data-theme=candy]{--paper:#fff3e5;--surface:#fffcf6;--field:#f8e8ed;--hero:#fae6ec;--line:#dcb4c4;--green:#a32c62;--button-text:#fff;--accent:#bce8db;--accent-ink:#243e37;--emphasis:#9b285d;--mint:#d9efe2;--peach:#ffe1c7;--lilac:#eadcf8;--yellow:#ffedb7}
+:root[data-theme=candy] .theme-effects{background:none;animation:none}
+:root[data-theme=candy] .theme-effects::before{content:"";position:absolute;inset:-100%;background:repeating-linear-gradient(90deg,#ef9db733 0 45px,#fff9eb55 45px 90px,#9edacb33 90px 135px,#fff9eb55 135px 180px);transform:rotate(-30deg);animation:candy-ribbon 20s linear infinite}
+@keyframes candy-ribbon{from{transform:rotate(-30deg) translateX(0)}to{transform:rotate(-30deg) translateX(180px)}}
+:root[data-theme=candy] .hero-art{background:radial-gradient(ellipse at 15% 20%,#f3b9d099,transparent 65%),radial-gradient(ellipse at 85% 25%,#bce2d699,transparent 65%),radial-gradient(ellipse at 55% 90%,#ddc8ef99,transparent 70%),#fff7e4aa;backdrop-filter:blur(20px);border:1px solid #d8b6c599;box-shadow:inset 0 0 45px #fff8,0 8px 28px #c88dac18}
+:root[data-theme=candy] .tool-card{border-radius:24px;box-shadow:0 5px 0 #dfb8c566}
+
+:root[data-theme=festive]{--paper:#061e15;--surface:#0c3424;--field:#154632;--sidebar:#042217;--ink:#fff7e6;--line:#63816b;--green:#b6243e;--button-text:#fff;--accent:#ffd783;--accent-ink:#33200a;--hero:#123c2b;--emphasis:#ffd783;--season-color:#fff8eb;--season-glow:#be2543;--mint:#24513b;--peach:#5c2834;--lilac:#4c3045;--yellow:#514623}
+.theme-option[data-theme-option="festive"]{--option-bg:#0c3424;--option-ink:#fff7e6;--option-accent:#d53751}
+:root[data-theme=festive] .theme-effects{background:radial-gradient(ellipse at 95% 10%,#b6243e44,transparent 50%)}
+:root[data-theme=festive] .theme-effects::before{content:"";position:absolute;top:84px;left:0;right:0;height:42px;background:radial-gradient(circle at 12px 12px,#ff6578 0 5px,#ff657822 8px,transparent 15px) 0 0/92px 36px repeat-x,radial-gradient(circle at 58px 18px,#ffe299 0 5px,#ffe29922 8px,transparent 15px) 0 0/92px 40px repeat-x;border-top:2px solid #446b4e}
+:root[data-theme=festive] .top-row{border-bottom:4px solid #b6243e;border-image:repeating-linear-gradient(135deg,#b6243e 0 10px,#fff7e6 10px 20px,#0c3424 20px 30px) 1}
+:root[data-theme=festive] .hero-art{background:radial-gradient(ellipse at 90% 10%,#a6223c66,transparent 60%),#123c2b;border:2px solid #cda85c;box-shadow:0 0 28px #e9ba5b18}
+:root[data-theme=festive] .tool-card{border-top:3px solid #c5344d}
+:root[data-theme=festive] .tool-card:nth-child(even){border-top-color:#d8b867}
+:root[data-theme=festive] .season-particle{opacity:.5}
+:root[data-theme=festive] .season-particle:nth-child(3n)::before{content:"\2726";color:#ffd783}
+
+/* Give quieter palettes their own material, rather than just a color swap. */
+:root[data-theme=blueprint] body{background-image:linear-gradient(#235c930a 1px,transparent 1px),linear-gradient(90deg,#235c930a 1px,transparent 1px);background-size:24px 24px}
+:root[data-theme=blueprint] .hero-art{background-image:linear-gradient(#235c931c 1px,transparent 1px),linear-gradient(90deg,#235c931c 1px,transparent 1px);background-size:20px 20px;border:2px dashed #527b9e}
+:root[data-theme=blueprint] .panel,:root[data-theme=blueprint] .tool-card{border-radius:4px}
+:root[data-theme=paper] body{background-image:repeating-linear-gradient(0deg,transparent 0 31px,#7777770d 31px 32px)}
+:root[data-theme=paper] .panel,:root[data-theme=paper] .tool-card{border-radius:3px;box-shadow:4px 5px 0 #30303015}
+:root[data-theme=terminal] .hero-art{background-image:repeating-linear-gradient(0deg,transparent 0 3px,#a6e87810 3px 4px);box-shadow:inset 0 0 45px #a6e87812}
+:root[data-theme=terminal] :is(h1,h2,h3,.btn){font-family:ui-monospace,Consolas,monospace}
+:root[data-theme=terminal] .panel,:root[data-theme=terminal] .tool-card{border-radius:2px;border-color:#668a4c}
+:root[data-theme=coffee] .hero-art{background:radial-gradient(circle at 80% 30%,transparent 0 48px,#a77c4c30 49px 53px,transparent 54px),var(--hero)}
+:root[data-theme=coffee] .tool-card{box-shadow:0 6px 18px #6c451112;border-color:#b99b7a}
+:root[data-theme=sunset]{--paper:#fff0e5;--hero:#ffddc7;--sidebar:#572a40;--accent:#ffd28d;--accent-ink:#572a40;--lilac:#edcbe6;--peach:#ffd4be}
+:root[data-theme=sunset] .hero-art{background:radial-gradient(circle at 75% 65%,#ffe09b 0 48px,transparent 49px),linear-gradient(#e5acc8,#f3b49c 65%,#d99289)}
+:root[data-theme=lavender] .hero-art{background:radial-gradient(ellipse at 0% 0%,#c9b1e5aa,transparent 65%),radial-gradient(ellipse at 100% 100%,#e6c7dc,transparent 65%),var(--hero)}
+:root[data-theme=ocean] .hero-art,:root[data-theme=aquarium] .hero-art{background:repeating-radial-gradient(ellipse at 50% -80%,transparent 0 40px,#6cdedb18 42px 44px,transparent 46px 80px),var(--hero)}
+:root[data-theme=aurora] .hero-art{background:linear-gradient(120deg,#5ddd9e33,transparent 40%,#a883ec33),var(--hero)}
+:root[data-theme=spring] .hero-art{border-radius:45px 14px 45px 14px;background:radial-gradient(circle at 85% 20%,#d994b34d,transparent 55%),var(--hero)}
+:root[data-theme=summer] .hero-art{background:radial-gradient(circle at 85% 20%,#f8cf5c 0 48px,#f8cf5c33 49px 70px,transparent 71px),var(--hero)}
+:root[data-theme=autumn] .tool-card{border-top:3px solid #ad582d}
+:root[data-theme=harvest] .hero-art{background:repeating-linear-gradient(45deg,#b47a1410 0 12px,transparent 12px 24px),var(--hero)}
+:root[data-theme=winter] .hero-art{border:2px solid #adcfe7;box-shadow:inset 0 0 40px #fff9,0 6px 25px #37749b12}
+:root[data-theme=halloween] .hero-art{background:radial-gradient(circle at 80% 25%,#ffd38c 0 35px,transparent 36px),radial-gradient(ellipse at 10% 90%,#8542a455,transparent 60%),var(--hero);border-color:#bc733b}
+:root[data-theme=valentine] .hero-art{background:radial-gradient(ellipse at 30% 20%,#e898ba77,transparent 60%),var(--hero);border:2px solid #bd6b90;border-radius:30px}
+:root[data-theme=newyear] .hero-art{background:radial-gradient(circle at 80% 20%,#f2d38433,transparent 50%),var(--hero);border:2px solid #c8a65b}
+:root[data-theme=rainy] .hero-art{background:repeating-linear-gradient(110deg,transparent 0 20px,#538ca514 21px 22px),var(--hero)}
+.theme-option[data-theme-option="cosmic"]{--option-bg:#080d24;--option-ink:#e6efff;--option-accent:#c6afff}
+.theme-option[data-theme-option="disco"]{--option-bg:#291638;--option-ink:#fff1ff;--option-accent:#ff9de2}
+.theme-option[data-theme-option="candy"]{--option-bg:#fff3e5;--option-ink:#4f2344;--option-accent:#a32c62}
+@media(max-width:600px){:root[data-theme=cosmic] .cosmic-planet{top:24vh;right:-30px;width:140px}:root[data-theme=disco] .disco-ball{width:65px;height:65px;right:2vw;top:22vh}}
+@media(prefers-reduced-motion:reduce){:root[data-theme=cosmic] body::before,:root[data-theme=disco] body::before,.theme-effects::before,.theme-effects>span{animation:none!important}:root[data-theme=cosmic] .cosmic-big-bang{display:none!important}}

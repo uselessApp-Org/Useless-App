@@ -244,6 +244,18 @@
     const startColorEditors=()=>{
         apply();
         initializeColorEditors();
+        // A quiet cosmic surprise: 1% per visible minute, with a 15-minute cooldown.
+        let lastBigBang = 0;
+        window.setInterval(() => {
+            if (document.hidden || document.documentElement.dataset.theme !== 'cosmic' ||
+                window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
+                Date.now() - lastBigBang < 15 * 60 * 1000 || Math.random() >= .01) return;
+            const burst = document.querySelector('.cosmic-big-bang');
+            if (!burst) return;
+            lastBigBang = Date.now();
+            burst.classList.add('is-bursting');
+            window.setTimeout(() => burst.classList.remove('is-bursting'), 6500);
+        }, 60000);
         new MutationObserver(initializeColorEditors).observe(document.body,{childList:true,subtree:true});
         if(window.Blazor?.addEventListener) window.Blazor.addEventListener('enhancedload',()=>{apply();initializeColorEditors();});
     };
