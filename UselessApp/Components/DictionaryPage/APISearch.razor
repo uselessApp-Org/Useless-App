@@ -14,33 +14,33 @@
     <div class="search-container panel">
         <label for="search-term" class="search-label">What word are you looking for?</label>
         <div class="input-group mb-3">
-            <input id="search-term" placeholder="Try possibility…" type="text" style="color: white"
-                class="form-control" 
+            <input id="search-term" placeholder="Try possibility…" type="text"
+                class="form-control"
                 @bind="searchTerm" />
-        
+
             <button class="btn btn-primary" type="button" @onclick="ExecuteSearch">
                 Search
             </button>
         </div>
     </div>
-    
+
     <div class="result-container panel" style="text-align: left; max-width: 600px, margin-top: 20px">
         <h2>Search Results</h2>
         <p>@apiResult</p>
 
         @if (!string.IsNullOrEmpty(finalWord))
         {
-            <div class="word-card" style="border: 1px solid #444; padding: 15px; border-radius: 8px; background: #222; margin-top: 15px">
-                <h3 style="color: #0d6efd; text-transform: capitalize; margin-top: 0;">@finalWord</h3>
-                <p style="color: white; font-style: italic;">@finalDescription</p>
+            <div class="word-card" style="border: 1px solid var(--line); padding: 15px; border-radius: 8px; background: var(--field); color: var(--ink); margin-top: 15px">
+                <h3 style="color: var(--text-accent, var(--ink)); text-transform: capitalize; margin-top: 0;">@finalWord</h3>
+                <p style="color: var(--ink); font-style: italic;">@finalDescription</p>
             </div>
         }
 
         @if (suggestions != null && suggestions.Any())
         {
-            <div class="suggestion-card" style="border: 1px solid #ffc107; padding: 15px; border-radius: 8px; background: #332701; margin-top: 15px;">
-                <h4 style="color: #ffc107; margin-top: 0;">Word Not Found. Did you mean?</h4>
-                <ul style="color: white; padding-left: 20px;">
+            <div class="suggestion-card" style="border: 1px solid var(--line); padding: 15px; border-radius: 8px; background: var(--field); color: var(--ink); margin-top: 15px;">
+                <h4 style="color: var(--ink); margin-top: 0;">Word Not Found. Did you mean?</h4>
+                <ul style="color: var(--ink); padding-left: 20px;">
                     @foreach (var word in suggestions)
                     {
                         <li>@word</li>
@@ -84,7 +84,7 @@
     string jsonString = "";
 
     string finalWord = "";
-    string finalDescription = ""; 
+    string finalDescription = "";
 
     List<string> suggestions = new List<string>();
 
@@ -178,8 +178,8 @@
                         var firstEntry = responseObj.List[0];
 
                         finalWord = firstEntry.Word;
-                        finalDescription = !string.IsNullOrWhiteSpace(firstEntry.Definition) 
-                        ? firstEntry.Definition 
+                        finalDescription = !string.IsNullOrWhiteSpace(firstEntry.Definition)
+                        ? firstEntry.Definition
                         : "No definition found.";
 
                         apiResult = $"Found something else";
@@ -189,9 +189,9 @@
                     {
                         apiResult = $"No dictionary entries found for this word";
                     }
-                } 
-                
-                catch (Exception ex) 
+                }
+
+                catch (Exception ex)
                 {
                     apiResult = $"Error: {ex.Message}";
                 }

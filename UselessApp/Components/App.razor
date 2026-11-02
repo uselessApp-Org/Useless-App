@@ -20,6 +20,7 @@
 
 <body>
     <div id="theme-effects" class="theme-effects" data-permanent aria-hidden="true">
+@for (var i = 0; i < 12; i++) { <span class="season-particle" style="--particle-x:@(4 + i * 8)%;--particle-delay:@(-i * 1.7)s;--particle-duration:@(14 + i % 5 * 3)s"></span> }
 <span class="shooting-star" style="--x:12%;--y:6%;--delay:0s"></span>
 <span class="shooting-star" style="--x:28%;--y:16%;--delay:-1.7s"></span>
 <span class="shooting-star" style="--x:44%;--y:26%;--delay:-3.4s"></span>

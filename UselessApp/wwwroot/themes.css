@@ -83,3 +83,35 @@
 :root[data-theme=candy] .theme-effects{background:repeating-linear-gradient(125deg,#edb4d422 0 40px,transparent 40px 90px,#b8d8ee22 90px 130px,transparent 130px 180px);background-size:600px 600px;animation:candy-slide 35s linear infinite}
 @keyframes candy-slide{to{background-position:600px 0}}
 @media(prefers-reduced-motion:reduce){.theme-effects,.theme-effects::before,.theme-effects>span{animation:none!important}:root[data-theme=cosmic] .shooting-star{display:none}:root[data-theme=aquarium] .theme-bubble{bottom:20%;opacity:.3}}
+
+/* Seasonal atmosphere: decorative only, behind opaque reading surfaces. */
+:root[data-theme=spring]{--season-symbol:"\273F";--season-color:#b24279;--season-glow:#c9e6bc;--mint:#dceecb;--peach:#f6dfcc;--lilac:#ecdcf1;--yellow:#f3ebbd}
+:root[data-theme=summer]{--season-symbol:"\2726";--season-color:#bd740c;--season-glow:#f6d67b;--mint:#dfedc6;--peach:#f8deba;--lilac:#e8dff0;--yellow:#f5e5a7}
+:root[data-theme=autumn]{--season-symbol:"\1F342";--season-color:#a34620;--season-glow:#e3ab73;--mint:#dfe4bc;--peach:#f1ccae;--lilac:#e3cfda;--yellow:#eed997}
+:root[data-theme=winter]{--season-symbol:"\2744";--season-color:#4d86a7;--season-glow:#b6def3;--mint:#d4e9df;--peach:#e9e1db;--lilac:#dfe0f1;--yellow:#eee8ce}
+:root[data-theme=halloween]{--season-symbol:"\1F987";--season-color:#ffa859;--season-glow:#794b91}
+:root[data-theme=festive]{--season-symbol:"\2744";--season-color:#f1cf7b;--season-glow:#7c302f}
+:root[data-theme=valentine]{--season-symbol:"\2665";--season-color:#bb447a;--season-glow:#f2bfd3}
+:root[data-theme=harvest]{--season-symbol:"\1F33E";--season-color:#a66c1a;--season-glow:#e4ba72;--mint:#e1e7bb;--peach:#f1d5ae;--lilac:#e5d9df;--yellow:#efe0ae}
+:root[data-theme=newyear]{--season-symbol:"\2726";--season-color:#f2d384;--season-glow:#4a5085}
+:root[data-theme=rainy]{--season-symbol:"";--season-color:#538ca5;--season-glow:#b8d1df}
+:root:is([data-theme=spring],[data-theme=summer],[data-theme=autumn],[data-theme=winter],[data-theme=halloween],[data-theme=festive],[data-theme=valentine],[data-theme=harvest],[data-theme=newyear],[data-theme=rainy]) .theme-effects{display:block}
+:root:is([data-theme=spring],[data-theme=summer],[data-theme=autumn],[data-theme=winter],[data-theme=halloween],[data-theme=festive],[data-theme=valentine],[data-theme=harvest],[data-theme=newyear],[data-theme=rainy]) .page{position:relative;z-index:1}
+
+.season-particle{left:var(--particle-x);top:-12vh;color:var(--season-color);font-size:24px;line-height:1;opacity:.24;animation:season-fall var(--particle-duration) linear infinite;animation-delay:var(--particle-delay)}
+:root:is([data-theme=spring],[data-theme=summer],[data-theme=autumn],[data-theme=winter],[data-theme=halloween],[data-theme=festive],[data-theme=valentine],[data-theme=harvest],[data-theme=newyear],[data-theme=rainy]) .season-particle{display:block}
+.season-particle::before{content:var(--season-symbol)}
+.season-particle:nth-child(even){font-size:17px;opacity:.18}
+:root:is([data-theme=summer],[data-theme=valentine]) .season-particle{animation-name:season-rise}
+:root[data-theme=halloween] .season-particle{animation-name:season-flutter;opacity:.2}
+:root[data-theme=newyear] .season-particle:nth-child(3n){color:#b5c6ff}
+:root[data-theme=newyear] .season-particle:nth-child(3n + 1){color:#dca2cd}
+:root[data-theme=rainy] .season-particle{height:40px;width:2px;background:linear-gradient(transparent,#538ca5);animation-name:season-rain;animation-duration:3s;opacity:.25}
+:root:is([data-theme=spring],[data-theme=summer],[data-theme=autumn],[data-theme=winter],[data-theme=halloween],[data-theme=festive],[data-theme=valentine],[data-theme=harvest],[data-theme=newyear],[data-theme=rainy]) .hero-art{background-image:radial-gradient(ellipse at 85% 15%,color-mix(in srgb,var(--season-glow,transparent) 60%,transparent),transparent 65%)}
+:root[data-theme=festive] .hero-art{box-shadow:inset 0 3px 0 #f1cf7b,0 0 28px #f1cf7b10}
+:root[data-theme=newyear] .hero-art{box-shadow:inset 0 0 0 2px #f2d38455}
+@keyframes season-fall{0%{transform:translate3d(-15px,-8vh,0) rotate(0)}50%{transform:translate3d(35px,55vh,0) rotate(130deg)}100%{transform:translate3d(-20px,120vh,0) rotate(260deg)}}
+@keyframes season-rise{from{transform:translate3d(-10px,120vh,0) rotate(-15deg)}to{transform:translate3d(25px,-10vh,0) rotate(40deg)}}
+@keyframes season-flutter{0%{transform:translate3d(-15vw,25vh,0) rotate(-10deg)}50%{transform:translate3d(8vw,15vh,0) rotate(12deg)}100%{transform:translate3d(18vw,70vh,0) rotate(-10deg)}}
+@keyframes season-rain{from{transform:translate3d(8vw,-10vh,0) rotate(15deg)}to{transform:translate3d(-8vw,120vh,0) rotate(15deg)}}
+@media(prefers-reduced-motion:reduce){.season-particle{display:none!important;animation:none!important}}

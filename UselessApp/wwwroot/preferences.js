@@ -21,10 +21,11 @@
     const seasonalTheme = (date = new Date()) => {
         const month = date.getMonth() + 1, day = date.getDate();
         if (month === 10 && day >= 20) return "halloween";
-        if (month === 12) return "festive";
+        if (month === 12 && day >= 15) return "festive";
         if (month === 1 && day <= 7) return "newyear";
-        if (month === 11) return "harvest";
+        if (month === 11 && day >= 20) return "harvest";
         if (month === 2 && day <= 14) return "valentine";
+        if (month === 4) return "rainy";
         if (month >= 3 && month <= 5) return "spring";
         if (month >= 6 && month <= 8) return "summer";
         if (month >= 9 && month <= 11) return "autumn";

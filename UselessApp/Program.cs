@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Supplies content-based asset versions for stable CSS and script URLs.
+// Supplies content-based versions for the existing stylesheet and script links.
 builder.Services.AddRazorPages();
 
 // ---------------------------
@@ -18,28 +18,26 @@ builder.Services.AddRazorPages();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-var googleConfigured = !string.IsNullOrWhiteSpace(builder.Configuration["Google:ClientId"])
-    && !string.IsNullOrWhiteSpace(builder.Configuration["Google:ClientSecret"]);
-if (!googleConfigured && !builder.Environment.IsDevelopment())
-    throw new InvalidOperationException("Google OAuth client ID and secret must be configured.");
-
-var authentication = builder.Services.AddAuthentication(options =>
+builder.Services.AddAuthentication(options =>
 {
     options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = googleConfigured
-        ? GoogleDefaults.AuthenticationScheme : CookieAuthenticationDefaults.AuthenticationScheme;
-}).AddCookie(options => options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest);
-
-if (googleConfigured)
+    options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+})
+.AddCookie(options =>
 {
-    authentication.AddGoogle(options =>
+    // Allow cookies over HTTP for local testing
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+})
+    .AddGoogle(options =>
     {
         options.ClientId = builder.Configuration["Google:ClientId"]!;
         options.ClientSecret = builder.Configuration["Google:ClientSecret"]!;
+
+        // Ensure correlation cookie works smoothly on localhost
         options.CorrelationCookie.SameSite = SameSiteMode.Lax;
         options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
     });
-}
+
 builder.Services.AddCascadingAuthenticationState();
 
 // ---------------------------
@@ -88,18 +86,13 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
     app.UseHsts();
 }
-// Keep the hosted database index initialization. A development credential failure
-// must not prevent public pages or their CSS from being served.
-try
+//Mongo Indexs
+using (var scope = app.Services.CreateScope())
 {
-    using var scope = app.Services.CreateScope();
     var userService = scope.ServiceProvider.GetRequiredService<MongodbUserService>();
     userService.EnsureIndexes();
 }
-catch (MongoException) when (app.Environment.IsDevelopment())
-{
-    app.Logger.LogWarning("The hosted account database is unavailable. Check MongoDB user secrets before using signup or login.");
-}
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.MapStaticAssets();
@@ -112,12 +105,10 @@ app.UseAuthorization();
 // AUTH ENDPOINTS
 // ---------------------------
 app.MapGet("/auth/login", (string? returnUrl) =>
-{
-    if (!googleConfigured)
-        return (IResult)Results.Problem("Google sign-in is not configured. Add Google OAuth credentials to user secrets.", statusCode: 503);
-    return Results.Challenge(new AuthenticationProperties { RedirectUri = returnUrl ?? "/" },
-        [GoogleDefaults.AuthenticationScheme]);
-});
+    Results.Challenge(
+        new AuthenticationProperties { RedirectUri = returnUrl ?? "/" },
+        [GoogleDefaults.AuthenticationScheme]));
+
 app.MapGet("/auth/logout", async (HttpContext context) =>
 {
     // Clear the authentication cookie

@@ -387,3 +387,17 @@ textarea:focus-visible, summary:focus-visible {
     .sidebar .menu-label { right: 12px; }
     .page .top-row { padding-left: 12px !important; padding-right: 12px !important; }
 }
+
+/* Paired surface/text colors, including Bootstrap cards and custom accents. */
+:root{--text-accent:var(--ink);--text-muted:var(--ink);--danger:var(--ink)}
+.card{--bs-card-bg:var(--surface);--bs-card-color:var(--ink);--bs-card-border-color:var(--line);background:var(--surface);color:var(--ink)}
+.card-body,.card-title,.card-text,.weather-card,.forecast-card{color:var(--ink)}
+p,.small-note,.form-hint,.updated,.forecast-label,.forecast-precip{color:var(--text-muted,var(--muted))}
+a{color:var(--text-accent,var(--green))}
+.counter-number{color:var(--text-accent,var(--green))}
+.btn-outline-primary{--bs-btn-color:var(--text-accent,var(--ink));--bs-btn-border-color:var(--text-accent,var(--ink));--bs-btn-hover-bg:var(--green);--bs-btn-hover-color:var(--button-text);--bs-btn-hover-border-color:var(--green);--bs-btn-active-bg:var(--green);--bs-btn-active-color:var(--button-text)}
+.btn-outline-danger{--bs-btn-color:var(--danger);--bs-btn-border-color:var(--danger);--bs-btn-hover-bg:var(--field);--bs-btn-hover-color:var(--danger);--bs-btn-hover-border-color:var(--danger)}
+.error-text,.validation-message{color:var(--danger)}
+#blazor-error-ui{color:#352512}
+.location-input::placeholder{color:var(--text-muted,var(--muted));opacity:1}
+.eyebrow,.app-status,.tool-number,.section-heading>span,.theme-menu-note,.accent-note,.app-footer{color:var(--text-muted,var(--muted))}

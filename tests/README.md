@@ -1,4 +1,4 @@
-# Tests
+# UselessApp Tests
 
 Run from the repository root with the .NET 9 SDK installed:
 
@@ -20,4 +20,4 @@ To run one project:
 dotnet test tests/UselessApp.UnitTests/UselessApp.UnitTests.csproj
 ```
 
-Browser JavaScript, visual layout, and real external-service access require separate browser checks. The obsolete commented-out route, page, and experiment-provider suites have been removed.
+Browser JavaScript, visual layout, and real external-service access require separate browser checks.

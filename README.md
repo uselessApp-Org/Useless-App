@@ -44,7 +44,7 @@ Keep your actual connection string in local user secrets, not committed appsetti
 
 Keep any other existing secret entries. Restart the server after changing settings. An authentication error means the database rejected the supplied credentials; check the database username/password and connection-string encoding with the team. Startup initializes the username index against the hosted database; signup and login use that connection too.
 
-For the copyable restore, build, and run commands, see [QUICKSTART.md](QUICKSTART.md). Configure the hosted connection before testing accounts; no alternate offline build is needed.
+Use the copyable commands in [Quick start and detailed setup](#quick-start-and-detailed-setup) to build and run with the hosted database.
 
 ## Setting up Gemini API
 1. Getting API key
@@ -186,7 +186,7 @@ dotnet run --project UselessApp --launch-profile http --no-build
 | Google sign-in | Redirects users to Google and handles the sign-in callback. | Google OAuth web client ID/secret and matching redirect URI. |
 | Ask AI | Sends prompts to Gemini. | Gemini API key and access to the model configured in GeminiService.cs. |
 | API Search / Dictionary | Uses Merriam-Webster or Urban Dictionary; deliberately searches for a random word rather than defining the exact input. | Collegiate Dictionary key for Merriam-Webster. Urban Dictionary has no API-key setting in this app, but the page also injects MerriamAPI, so configure the Dictionary key to avoid its missing-key constructor error. |
-| Weather | Finds city coordinates with Open-Meteo and requests weather.gov data. | Internet access; no API-key setting in these services. weather.gov forecast coverage is primarily U.S. locations. |
+| Weather | Finds city coordinates with Open-Meteo and requests weather.gov data. | Internet access; no API-key setting in these services. |
 | Counter and original Calculator | Local interactive tools; the original calculator intentionally scrambles operators. | No feature-specific API key. Normal app startup still requires the account configuration above. |
 | Arcade | Local games and joke tools, including an accurate evaluator used by the Arcade calculator. | No additional external credentials for the local games. |
 | Themes, pins, custom colors | Customize appearance and save browser preferences. | Browser local storage; no API key. Clearing site data removes saved preferences. |
@@ -323,12 +323,6 @@ Gemini keys and OAuth client credentials serve different purposes. [Gemini key d
 
 The app intentionally looks up a randomly chosen word. A valid key does not rule out a request or JSON-handling bug. The Urban Dictionary option uses its public random endpoint and has no separate key setting in this app. [Merriam-Webster API setup](https://www.dictionaryapi.com/)
 
-#### Weather and local tools
-
-Weather uses Open-Meteo to find coordinates and weather.gov for forecast details. No additional secret is read by those services. Try a U.S. city because weather.gov is not a worldwide forecast service.
-
-Counter, Calculator, Arcade, and themes need no additional keys. This does not remove the application-wide MongoDB and Google configuration requirements.
-
 #### Optional experiment-provider adapter
 
 The `/lab/{id}` experiments use local demos unless a supported provider is configured and Connected mode is selected. This is separate from the local Arcade routes.
@@ -369,4 +363,4 @@ Do not replace unrelated existing secrets, add this file to Git, or edit the gen
 | Styles or icon look old | Rebuild, restart, and press Ctrl+F5. |
 | A feature fails but the page loads | Check server output and browser errors. Tests alone do not verify live provider access. |
 
-See Versioning Practices above for the contribution workflow. This guide changes documentation only; it does not change login, database, or tool behavior.
+See Versioning Practices above for the contribution workflow.
