@@ -49,15 +49,16 @@ public class AstronomicalData
 
 #endregion
 
-#region Hourly Weather Data
+#region Hourly / Daily Weather Data
 
-public class HourlyForecast
+// these should work for both hourly forecast and "daily forecast" same exact structure
+public class Forecast
 {
     [JsonPropertyName("properties")]
-    public HourlyData? Properties { get; set; }
+    public ForecastData? Properties { get; set; }
 }
 
-public class HourlyData
+public class ForecastData
 {
     [JsonPropertyName("units")]
     public string Units { get; set; } = string.Empty;
@@ -71,8 +72,32 @@ public class HourlyPeriod
     [JsonPropertyName("number")]   
     public int hourNumber;
 
-    // [JsonPropertyName("startTime")]
-    // public string
+    [JsonPropertyName("name")]
+    public string name = string.Empty;
+
+    [JsonPropertyName("startTime")]
+    public DateTimeOffset startTime;
+
+    [JsonPropertyName("endTime")]
+    public DateTimeOffset endTime;
+
+    [JsonPropertyName("temperature")]
+    public int temperature;
+
+    [JsonPropertyName("temperatureUnit")]
+    public string temperatureUnit = string.Empty;
+
+    [JsonPropertyName("windSpeed")]
+    public string windSpeed = string.Empty;
+
+    [JsonPropertyName("windDirection")]
+    public string windDirection = string.Empty;
+
+    [JsonPropertyName("icon")]
+    public string iconURL = string.Empty;
+
+    [JsonPropertyName("shortForecast")]
+    public string shortForecast = string.Empty;
 }
 
 #endregion
@@ -112,4 +137,26 @@ public class WeatherService
 
         return (PointResponse?.Properties, null);
     }
+
+    /// <summary>
+    /// this can be used to get either hourly or data forecast data
+    /// </summary>
+    /// <param name="ForecastURL">URL from WeatherProperties</param>
+    /// <returns>forecast data</returns>
+    public async Task<(ForecastData? ForecastData, string? Error)> GetWeatherData(string ForecastURL)
+    {
+        Forecast? DailyCast;
+        string ForecastResponse = string.Empty;
+        HttpResponseMessage responseMessage = await _httpClient.GetAsync(ForecastURL);
+
+        if(!responseMessage.IsSuccessStatusCode)
+            return (null, $"Error: {(int)responseMessage.StatusCode} {responseMessage.ReasonPhrase}");
+        
+        ForecastResponse = await responseMessage.Content.ReadAsStringAsync();
+        DailyCast = JsonSerializer.Deserialize<Forecast>(ForecastResponse);
+
+        return (DailyCast?.Properties, null);
+    }
+
+
 }

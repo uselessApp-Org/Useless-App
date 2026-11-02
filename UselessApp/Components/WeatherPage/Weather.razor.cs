@@ -7,9 +7,6 @@ public partial class Weather
     // Sample data until the weather API is wired up
     private string location = "Menomonie, WI";
     private string lastUpdated = DateTime.Now.ToString("h:mm tt");
-    private CurrentConditions currentConditions = new("Partly Indecisive", "⛅", 58, 55, 64, "NW", 315, 12);
-
-    private readonly string[] icons = { "☀", "⛅", "☁", "🌧", "⛈", "🌨" };
     private List<ForecastItem> hourly = new();
     private List<ForecastItem> daily = new();
 
@@ -17,8 +14,12 @@ public partial class Weather
     private bool showLocationPrompt = true;
     private bool hasLocation = false;
     private GeoLocationResult? selectedLocation;
-    private WeatherProperties? weatherPoint;
+    public WeatherProperties? weatherPoint;
+    public ForecastData? RealHourlyForecast;
+    public ForecastData? RealDailyForecast;
     private string? weatherPointError;
+    private string? forecastDailyError;
+    private string? forecastHourlyError;
 
     protected override void OnInitialized()
     {
@@ -28,14 +29,14 @@ public partial class Weather
         for (int i = 0; i < 24; i++)
         {
             string label = i == 0 ? "Now" : now.AddHours(i).ToString("h tt");
-            hourly.Add(new ForecastItem(label, icons[rng.Next(icons.Length)], rng.Next(45, 66), null, rng.Next(0, 101)));
+            hourly.Add(new ForecastItem(label, rng.Next(45, 66), null, rng.Next(0, 101)));
         }
 
         for (int i = 0; i < 7; i++)
         {
             string label = i == 0 ? "Today" : now.AddDays(i).ToString("ddd");
             int high = rng.Next(50, 72);
-            daily.Add(new ForecastItem(label, icons[rng.Next(icons.Length)], high, high - rng.Next(8, 18), rng.Next(0, 101)));
+            daily.Add(new ForecastItem(label, high, high - rng.Next(8, 18), rng.Next(0, 101)));
         }
     }
 
@@ -54,5 +55,20 @@ public partial class Weather
 
         // TEMP: fetch weather point data so it can be inspected on the page
         (weatherPoint, weatherPointError) = await WeatherService.GetWeatherPointData(result.Latitude, result.Longitude);
+        if (!string.IsNullOrEmpty(weatherPointError))
+        {
+            await GetDailyHour();
+            await GetHourly();
+        }
+    }
+
+    private async Task GetDailyHour()
+    {
+        (RealDailyForecast, forecastDailyError) = await WeatherService.GetWeatherData(weatherPoint.Forecast);
+    }
+
+    private async Task GetHourly()
+    {
+        (RealHourlyForecast, forecastHourlyError) = await WeatherService.GetWeatherData(weatherPoint.ForecastHourly);
     }
 }

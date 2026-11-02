@@ -1,42 +1,49 @@
+@inject WeatherService WeatherService
+
 <div class="eyebrow">CURRENT CONDITIONS</div>
 <h2 class="location">@Location</h2>
 <button type="button" class="change-location" @onclick="OnChangeLocation">Change location</button>
 <p class="updated">Last updated @LastUpdated</p>
 
 <div class="current-temp">
-    <span class="current-icon" aria-hidden="true">@Conditions.Icon</span>
-    <span>@(Conditions.Temp)°</span>
+    
+    <span>@(CurrentData?.temperature)°@(CurrentData?.temperatureUnit)</span>
 </div>
-<p class="condition">@Conditions.Condition</p>
+<p class="condition">@CurrentData?.name</p>
 
 <dl class="stats">
     <div>
-        <dt>Humidity</dt>
-        <dd>@(Conditions.Humidity)%</dd>
-    </div>
-    <div>
         <dt>Wind</dt>
         <dd>
-            <span class="wind-arrow" style="transform: rotate(@(Conditions.WindDeg)deg);" aria-hidden="true">↑</span>
-            @Conditions.WindDirection @Conditions.WindSpeed mph
+            <span>@(CurrentData?.iconURL)</span>
+            @CurrentData?.windDirection @CurrentData?.windSpeed mph
         </dd>
     </div>
     <div>
-        <dt>Feels like</dt>
-        <dd>@(Conditions.FeelsLike)°</dd>
+        <dt>Weather Description</dt>
+        <dd>@CurrentData?.shortForecast</dd>
     </div>
 </dl>
 
 @code {
-    [Parameter, EditorRequired]
-    public CurrentConditions Conditions { get; set; } = default!;
+    [Parameter]
+    public string LastUpdated { get; set; } = string.Empty;
 
     [Parameter]
     public string Location { get; set; } = string.Empty;
 
     [Parameter]
-    public string LastUpdated { get; set; } = string.Empty;
+    public EventCallback OnChangeLocation { get; set; }
 
     [Parameter]
-    public EventCallback OnChangeLocation { get; set; }
+    public ForecastData? CurrentForecast {get; set; }
+
+    [Parameter]
+    public HourlyPeriod? CurrentData { get; set; }
+
+
+    private void SetCurrentData()
+    {
+        CurrentData = CurrentForecast?.hourlyPeriods[0];
+    }
 }
