@@ -1,20 +1,21 @@
-﻿
+
 @code{
 
 }
-<a class="brand" href=""><span class="brand-mark" aria-hidden="true">u.</span><span>UselessApp<small>PROFESSIONALLY UNHELPFUL</small></span></a>
-<input type="checkbox" id="menu-toggle" class="menu-toggle" />
-<label for="menu-toggle" class="menu-label">Explore tools <span aria-hidden="true">☰</span></label>
-<div class="nav-scrollable">
+<a class="brand" href=""><span class="brand-mark" aria-hidden="true"><img src="favicon.png" alt="" width="42" height="42" /></span><span>UselessApp<small>PROFESSIONALLY UNHELPFUL</small></span></a>
+<input type="checkbox" id="menu-toggle" class="menu-toggle" aria-label="Show tools navigation" aria-controls="tools-navigation" />
+<label for="menu-toggle" class="menu-label"><svg class="menu-icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" /></svg><span>Tools</span></label>
+<div id="tools-navigation" class="nav-scrollable">
     <div class="nav-caption">WORKSPACE</div>
     <nav aria-label="Main navigation">
         <NavLink class="nav-link" href="" Match="NavLinkMatch.All"><span aria-hidden="true">⌂</span> Home</NavLink>
         <NavLink class="nav-link" href="weather"><span aria-hidden="true">☀</span> Weather</NavLink>
-        <NavLink class="nav-link" href="calculator"><span aria-hidden="true">▦</span> Calculator</NavLink>
+        <NavLink class="nav-link" href="calculator"><span aria-hidden="true"><CalculatorIcon /></span> Calculator</NavLink>
         <NavLink class="nav-link" href="api-search-term"><span aria-hidden="true">⌕</span> API Search</NavLink>
         <NavLink class="nav-link" href="AskAI"><span aria-hidden="true">ⓘ</span> Ask AI</NavLink>
         <NavLink class="nav-link" href="counter"><span aria-hidden="true">☰</span> Counter</NavLink>
        
+        <NavLink class="nav-link" href="other-apps"><span aria-hidden="true">&#9783;</span> Other apps</NavLink>
     </nav>
 </div>
 

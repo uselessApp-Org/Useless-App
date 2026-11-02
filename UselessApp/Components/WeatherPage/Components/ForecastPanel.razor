@@ -1,0 +1,21 @@
+<div class="forecast-options" role="group" aria-label="Forecast range">
+    <button type="button" class="mode-button" aria-pressed="@(!showDaily)" @onclick="() => showDaily = false">Hourly</button>
+    <button type="button" class="mode-button" aria-pressed="@showDaily" @onclick="() => showDaily = true">Daily</button>
+</div>
+
+<ul class="forecast-strip">
+    @foreach (var item in showDaily ? Daily : Hourly)
+    {
+        <ForecastCard Item="item" />
+    }
+</ul>
+
+@code {
+    [Parameter]
+    public IReadOnlyList<ForecastItem> Hourly { get; set; } = [];
+
+    [Parameter]
+    public IReadOnlyList<ForecastItem> Daily { get; set; } = [];
+
+    private bool showDaily = false;
+}

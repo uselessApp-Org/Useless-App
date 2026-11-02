@@ -5,6 +5,6 @@
 ## Check List
 [] Fully Implemented?
 [] Did you create test methods?
-....*Maybe create a new ticket to implement these test methods
+   *Maybe create a new ticket to implement these test methods
 
 ## Any comments?

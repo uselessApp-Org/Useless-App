@@ -46,3 +46,8 @@ TestResults/
 Thumbs.db
 
 appsettings.json
+# Temporary verification builds and compiled binaries
+.tmp/
+*.dll
+*.pdb
+*.exe

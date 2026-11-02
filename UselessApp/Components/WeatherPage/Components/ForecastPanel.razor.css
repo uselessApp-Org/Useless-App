@@ -1,0 +1,16 @@
+.forecast-options {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.forecast-strip {
+    display: flex;
+    gap: 12px;
+    list-style: none;
+    margin: 0;
+    padding: 0 0 10px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: thin;
+}

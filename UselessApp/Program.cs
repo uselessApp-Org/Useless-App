@@ -9,6 +9,9 @@ using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Supplies content-based versions for the existing stylesheet and script links.
+builder.Services.AddRazorPages();
+
 // ---------------------------
 // GOOGLE AUTH
 // ---------------------------
@@ -51,10 +54,15 @@ builder.Services.AddSingleton<IMongoClient>(sp =>
 builder.Services.AddScoped<MongodbUserService>();
 builder.Services.AddScoped<CalculatorEvaluatorService>();
 builder.Services.AddScoped<DisplayNameService>();
+builder.Services.AddScoped<IExperimentService, ExperimentService>();
+
 builder.Services.AddScoped<ProtectedSessionStorage>();
 
 builder.Services.AddHttpClient("experiments", client => client.Timeout = TimeSpan.FromSeconds(20));
-builder.Services.AddScoped<IExperimentService, ExperimentService>();
+builder.Services.AddHttpClient<GeoLocationService>();
+builder.Services.AddHttpClient<WeatherService>();
+builder.Services.AddHttpClient<GeminiService>();
+
 
 builder.Services.AddHttpClient<MerriamAPI>();
 builder.Services.AddHttpClient<UrbanAPI>();
@@ -86,6 +94,7 @@ using (var scope = app.Services.CreateScope())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+app.MapStaticAssets();
 app.UseAntiforgery();
 
 app.UseAuthentication();
