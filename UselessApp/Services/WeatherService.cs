@@ -51,7 +51,29 @@ public class AstronomicalData
 
 #region Hourly Weather Data
 
+public class HourlyForecast
+{
+    [JsonPropertyName("properties")]
+    public HourlyData? Properties { get; set; }
+}
 
+public class HourlyData
+{
+    [JsonPropertyName("units")]
+    public string Units { get; set; } = string.Empty;
+
+    [JsonPropertyName("periods")]
+    public List<HourlyPeriod> hourlyPeriods = new List<HourlyPeriod>();
+}
+
+public class HourlyPeriod
+{
+    [JsonPropertyName("number")]   
+    public int hourNumber;
+
+    // [JsonPropertyName("startTime")]
+    // public string
+}
 
 #endregion
 

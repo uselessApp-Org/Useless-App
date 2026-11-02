@@ -9,6 +9,7 @@
 
 .weather-card {
     background: var(--surface);
+    color: var(--ink);
     border: 1px solid var(--line);
     border-radius: 14px;
     padding: 24px;
@@ -17,7 +18,7 @@
 
 .weather-card .eyebrow {
     margin-bottom: 14px;
-    color: var(--muted);
+    color: var(--text-muted, var(--muted));
 }
 
 /* Geolocation result */
@@ -52,7 +53,7 @@
     padding: 0;
     margin-top: 4px;
     font-size: 12px;
-    color: var(--accent);
+    color: var(--text-accent, var(--ink));
     text-decoration: underline;
     cursor: pointer;
 }
@@ -70,7 +71,7 @@
     line-height: 1.1;
     font-weight: 500;
     letter-spacing: -3px;
-    color: var(--green);
+    color: var(--text-accent, var(--ink));
 }
 
 .current-icon {
@@ -104,7 +105,7 @@
 .stats dt {
     font-size: 12px;
     font-weight: 600;
-    color: var(--muted);
+    color: var(--text-muted, var(--muted));
 }
 
 .stats dd {
@@ -137,7 +138,7 @@
 ::deep .mode-button[aria-pressed=true] {
     background: var(--accent);
     color: var(--accent-ink);
-    border-color: var(--accent);
+    border-color: var(--text-accent, var(--ink));
 }
 
 /* Location prompt */
@@ -179,7 +180,7 @@
 }
 
 .location-error {
-    color: #d9534f;
+    color: var(--danger, var(--ink));
     font-size: 13px;
     margin: 10px 0 0 !important;
 }
