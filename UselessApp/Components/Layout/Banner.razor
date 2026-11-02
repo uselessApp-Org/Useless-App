@@ -1,18 +1,26 @@
 @inject DisplayNameService DisplayNameService
-@inject  NavigationManager nav
+@inject NavigationManager nav
 @rendermode InteractiveServer
 
-<div class="login-container">
+<div class="user-menu">
     @if (DisplayNameService.IsLoggedIn)
     {
-        <span class="user-display">
-            @(DisplayNameService.RandomDisplayName 
-              ?? DisplayNameService.DisplayName 
-              ?? DisplayNameService.Username)
+        <button class="user-menu-trigger" @onclick="ToggleMenu">
+            @DisplayNameService.RandomDisplayName
+        </button>
+        @if (menuOpen)
+        {
+           <div class="user-menu-dropdown">
+    <a class="dropdown-link" href="/profile">Profile</a>
 
-        </span>
-        <a href="#" @onclick="Logout">Logout</a>
+    <button class="dropdown-link" @onclick="Logout">Logout</button>
+</div>
 
+
+        }
+
+
+        
     }
     else
     {
@@ -22,12 +30,26 @@
 </div>
 
 @code {
+    private bool menuOpen = false;
+
+    private void ToggleMenu()
+    {
+        menuOpen = !menuOpen;
+    }
+
+    private void NavigateTo(string url)
+    {
+        menuOpen = false;
+        nav.NavigateTo(url);
+    }
+
     private async Task Logout()
     {
+        menuOpen = false;
         await DisplayNameService.LogoutAsync();
-            nav.NavigateTo("/");
-
+        nav.NavigateTo("/");
     }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
