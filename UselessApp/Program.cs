@@ -9,6 +9,9 @@ using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Supplies content-based versions for the existing stylesheet and script links.
+builder.Services.AddRazorPages();
+
 // ---------------------------
 // GOOGLE AUTH
 // ---------------------------
@@ -92,6 +95,7 @@ using (var scope = app.Services.CreateScope())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+app.MapStaticAssets();
 app.UseAntiforgery();
 
 app.UseAuthentication();

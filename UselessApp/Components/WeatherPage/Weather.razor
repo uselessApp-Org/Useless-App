@@ -14,8 +14,9 @@
             <div class="eyebrow">LOCATION</div>
             <h2 id="location-title">Where are you?</h2>
             <p>Enter a city so we can be confidently wrong about your weather.</p>
+            <p id="weather-coverage" class="small-note">Weather.gov forecasts cover U.S. locations. Enter a U.S. city.</p>
 
-            <input class="location-input" type="text" placeholder="e.g. Menomonie" aria-label="City name"
+            <input class="location-input" type="text" placeholder="e.g. Menomonie" aria-label="City name" aria-describedby="weather-coverage"
                    @bind="cityInput" @bind:event="oninput" disabled="@isSearching" autofocus />
 
             @if (locationError is not null)
