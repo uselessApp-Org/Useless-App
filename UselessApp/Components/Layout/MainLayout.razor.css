@@ -102,3 +102,9 @@ main {
         gap: 12px
     }
 }
+/* Shared shell refinement; preserve the existing layout and responsive rules. */
+.sidebar{border-right:1px solid color-mix(in srgb,var(--sidebar-text) 14%,transparent)}
+.top-row{background:var(--surface);gap:14px}
+.top-row>span{letter-spacing:.12em;font-weight:600}
+.app-footer{line-height:1.6;font-size:12px}
+@media(min-width:801px){.content{padding-top:44px;padding-bottom:44px}}

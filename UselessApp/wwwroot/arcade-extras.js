@@ -19,7 +19,6 @@ const gym={
 };
 let audioCtx;
 function sound(f=600){try{audioCtx??=new (window.AudioContext||window.webkitAudioContext)();const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.connect(g).connect(audioCtx.destination);o.frequency.value=f;g.gain.setValueAtTime(.09,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+.12);o.start();o.stop(audioCtx.currentTime+.13)}catch{}}
-const coin={async flip(id){const root=document.getElementById(id);if(!root)return null;const disk=root.querySelector('[data-coin-disk]');disk.classList.remove('flipping');void disk.offsetWidth;disk.classList.add('flipping');const heads=crypto.getRandomValues(new Uint32Array(1))[0]<2147483648;await new Promise(res=>setTimeout(res,1100));disk.textContent=heads?'H':'T';disk.classList.remove('flipping');sound(heads?660:440);return heads?'Heads':'Tails';}};
 const platform={
  start(id){this.stop(id);const canvas=document.getElementById(id),ctx=canvas?.getContext('2d');if(!ctx)return;let on=true, frame=0,player={x:60,y:240,vy:0},score=0,dead=false,obstacles=[],holding=false,jumps=0,last=performance.now();
  const difficulty=document.getElementById('platformer-difficulty');
@@ -41,5 +40,5 @@ const platform={
  active.set(id,()=>{on=false;button?.removeEventListener('pointerdown',press);button?.removeEventListener('pointerup',release);button?.removeEventListener('pointercancel',release);window.removeEventListener('keydown',key);window.removeEventListener('keyup',release);window.removeEventListener('pointerup',release);difficulty?.removeEventListener('change',change);course?.removeEventListener('change',change)});
  },stop(id){active.get(id)?.();active.delete(id)}
 };
-window.uselessExtras={gym,coin,platform};
+window.uselessExtras={gym,platform};
 })();

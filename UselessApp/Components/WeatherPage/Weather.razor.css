@@ -9,6 +9,7 @@
 
 .weather-card {
     background: var(--surface);
+    color: var(--ink);
     border: 1px solid var(--line);
     border-radius: 14px;
     padding: 24px;
@@ -18,7 +19,7 @@
 /* ::deep so eyebrows rendered by child panels pick this up too */
 .weather-card ::deep .eyebrow {
     margin-bottom: 14px;
-    color: var(--muted);
+    color: var(--text-muted, var(--muted));
 }
 
 /* Geolocation result */
@@ -43,6 +44,81 @@
     grid-area: info;
 }
 
+.location {
+    margin: 0;
+}
+
+.change-location {
+    border: 0;
+    background: none;
+    padding: 0;
+    margin-top: 4px;
+    font-size: 12px;
+    color: var(--text-accent, var(--ink));
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.updated {
+    font-size: 12px;
+    margin: 4px 0 16px;
+}
+
+.current-temp {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 72px;
+    line-height: 1.1;
+    font-weight: 500;
+    letter-spacing: -3px;
+    color: var(--text-accent, var(--ink));
+}
+
+.current-icon {
+    font-size: 48px;
+    letter-spacing: 0;
+}
+
+.condition {
+    font-weight: 600;
+    color: var(--ink);
+    margin: 4px 0 20px;
+}
+
+.stats {
+    display: grid;
+    gap: 12px;
+    margin: 0;
+}
+
+.stats div {
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--line);
+}
+
+.stats div:last-child {
+    border-bottom: 0;
+}
+
+.stats dt {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted, var(--muted));
+}
+
+.stats dd {
+    margin: 0;
+    font-weight: 600;
+}
+
+.wind-arrow {
+    display: inline-block;
+    margin-right: 4px;
+}
+
 /* Forecast */
 .forecast-panel {
     grid-area: forecast;
@@ -63,12 +139,12 @@
 ::deep .mode-button[aria-pressed=true] {
     background: var(--accent);
     color: var(--accent-ink);
-    border-color: var(--accent);
+    border-color: var(--text-accent, var(--ink));
 }
 
 /* Weather point error (the location prompt has its own copy in LocationPrompt.razor.css) */
 .location-error {
-    color: #d9534f;
+    color: var(--danger, var(--ink));
     font-size: 13px;
     margin: 10px 0 0;
 }
