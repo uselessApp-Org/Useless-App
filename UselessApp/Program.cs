@@ -62,6 +62,7 @@ builder.Services.AddScoped<ProtectedSessionStorage>();
 builder.Services.AddHttpClient("experiments", client => client.Timeout = TimeSpan.FromSeconds(20));
 builder.Services.AddHttpClient<GeoLocationService>();
 builder.Services.AddHttpClient<WeatherService>();
+builder.Services.AddHttpClient<RandomUSCoordsService>();
 builder.Services.AddHttpClient<GeminiService>();
 
 

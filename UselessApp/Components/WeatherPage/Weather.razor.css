@@ -5,6 +5,9 @@
         "radar info"
         "forecast forecast";
     gap: 20px;
+    /* Anchor for the location prompt overlay, which only covers this page */
+    position: relative;
+    min-height: 420px;
 }
 
 .weather-card {
@@ -16,7 +19,8 @@
     min-width: 0;
 }
 
-.weather-card .eyebrow {
+/* ::deep so eyebrows rendered by child panels pick this up too */
+.weather-card ::deep .eyebrow {
     margin-bottom: 14px;
     color: var(--text-muted, var(--muted));
 }
@@ -141,60 +145,11 @@
     border-color: var(--text-accent, var(--ink));
 }
 
-/* Location prompt */
-.location-backdrop {
-    position: fixed;
-    inset: 0;
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 16px;
-    background: rgba(0, 0, 0, 0.55);
-}
-
-.location-dialog {
-    width: 100%;
-    max-width: 420px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
-}
-
-.location-dialog h2 {
-    margin: 0 0 6px;
-}
-
-.location-dialog p {
-    margin: 0 0 16px;
-}
-
-.location-input {
-    width: 100%;
-    box-sizing: border-box;
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    background: var(--field);
-    color: var(--ink);
-    padding: 10px 12px;
-    font-size: 14px;
-    min-height: 40px;
-}
-
+/* Weather point error (the location prompt has its own copy in LocationPrompt.razor.css) */
 .location-error {
     color: var(--danger, var(--ink));
     font-size: 13px;
-    margin: 10px 0 0 !important;
-}
-
-.location-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
-    margin-top: 16px;
-}
-
-.location-actions .mode-button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+    margin: 10px 0 0;
 }
 
 @media (max-width: 800px) {
