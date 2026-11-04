@@ -39,7 +39,7 @@
     </section>
 
     <section class="weather-card info-panel" aria-label="Current conditions">
-        <CurrentConditionsPanel CurrentForecast="@RealHourlyForecast" Location="@location" LastUpdated="@lastUpdated" OnChangeLocation="OpenLocationPrompt" />
+        <CurrentConditionsPanel CurrentForecast="@RealHourlyForecast" Astronomy="@weatherPoint?.AstronomicalData" Location="@location" LastUpdated="@lastUpdated" OnChangeLocation="OpenLocationPrompt" />
     </section>
 
     <section class="weather-card forecast-panel" aria-label="Forecast">

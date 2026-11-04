@@ -64,40 +64,41 @@ public class ForecastData
     public string Units { get; set; } = string.Empty;
 
     [JsonPropertyName("periods")]
-    public List<HourlyPeriod> hourlyPeriods = new List<HourlyPeriod>();
+    public List<HourlyPeriod> hourlyPeriods { get; set; } = new List<HourlyPeriod>();
 }
 
+// NOTE: System.Text.Json only fills properties ({ get; set; }), not plain fields
 public class HourlyPeriod
 {
-    [JsonPropertyName("number")]   
-    public int hourNumber;
+    [JsonPropertyName("number")]
+    public int hourNumber { get; set; }
 
     [JsonPropertyName("name")]
-    public string name = string.Empty;
+    public string name { get; set; } = string.Empty;
 
     [JsonPropertyName("startTime")]
-    public DateTimeOffset startTime;
+    public DateTimeOffset startTime { get; set; }
 
     [JsonPropertyName("endTime")]
-    public DateTimeOffset endTime;
+    public DateTimeOffset endTime { get; set; }
 
     [JsonPropertyName("temperature")]
-    public int temperature;
+    public int temperature { get; set; }
 
     [JsonPropertyName("temperatureUnit")]
-    public string temperatureUnit = string.Empty;
+    public string temperatureUnit { get; set; } = string.Empty;
 
     [JsonPropertyName("windSpeed")]
-    public string windSpeed = string.Empty;
+    public string windSpeed { get; set; } = string.Empty;
 
     [JsonPropertyName("windDirection")]
-    public string windDirection = string.Empty;
+    public string windDirection { get; set; } = string.Empty;
 
     [JsonPropertyName("icon")]
-    public string iconURL = string.Empty;
+    public string iconURL { get; set; } = string.Empty;
 
     [JsonPropertyName("shortForecast")]
-    public string shortForecast = string.Empty;
+    public string shortForecast { get; set; } = string.Empty;
 }
 
 #endregion

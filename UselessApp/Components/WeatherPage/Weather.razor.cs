@@ -55,7 +55,7 @@ public partial class Weather
 
         // TEMP: fetch weather point data so it can be inspected on the page
         (weatherPoint, weatherPointError) = await WeatherService.GetWeatherPointData(result.Latitude, result.Longitude);
-        if (!string.IsNullOrEmpty(weatherPointError))
+        if (string.IsNullOrEmpty(weatherPointError))
         {
             await GetDailyHour();
             await GetHourly();

@@ -18,6 +18,16 @@
     margin: 4px 0 16px;
 }
 
+.empty {
+    color: var(--muted);
+    font-size: 14px;
+}
+
+/* Hero: icon, temperature, condition */
+.hero {
+    margin-bottom: 20px;
+}
+
 .current-temp {
     display: flex;
     align-items: center;
@@ -30,16 +40,30 @@
 }
 
 .current-icon {
-    font-size: 48px;
-    letter-spacing: 0;
+    width: 64px;
+    height: 64px;
+    border-radius: 8px;
+    object-fit: cover;
 }
 
 .condition {
     font-weight: 600;
+    font-size: 18px;
     color: var(--ink);
-    margin: 4px 0 20px;
+    margin: 6px 0 4px;
 }
 
+.period-window {
+    font-size: 13px;
+    color: var(--muted);
+    margin: 0;
+}
+
+.astro-title {
+    margin-top: 20px;
+}
+
+/* Stat rows */
 .stats {
     display: grid;
     gap: 12px;
@@ -49,6 +73,8 @@
 .stats div {
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    gap: 12px;
     padding-bottom: 10px;
     border-bottom: 1px solid var(--line);
 }
@@ -66,9 +92,5 @@
 .stats dd {
     margin: 0;
     font-weight: 600;
-}
-
-.wind-arrow {
-    display: inline-block;
-    margin-right: 4px;
+    text-align: right;
 }
