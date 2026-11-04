@@ -5,6 +5,9 @@
         "radar info"
         "forecast forecast";
     gap: 20px;
+    /* Anchor for the location prompt overlay, which only covers this page */
+    position: relative;
+    min-height: 420px;
 }
 
 .weather-card {

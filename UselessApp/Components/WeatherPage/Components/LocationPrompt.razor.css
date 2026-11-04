@@ -1,11 +1,14 @@
+/* Covers only the weather page (.weather-page is position: relative),
+   so the nav bar, header and login/signup links stay clickable. */
 .location-backdrop {
-    position: fixed;
+    position: absolute;
     inset: 0;
-    z-index: 1000;
+    z-index: 10;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
-    padding: 16px;
+    padding: 48px 16px 16px;
+    border-radius: 14px;
     background: rgba(0, 0, 0, 0.55);
 }
 

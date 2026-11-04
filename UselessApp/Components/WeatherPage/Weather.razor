@@ -12,7 +12,7 @@
         <LocationPrompt CanCancel="hasLocation" OnCancel="() => showLocationPrompt = false" OnLocationSelected="SetLocation" />
     }
 
-    <section class="weather-card radar-panel" aria-label="Geolocation result">
+    <section class="weather-card radar-panel" aria-label="Geolocation result" inert="@showLocationPrompt">
         <div class="eyebrow">GEOLOCATION RESULT</div>
         @if (selectedLocation is null)
         {
@@ -38,11 +38,11 @@
         }
     </section>
 
-    <section class="weather-card info-panel" aria-label="Current conditions">
+    <section class="weather-card info-panel" aria-label="Current conditions" inert="@showLocationPrompt">
         <CurrentConditionsPanel CurrentForecast="@RealHourlyForecast" Astronomy="@weatherPoint?.AstronomicalData" Location="@location" LastUpdated="@lastUpdated" OnChangeLocation="OpenLocationPrompt" />
     </section>
 
-    <section class="weather-card forecast-panel" aria-label="Forecast">
+    <section class="weather-card forecast-panel" aria-label="Forecast" inert="@showLocationPrompt">
         <ForecastPanel Hourly="hourly" Daily="daily" />
     </section>
 </div>
