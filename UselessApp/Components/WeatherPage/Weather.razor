@@ -3,6 +3,7 @@
 @using System.Text.Json
 @using UselessApp.Components.WeatherPage.Components
 @inject WeatherService WeatherService
+@inject RandomUSCoordsService RandomCoordsService;
 
 <PageTitle>Weather</PageTitle>
 
@@ -24,18 +25,7 @@
         }
 
         <div class="eyebrow">WEATHER POINT DATA</div>
-        @if (weatherPointError is not null)
-        {
-            <p class="location-error">@weatherPointError</p>
-        }
-        else if (weatherPoint is null)
-        {
-            <p>No weather point data yet.</p>
-        }
-        else
-        {
             <pre class="location-json">@JsonSerializer.Serialize(weatherPoint, new JsonSerializerOptions { WriteIndented = true })</pre>
-        }
     </section>
 
     <section class="weather-card info-panel" aria-label="Current conditions" inert="@showLocationPrompt">
@@ -43,6 +33,14 @@
     </section>
 
     <section class="weather-card forecast-panel" aria-label="Forecast" inert="@showLocationPrompt">
-        <ForecastPanel Hourly="hourly" Daily="daily" />
+        @if (forecastError is not null)
+        {
+            <div class="eyebrow">FORECAST</div>
+            <p class="location-error" role="alert">@forecastError</p>
+        }
+        else
+        {
+            <ForecastPanel forecastDataHourly="@BadHourlyForecast" forecastDataDaily="@BadDailyForecast" />
+        }
     </section>
 </div>

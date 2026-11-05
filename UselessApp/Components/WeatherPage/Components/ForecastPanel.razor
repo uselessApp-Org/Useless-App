@@ -4,18 +4,45 @@
 </div>
 
 <ul class="forecast-strip">
-    @foreach (var item in showDaily ? Daily : Hourly)
+    @foreach (HourlyPeriod item in (showDaily ? dailyPeriods : hourlyPeriods) ?? new List<HourlyPeriod>())
     {
-        <ForecastCard Item="item" />
+        <ForecastCard period="item" />
     }
 </ul>
 
 @code {
-    [Parameter]
-    public IReadOnlyList<ForecastItem> Hourly { get; set; } = [];
-
-    [Parameter]
-    public IReadOnlyList<ForecastItem> Daily { get; set; } = [];
-
     private bool showDaily = false;
+
+    [Parameter]
+    public ForecastData? forecastDataHourly { get; set; }
+
+    [Parameter]
+    public ForecastData? forecastDataDaily { get; set; }
+
+    private List<HourlyPeriod>? dailyPeriods { get; set; }
+    private List<HourlyPeriod>? hourlyPeriods { get; set; }
+    private const int NumHoursToDisplay = 16;
+    private const int NumDaysToDisplay = 14; // these periods are first/last 12 hours of each day
+
+    protected override void OnParametersSet()
+    {
+        FillHourlyPeriods();
+        FillDailyPeriods();
+    }
+
+    private void FillHourlyPeriods()
+    {
+        if(forecastDataHourly?.hourlyPeriods == null)
+            return;
+
+        hourlyPeriods = forecastDataHourly.hourlyPeriods.Take<HourlyPeriod>(NumHoursToDisplay).ToList<HourlyPeriod>();
+    }
+
+    private void FillDailyPeriods()
+    {
+        if(forecastDataDaily?.hourlyPeriods == null)
+            return;
+        
+        dailyPeriods = forecastDataDaily.hourlyPeriods.Take<HourlyPeriod>(NumDaysToDisplay).ToList<HourlyPeriod>();
+    }
 }

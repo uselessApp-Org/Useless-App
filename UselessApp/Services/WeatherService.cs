@@ -99,6 +99,15 @@ public class HourlyPeriod
 
     [JsonPropertyName("shortForecast")]
     public string shortForecast { get; set; } = string.Empty;
+
+    [JsonPropertyName("probabilityOfPrecipitation")]
+    public PrecipProb? precipProb { get; set; }
+}
+
+public class PrecipProb
+{
+    [JsonPropertyName("value")]
+    public int precipValue { get; set; }
 }
 
 #endregion
@@ -158,6 +167,4 @@ public class WeatherService
 
         return (DailyCast?.Properties, null);
     }
-
-
 }
