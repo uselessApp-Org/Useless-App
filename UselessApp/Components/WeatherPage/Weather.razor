@@ -29,6 +29,10 @@
     </section>
 
     <section class="weather-card info-panel" aria-label="Current conditions" inert="@showLocationPrompt">
+        @if (errorMessage is not null)
+        {
+            <p class="location-error" role="alert">@errorMessage</p>
+        }
         <CurrentConditionsPanel CurrentForecast="@RealHourlyForecast" Astronomy="@weatherPoint?.AstronomicalData" Location="@location" LastUpdated="@lastUpdated" OnChangeLocation="OpenLocationPrompt" />
     </section>
 

@@ -31,8 +31,6 @@ public partial class Weather
 
     private async Task SetLocation(GeoLocationResult result)
     {
-        string ErrorString = string.Empty;
-
         selectedLocation = result;
         location = string.IsNullOrEmpty(result.Admin1)
             ? $"{result.Name}, {result.Country}"
@@ -41,14 +39,38 @@ public partial class Weather
         hasLocation = true;
         showLocationPrompt = false;
 
-        // TEMP: fetch weather point data so it can be inspected on the page
-        (weatherPoint, ErrorString) = await WeatherService.GetWeatherPointData(result.Latitude, result.Longitude);
-        if (string.IsNullOrEmpty(ErrorString))
-        {
-            await GetGoodHourlyForecast();
-        }
-
+        await GetGoodLocation(result);
         await GetRandomLocation();
+    }
+
+    private async Task GetGoodLocation(GeoLocationResult result)
+    {
+        // Clear old results so a failed lookup doesn't leave the previous city's conditions on screen
+        errorMessage = null;
+        weatherPoint = null;
+        RealHourlyForecast = null;
+
+        try
+        {
+            string? ErrorString;
+            (weatherPoint, ErrorString) = await WeatherService.GetWeatherPointData(result.Latitude, result.Longitude);
+            if (!string.IsNullOrEmpty(ErrorString) || weatherPoint is null)
+            {
+                errorMessage = $"Couldn't find weather data for {location}. {ErrorString ?? "The weather service returned nothing."}";
+                return;
+            }
+
+            ErrorString = await GetGoodHourlyForecast();
+            if (!string.IsNullOrEmpty(ErrorString))
+            {
+                errorMessage = $"Couldn't load the current conditions. {ErrorString}";
+                return;
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Something went wrong loading the current conditions. {ex.Message}";
+        }
     }
 
     private async Task GetRandomLocation()
@@ -113,9 +135,10 @@ public partial class Weather
         return ErrorString;
     }
 
-    private async Task GetGoodHourlyForecast()
+    private async Task<string?> GetGoodHourlyForecast()
     {
-        string ErrorString = string.Empty;
-        (RealHourlyForecast, ErrorString) = await WeatherService.GetWeatherData(weatherPoint.ForecastHourly);
+        string? ErrorString;
+        (RealHourlyForecast, ErrorString) = await WeatherService.GetWeatherData(weatherPoint!.ForecastHourly);
+        return ErrorString;
     }
 }
