@@ -21,9 +21,6 @@ public partial class Weather
 
     // Shown in place of the hourly/daily panels when loading their data fails
     private string? forecastError;
-
-    private float BadLong;
-    private float BadLat;
     private string? errorMessage;
 
     // LocationPrompt is removed from the tree when hidden, so it opens with a fresh input each time
