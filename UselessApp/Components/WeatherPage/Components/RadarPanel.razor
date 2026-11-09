@@ -1,0 +1,128 @@
+@using System.Globalization
+@inject RainViewerService RainViewerService
+
+<div class="eyebrow">RADAR</div>
+
+@if (Latitude is null || Longitude is null)
+{
+    <p class="empty">Choose a location to see the radar.</p>
+}
+else if (Frames.Count == 0)
+{
+    <p class="empty">Loading radar…</p>
+}
+else
+{
+    <div class="radar-map" role="img" aria-label="Weather radar around @Location">
+        <div class="tile-grid" style="left: calc(50% - @Px(GridOffsetX)); top: calc(50% - @Px(GridOffsetY));">
+            @foreach (var tile in Tiles)
+            {
+                <div class="tile">
+                    <img class="base" src="@tile.BaseUrl" alt="" loading="lazy" />
+                    <img class="rain" src="@tile.RadarUrl" alt="" />
+                </div>
+            }
+        </div>
+        <span class="you-are-here" title="@Location"></span>
+    </div>
+
+    <div class="radar-controls">
+        <label for="radar-frame">@FrameLabel</label>
+        <input id="radar-frame" type="range" min="0" max="@(Frames.Count - 1)" @bind="SelectedFrame" @bind:event="oninput" @bind:after="BuildTiles" />
+    </div>
+
+    <p class="attribution">
+        Map © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors ·
+        Radar © <a href="https://www.rainviewer.com" target="_blank" rel="noopener">RainViewer</a>
+    </p>
+}
+
+@code {
+    [Parameter]
+    public RainViewerMapsResponse? Maps { get; set; }
+
+    [Parameter]
+    public float? Latitude { get; set; }
+
+    [Parameter]
+    public float? Longitude { get; set; }
+
+    [Parameter]
+    public string Location { get; set; } = string.Empty;
+
+    // 7 is the highest zoom RainViewer has radar for (~a few hundred miles across)
+    private const int Zoom = 7;
+    private const int TileSize = 256;
+    // 5 x 3 tiles covers the panel with room to keep the location centered
+    private const int ColsEachSide = 2;
+    private const int RowsEachSide = 1;
+
+    private List<RadarFrame> Frames = new();
+    private int SelectedFrame;
+    private RainViewerMapsResponse? lastMaps;
+
+    private List<(string BaseUrl, string RadarUrl)> Tiles = new();
+    private double GridOffsetX;
+    private double GridOffsetY;
+
+    protected override void OnParametersSet()
+    {
+        // new radar data (new location or refresh): jump to the newest frame
+        if (!ReferenceEquals(Maps, lastMaps))
+        {
+            lastMaps = Maps;
+            Frames = Maps?.Radar?.Past.OrderBy(f => f.Time).ToList() ?? new();
+            SelectedFrame = Math.Max(Frames.Count - 1, 0);
+        }
+
+        // also rebuilds when only the lat/long changed
+        BuildTiles();
+    }
+
+    private string FrameLabel
+    {
+        get
+        {
+            if (Frames.Count == 0) return string.Empty;
+            int minutes = (int)Math.Round((DateTimeOffset.UtcNow - DateTimeOffset.FromUnixTimeSeconds(Frames[SelectedFrame].Time)).TotalMinutes);
+            return SelectedFrame == Frames.Count - 1
+                ? $"Latest radar ({minutes} min ago)"
+                : $"Radar from {minutes} min ago";
+        }
+    }
+
+    // Standard web-mercator tile math: which tile the location is in, and where inside that tile
+    private void BuildTiles()
+    {
+        Tiles.Clear();
+        if (Maps is null || Latitude is null || Longitude is null || Frames.Count == 0) return;
+
+        int n = 1 << Zoom;
+        double latRad = Latitude.Value * Math.PI / 180.0;
+        double tileX = (Longitude.Value + 180.0) / 360.0 * n;
+        double tileY = (1.0 - Math.Log(Math.Tan(latRad) + 1.0 / Math.Cos(latRad)) / Math.PI) / 2.0 * n;
+
+        int centerX = (int)Math.Floor(tileX);
+        int centerY = (int)Math.Floor(tileY);
+
+        // how far the grid's top-left corner sits from the location, so the location lands in the middle of the panel
+        GridOffsetX = ColsEachSide * TileSize + (tileX - centerX) * TileSize;
+        GridOffsetY = RowsEachSide * TileSize + (tileY - centerY) * TileSize;
+
+        RadarFrame frame = Frames[SelectedFrame];
+        for (int y = centerY - RowsEachSide; y <= centerY + RowsEachSide; y++)
+        {
+            for (int x = centerX - ColsEachSide; x <= centerX + ColsEachSide; x++)
+            {
+                int wrappedX = ((x % n) + n) % n;              // wrap around the date line
+                int clampedY = Math.Clamp(y, 0, n - 1);        // nothing above/below the poles
+                Tiles.Add((
+                    $"https://tile.openstreetmap.org/{Zoom}/{wrappedX}/{clampedY}.png",
+                    RainViewerService.BuildRadarTileUrl(Maps.Host, frame, Zoom, wrappedX, clampedY, TileSize)));
+            }
+        }
+    }
+
+    // CSS needs a dot for decimals no matter the server's culture
+    private static string Px(double value) => value.ToString("0.##", CultureInfo.InvariantCulture) + "px";
+}

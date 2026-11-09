@@ -25,21 +25,9 @@
     color: var(--text-muted, var(--muted));
 }
 
-/* Geolocation result */
+/* Radar (map styles live in RadarPanel.razor.css) */
 .radar-panel {
     grid-area: radar;
-}
-
-.location-json {
-    margin: 0;
-    padding: 16px;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    background: var(--field);
-    color: var(--ink);
-    font-size: 13px;
-    white-space: pre-wrap;
-    overflow-x: auto;
 }
 
 /* Current conditions */
