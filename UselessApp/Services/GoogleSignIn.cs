@@ -4,10 +4,11 @@ using Microsoft.AspNetCore.Authentication;
 using MongoDB.Driver;
 using Microsoft.AspNetCore.Authentication.Google;
 using System.Security.Claims;
+using UselessApp.Services;
 namespace UselessApp.Services;
 // ... other usings
-
-public async Task<UselessApp.Models.User?> ProcessGoogleUserAsync(ClaimsPrincipal principal)
+public class GoogleSignIn{
+public async Task<User?> ProcessGoogleUserAsync(ClaimsPrincipal principal)
 {
     var email = principal.FindFirstValue(ClaimTypes.Email);
     var googleId = principal.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -20,23 +21,25 @@ public async Task<UselessApp.Models.User?> ProcessGoogleUserAsync(ClaimsPrincipa
 
     if (user == null)
     {
-        // --- SIGN UP LOGIC (New User) ---
+        
         user = new User 
         {
             Username = email,
             Email = email,
+            Password = "",
             DisplayName = name,
             GoogleId = googleId,
-            CreatedAt = DateTime.UtcNow
+            
         };
-        await CreateUserAsync(user);
+        await MongodbUserService.AddUserAsync(user);
     }
     else if (string.IsNullOrEmpty(user.GoogleId))
     {
         // --- ACCOUNT LINKING ---
         user.GoogleId = googleId;
-        await UpdateUserAsync(user);
+       
     }
 
     return user;
+}
 }
