@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+using System.Security.Claims;
+using UselessApp.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,14 +30,17 @@ builder.Services.AddAuthentication(options =>
     // Allow cookies over HTTP for local testing
     options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
 })
-    .AddGoogle(options =>
-    {
-        options.ClientId = builder.Configuration["Google:ClientId"]!;
-        options.ClientSecret = builder.Configuration["Google:ClientSecret"]!;
+   .AddGoogle(options =>
+{
+    options.ClientId = builder.Configuration["Google:ClientId"]!;
+    options.ClientSecret = builder.Configuration["Google:ClientSecret"]!;
 
-        options.CorrelationCookie.SameSite = SameSiteMode.Lax;
-        options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
-    });
+    // Match the callback endpoint path you defined
+    options.CallbackPath = new PathString("/auth/google-callback");
+
+    options.CorrelationCookie.SameSite = SameSiteMode.Lax;
+    options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+});
 
 builder.Services.AddCascadingAuthenticationState();
 
@@ -120,6 +125,40 @@ app.MapGet("/auth/logout", async (HttpContext context) =>
 
     // Force a hard redirect back to home
     context.Response.Redirect("/login", permanent: false);
+});
+// New app sign up/login flow with Google OAuth
+app.MapGet("/auth/google-callback", async (HttpContext context, MongodbUserService userService) =>
+{
+    var result = await context.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+    if (!result.Succeeded) return Results.Redirect("/login?error=auth_failed");
+
+    var email = result.Principal.FindFirstValue(ClaimTypes.Email);
+    var googleId = result.Principal.FindFirstValue(ClaimTypes.NameIdentifier);
+    var name = result.Principal.FindFirstValue(ClaimTypes.Name);
+
+    // Check if user exists in MongoDB
+    var user = await userService.ValidateLoginAsync(email, null);
+
+    if (user == null)
+    {
+        // --- THIS IS THE SIGN-UP STEP ---
+        user = new User
+        {
+            Email = email,
+            DisplayName = name,
+            GoogleId = googleId,
+            CreatedAt = DateTime.UtcNow
+        };
+        await userService.CreateUserAsync(user);
+    }
+    else if (string.IsNullOrEmpty(user.GoogleId))
+    {
+        // Account linking (e.g., if they previously signed up with password)
+        user.GoogleId = googleId;
+        await userService.UpdateUserAsync(user);
+    }
+
+    return Results.Redirect("/");
 });
 // ---------------------------
 // RAZOR COMPONENTS
