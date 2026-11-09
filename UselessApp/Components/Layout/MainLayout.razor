@@ -1,8 +1,13 @@
 @namespace UselessApp.Components.Layout
+@using UselessApp.Services
 @inherits LayoutComponentBase
+@implements IDisposable
 
 
 @inject DisplayNameService DisplayNameService
+@inject NavigationManager NavigationManager
+@inject MongodbUserService MongodbUserService
+@inject UserStatsService Stats
 
 
 <div class="page">
@@ -34,3 +39,33 @@
     Something went wrong. <a href="." class="reload">Reload</a>
 </div>
 
+@code
+{
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        NavigationManager.LocationChanged += HandleLocationChanged;
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= HandleLocationChanged;
+    }
+
+    // Saves any stats collected by pages whenever the user navigates within the app.
+    private async void HandleLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        if (!Stats.IsDirty)
+            return;
+
+        try
+        {
+            await MongodbUserService.UpdateUserStatsAsync(DisplayNameService.Username, Stats);
+            Stats.Reset();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to save user stats: {ex}");
+        }
+    }
+}

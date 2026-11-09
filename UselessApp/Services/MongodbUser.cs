@@ -14,22 +14,17 @@ public class MongodbUserService
 
     public MongodbUserService(IMongoClient client, IOptions<MongoDbSettings> settings)
     {
-       
-
-
         var db = client.GetDatabase(settings.Value.DatabaseName, null);
         _user = db.GetCollection<User>("users");
-
-
-          
-
     }
+
     public void EnsureIndexes()
     {
         var indexKeysDefinition = Builders<User>.IndexKeys.Ascending(u => u.Username);
         var indexModel = new CreateIndexModel<User>(indexKeysDefinition, new CreateIndexOptions { Unique = true });
         _user.Indexes.CreateOne(indexModel);
     }
+
     public async Task<string?> GetRandomDisplayNameAsync(string currentUsername)
     {
         var displayNames = await _user
@@ -62,28 +57,42 @@ public class MongodbUserService
 
         return (user, randomDisplayName);
     }
-public virtual async Task<bool> UserExistsAsync(string username)
-{
-    var existing = await _user.Find(u => u.Username == username).FirstOrDefaultAsync();
-    return existing != null;
-}
 
-   public async Task<User> AddUserAsync(User user)
-{
-    if (await UserExistsAsync(user.Username))
-        throw new Exception("Username already exists");
+    public virtual async Task<bool> UserExistsAsync(string username)
+    {
+        var existing = await _user.Find(u => u.Username == username).FirstOrDefaultAsync();
+        return existing != null;
+    }
 
-    if (string.IsNullOrEmpty(user.Password))
-        throw new ArgumentException("Password cannot be null or empty");
+    public async Task<User> AddUserAsync(User user)
+    {
+        if (await UserExistsAsync(user.Username))
+            throw new Exception("Username already exists");
 
-    user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
+        if (string.IsNullOrEmpty(user.Password))
+            throw new ArgumentException("Password cannot be null or empty");
 
-    await _user.InsertOneAsync(user);
+        user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
 
-    return user;
-}
+        await _user.InsertOneAsync(user);
 
+        return user;
+    }
 
+    // Writes collected stats to the logged-in user, or to the "Default" guest user if no one is logged in.
+    // Only the stat fields are touched, so Password/DisplayName are never overwritten.
+    public async Task UpdateUserStatsAsync(string? username, UserStatsService stats)
+    {
+        var target = string.IsNullOrEmpty(username) ? "Default" : username;
 
+        var update = Builders<User>.Update
+            .Inc(u => u.Enters, stats.CalcEnters)
+            .Set(u => u.LastExpression, stats.LastExpression)
+            .Set(u => u.LastResult, stats.LastResult);
 
+        var result = await _user.UpdateOneAsync(u => u.Username == target, update);
+
+        if (result.MatchedCount == 0)
+            Console.WriteLine($"WARNING: UpdateUserStatsAsync found no user named '{target}'.");
+    }
 }

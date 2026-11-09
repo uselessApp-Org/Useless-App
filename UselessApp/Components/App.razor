@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="@AssetUrl("polish.css")" />
     <ImportMap />
     <link rel="icon" type="image/png" href="@AssetUrl("favicon.png")" />
-    <HeadOutlet />
+    <HeadOutlet @rendermode="InteractiveServer" />
 </head>
 
 <body>
@@ -37,7 +37,7 @@
 <span class="theme-bubble" style="--x:76%;--size:48px;--delay:-10s"></span>
 <span class="theme-bubble" style="--x:90%;--size:54px;--delay:-12s"></span>
 </div>
-    <Routes />
+    <Routes @rendermode="InteractiveServer" />
     <script src="@AssetUrl("absurd-arcade.js")"></script>
     <script src="@AssetUrl("arcade-extras.js")"></script>
     <script src="_framework/blazor.web.js"></script>
