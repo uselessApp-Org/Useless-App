@@ -61,7 +61,7 @@ public class RandomUSCoordsService
     /// <returns>the list of random coordinates</returns>
     public async Task<(List<RandomCoord>? Coords, string? Error)> GetRandomUSCoords(int Limit = 1)
     {
-        string finalURL = $"{baseCountryURL}us?limit={Limit}";
+        string finalURL = $"{baseCountryURL}united-states?limit={Limit}";
 
         RandomCoordsResponse? CoordsResponse;
         string CoordsResponseString = string.Empty;

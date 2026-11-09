@@ -40,6 +40,13 @@ else
             <dt>Date</dt>
             <dd>@CurrentData.startTime.ToString("ddd, MMM d")</dd>
         </div>
+        @if (@CurrentData.precipProb is not null)
+        {
+            <div>
+                <dt>Chance of Rain in Your Area</dt>
+                <dd>@CurrentData.precipProb.precipValue</dd>
+            </div>
+        }
     </dl>
 }
 

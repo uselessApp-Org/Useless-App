@@ -64,6 +64,7 @@ builder.Services.AddHttpClient("experiments", client => client.Timeout = TimeSpa
 builder.Services.AddHttpClient<GeoLocationService>();
 builder.Services.AddHttpClient<WeatherService>();
 builder.Services.AddHttpClient<RandomUSCoordsService>();
+builder.Services.AddHttpClient<RainViewerService>();
 builder.Services.AddHttpClient<GeminiService>();
 
 

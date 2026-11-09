@@ -1,8 +1,9 @@
 @page "/weather"
 @rendermode InteractiveServer
-@using System.Text.Json
 @using UselessApp.Components.WeatherPage.Components
 @inject WeatherService WeatherService
+@inject RandomUSCoordsService RandomCoordsService;
+@inject RainViewerService RainViewerService
 
 <PageTitle>Weather</PageTitle>
 
@@ -12,37 +13,35 @@
         <LocationPrompt CanCancel="hasLocation" OnCancel="() => showLocationPrompt = false" OnLocationSelected="SetLocation" />
     }
 
-    <section class="weather-card radar-panel" aria-label="Geolocation result" inert="@showLocationPrompt">
-        <div class="eyebrow">GEOLOCATION RESULT</div>
-        @if (selectedLocation is null)
+    <section class="weather-card radar-panel" aria-label="Radar" inert="@showLocationPrompt">
+        @if (radarError is not null)
         {
-            <p>No location selected yet.</p>
+            <div class="eyebrow">RADAR</div>
+            <p class="location-error" role="alert">@radarError</p>
         }
         else
         {
-            <pre class="location-json">@JsonSerializer.Serialize(selectedLocation, new JsonSerializerOptions { WriteIndented = true })</pre>
-        }
-
-        <div class="eyebrow">WEATHER POINT DATA</div>
-        @if (weatherPointError is not null)
-        {
-            <p class="location-error">@weatherPointError</p>
-        }
-        else if (weatherPoint is null)
-        {
-            <p>No weather point data yet.</p>
-        }
-        else
-        {
-            <pre class="location-json">@JsonSerializer.Serialize(weatherPoint, new JsonSerializerOptions { WriteIndented = true })</pre>
+            <RadarPanel Maps="@radarMaps" Latitude="@badLat" Longitude="@badLong" Location="@location" />
         }
     </section>
 
     <section class="weather-card info-panel" aria-label="Current conditions" inert="@showLocationPrompt">
+        @if (errorMessage is not null)
+        {
+            <p class="location-error" role="alert">@errorMessage</p>
+        }
         <CurrentConditionsPanel CurrentForecast="@RealHourlyForecast" Astronomy="@weatherPoint?.AstronomicalData" Location="@location" LastUpdated="@lastUpdated" OnChangeLocation="OpenLocationPrompt" />
     </section>
 
     <section class="weather-card forecast-panel" aria-label="Forecast" inert="@showLocationPrompt">
-        <ForecastPanel Hourly="hourly" Daily="daily" />
+        @if (forecastError is not null)
+        {
+            <div class="eyebrow">FORECAST</div>
+            <p class="location-error" role="alert">@forecastError</p>
+        }
+        else
+        {
+            <ForecastPanel forecastDataHourly="@BadHourlyForecast" forecastDataDaily="@BadDailyForecast" />
+        }
     </section>
 </div>
