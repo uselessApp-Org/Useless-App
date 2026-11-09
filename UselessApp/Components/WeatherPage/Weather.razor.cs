@@ -27,6 +27,9 @@ public partial class Weather
     private string? errorMessage;
     private string? radarError;
 
+    private float badLat;
+    private float badLong;
+
     // LocationPrompt is removed from the tree when hidden, so it opens with a fresh input each time
     private void OpenLocationPrompt() => showLocationPrompt = true;
 
@@ -103,6 +106,8 @@ public partial class Weather
         badWeatherPoint = null;
         BadDailyForecast = null;
         BadHourlyForecast = null;
+        badLat = 0.0f;
+        badLong = 0.0f;
 
         // try/catch: an exception escaping an event handler kills the Blazor Server circuit,
         // so the page would stop updating with no message
@@ -115,6 +120,8 @@ public partial class Weather
                 forecastError = $"Couldn't get a random location. {ErrorString ?? "No coordinates were returned."}";
                 return;
             }
+            badLat = (float)coord.Latitude;
+            badLong = (float)coord.Longitude;
 
             (badWeatherPoint, ErrorString) = await WeatherService.GetWeatherPointData((float)coord.Latitude, (float)coord.Longitude);
             if (!string.IsNullOrEmpty(ErrorString) || badWeatherPoint is null)
