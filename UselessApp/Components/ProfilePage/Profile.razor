@@ -4,7 +4,11 @@
 
 
 @inject DisplayNameService DisplayNameService
-<h2>Calculator @DisplayNameService.RandomDisplayName</h2>
+
+
+
+<h1>@DisplayNameService.RandomDisplayName</h1>
+<h2>Calculator </h2>
 <div class="stat-row">
     <div class="stat-box">
         <div class="stat-value">0</div>
@@ -38,13 +42,21 @@
 </div>
 </div>
 @code {
-   
+
     [Parameter] public string Value { get; set; }
     [Parameter] public string LatestExpression { get; set; }
     [Parameter] public string LatestAnswer { get; set; }
     [Parameter] public string AIvalue { get; set; }
     [Parameter] public string AiLastExpression { get; set; }
     [Parameter] public string AiLastAnswer { get; set; }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+{
+    if (firstRender)
+    {
+        await DisplayNameService.LoadUserAsync();
+        StateHasChanged();
+    }
+}
 }
 
 
