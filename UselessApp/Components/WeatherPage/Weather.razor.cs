@@ -19,9 +19,13 @@ public partial class Weather
     public ForecastData? BadHourlyForecast;
     public ForecastData? BadDailyForecast;
 
+    // Radar always uses the real (geolocation) lat/long, never the random one
+    public RainViewerMapsResponse? radarMaps;
+
     // Shown in place of the hourly/daily panels when loading their data fails
     private string? forecastError;
     private string? errorMessage;
+    private string? radarError;
 
     // LocationPrompt is removed from the tree when hidden, so it opens with a fresh input each time
     private void OpenLocationPrompt() => showLocationPrompt = true;
@@ -37,7 +41,29 @@ public partial class Weather
         showLocationPrompt = false;
 
         await GetGoodLocation(result);
+        await GetRadar();
         await GetRandomLocation();
+    }
+
+    // Separate from GetGoodLocation so a weather.gov failure doesn't stop the radar (and vice versa)
+    private async Task GetRadar()
+    {
+        radarError = null;
+        radarMaps = null;
+
+        try
+        {
+            string? ErrorString;
+            (radarMaps, ErrorString) = await RainViewerService.GetRadarMaps();
+            if (!string.IsNullOrEmpty(ErrorString) || radarMaps is null)
+            {
+                radarError = $"Couldn't load the radar. {ErrorString ?? "RainViewer returned nothing."}";
+            }
+        }
+        catch (Exception ex)
+        {
+            radarError = $"Something went wrong loading the radar. {ex.Message}";
+        }
     }
 
     private async Task GetGoodLocation(GeoLocationResult result)

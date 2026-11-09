@@ -1,5 +1,5 @@
 <li class="forecast-card">
-    <span class="forecast-label">@(period?.name == null ? @period?.hourNumber : @period.name)</span>
+    <span class="forecast-label">@(string.IsNullOrWhiteSpace(period?.name) ? period?.startTime.ToString("h tt") : period.name)</span>
     <span class="forecast-temp">
         @(period?.temperature)°
     </span>

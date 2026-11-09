@@ -1,0 +1,82 @@
+.empty {
+    margin: 0;
+}
+
+/* Clips the oversized tile grid down to the panel */
+.radar-map {
+    position: relative;
+    height: 420px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--field);
+}
+
+.tile-grid {
+    position: absolute;
+    display: grid;
+    grid-template-columns: repeat(5, 256px);
+    grid-auto-rows: 256px;
+}
+
+.tile {
+    position: relative;
+    width: 256px;
+    height: 256px;
+}
+
+.tile img {
+    position: absolute;
+    inset: 0;
+    width: 256px;
+    height: 256px;
+    /* tiles must butt up against each other with no gaps */
+    display: block;
+    max-width: none;
+}
+
+.tile .rain {
+    opacity: 0.85;
+}
+
+.you-are-here {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 14px;
+    height: 14px;
+    margin: -7px 0 0 -7px;
+    border-radius: 50%;
+    background: #d9534f;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.35);
+}
+
+.radar-controls {
+    display: grid;
+    gap: 6px;
+    margin-top: 12px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.radar-controls input {
+    width: 100%;
+    accent-color: var(--text-accent, var(--ink));
+}
+
+.attribution {
+    margin: 8px 0 0;
+    font-size: 11px;
+    color: var(--text-muted, var(--muted));
+}
+
+.attribution a {
+    color: inherit;
+}
+
+@media (max-width: 800px) {
+    .radar-map {
+        height: 320px;
+    }
+}
