@@ -1,62 +1,88 @@
 @page "/login"
 @using UselessApp.Models
 @using UselessApp.Services
+@using Microsoft.AspNetCore.Components.Authorization
 
 @inject MongodbUserService MongodbUserService
 @inject DisplayNameService DisplayNameService
-@inject  NavigationManager nav
+@inject NavigationManager nav
 @rendermode InteractiveServer
 
-
 <section class="panel user-panel">
-        <div>
-            <p class="eyebrow">JOIN THE QUESTIONABLE DECISIONS CLUB</p>
-            <h2>Login</h2>
-            <p>Login to your account to see all of your questionable decisions.</p>
-        </div>
-        <div class="user-form"><label for="username">Username</label><input id="username" class="form-control"
-                                                                                @bind="checkUser.Username" placeholder="Your username" autocomplete="username" /><label
-            for="password">Password</label><input id="password" class="form-control" type="password"
-                                                  @bind="checkUser.Password" placeholder="Your password" autocomplete="current-password" /><button
-            class="btn btn-primary" @onclick="LoginUser">Login</button></div>
-        @if (!string.IsNullOrEmpty(loginMessage))
-{
-    <p class="loginMessage">@loginMessage</p>
-}
+    <div>
+        <p class="eyebrow">JOIN THE QUESTIONABLE DECISIONS CLUB</p>
+        <h2>Login</h2>
+        <p>Login to your account to see all of your questionable decisions.</p>
+    </div>
+    
+    <div class="user-form">
+        <label for="username">Username</label>
+        <input id="username" class="form-control" @bind="checkUser.Username" placeholder="Your username"
+               autocomplete="username" />
+        
+        <label for="password">Password</label>
+        <input id="password" class="form-control" type="password" @bind="checkUser.Password" placeholder="Your password"
+               autocomplete="current-password" />
 
-@if (!string.IsNullOrEmpty(errorMessage))
-{
-    <p class="error-text">@errorMessage</p>
-}
+        <AuthorizeView>
+            <Authorized>
+                <div class="alert alert-success d-flex align-items-center justify-content-between mt-3" role="alert"
+                     style="max-width: 400px;">
+                    <span>You are logged in as <strong>@context.User.Identity?.Name</strong></span>
+                
+                    <!-- Change this from an <a> tag to a button with forceLoad -->
+                    <button class="btn btn-outline-danger btn-sm" @onclick="LogoutUser">Sign Out</button>
+                </div>
+            </Authorized>
+            <NotAuthorized>
+                <div class="d-flex gap-2 align-items-center mt-3">
+                    <button class="btn btn-primary" @onclick="LoginUser">Login</button>
+                    <a href="/auth/login" class="btn btn-outline-primary">Sign in with Google</a>
+                </div>
+            </NotAuthorized>
+        </AuthorizeView>
+    </div>
 
-        </section>
+    @if (!string.IsNullOrEmpty(loginMessage))
+    {
+        <p class="loginMessage">@loginMessage</p>
+    }
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <p class="error-text">@errorMessage</p>
+    }
+</section>
+
 @code {
-
     private User checkUser = new User { Username = string.Empty, Password = string.Empty };
     private string loginMessage = string.Empty;
     private string errorMessage = string.Empty;
 
-   private async Task LoginUser()
-{
-    var (user, randomDisplayName) = await MongodbUserService
-        .ValidateLoginAsync(checkUser.Username, checkUser.Password);
-
-    if (user == null)
+    private async Task LoginUser()
     {
-        errorMessage = "Invalid username or password";
-        StateHasChanged();   // force UI update
-        return;              // ← STOP EXECUTION
+        var (user, randomDisplayName) = await MongodbUserService
+            .ValidateLoginAsync(checkUser.Username, checkUser.Password);
+
+        if (user == null)
+        {
+            errorMessage = "Invalid username or password";
+            return; // ← STOP EXECUTION
+        }
+
+        await DisplayNameService.SetUserAsync(
+            user.Username,
+            user.DisplayName,
+            randomDisplayName
+        );
+
+        checkUser = new User { Username = "", Password = "" };
+
+        nav.NavigateTo("/");
     }
-
-    await DisplayNameService.SetUserAsync(
-        user.Username,
-        user.DisplayName,
-        randomDisplayName
-    );
-
-    checkUser = new User { Username = "", Password = "" };
-
-    nav.NavigateTo("/");
-}
-
+    private void LogoutUser()
+    {
+        // forceLoad: true completely destroys the Blazor circuit and forces a hard browser reload
+        nav.NavigateTo("/auth/logout", forceLoad: true);
+    }
 }

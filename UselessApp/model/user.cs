@@ -14,4 +14,7 @@ public class User
     
     [BsonElement("DisplayName")]
     public string DisplayName { get; set; } = "";
+
+    [BsonElement("WeatherLocation")]
+    public string Location { get; set; } = string.Empty;
 }

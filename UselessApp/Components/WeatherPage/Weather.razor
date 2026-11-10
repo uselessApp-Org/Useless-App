@@ -1,62 +1,47 @@
 @page "/weather"
-@attribute [StreamRendering]
+@rendermode InteractiveServer
+@using UselessApp.Components.WeatherPage.Components
+@inject WeatherService WeatherService
+@inject RandomUSCoordsService RandomCoordsService;
+@inject RainViewerService RainViewerService
 
 <PageTitle>Weather</PageTitle>
 
-<header class="page-heading"><p class="eyebrow">TOOL 02 / THE OUTLOOK</p><h1>Weather</h1><p>A five-day forecast with randomly generated sample data.</p></header>
-
-@if (forecasts == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <div class="panel table-panel"><table class="table">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th aria-label="Temperature in Celsius">Temp. (C)</th>
-                <th aria-label="Temperature in Fahrenheit">Temp. (F)</th>
-                <th>Summary</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var forecast in forecasts)
-            {
-                <tr>
-                    <td>@forecast.Date.ToShortDateString()</td>
-                    <td>@forecast.TemperatureC</td>
-                    <td>@forecast.TemperatureF</td>
-                    <td>@forecast.Summary</td>
-                </tr>
-            }
-        </tbody>
-    </table></div>
-}
-
-@code {
-    private WeatherForecast[]? forecasts;
-
-    protected override async Task OnInitializedAsync()
+<div class="weather-page">
+    @if (showLocationPrompt)
     {
-        // Simulate asynchronous loading to demonstrate streaming rendering
-        await Task.Delay(500);
+        <LocationPrompt CanCancel="hasLocation" OnCancel="() => showLocationPrompt = false" OnLocationSelected="SetLocation" />
+    }
 
-        var startDate = DateOnly.FromDateTime(DateTime.Now);
-        var summaries = new[] { "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching" };
-        forecasts = Enumerable.Range(1, 5).Select(index => new WeatherForecast
+    <section class="weather-card radar-panel" aria-label="Radar" inert="@showLocationPrompt">
+        @if (radarError is not null)
         {
-            Date = startDate.AddDays(index),
-            TemperatureC = Random.Shared.Next(-20, 55),
-            Summary = summaries[Random.Shared.Next(summaries.Length)]
-        }).ToArray();
-    }
+            <div class="eyebrow">RADAR</div>
+            <p class="location-error" role="alert">@radarError</p>
+        }
+        else
+        {
+            <RadarPanel Maps="@radarMaps" Latitude="@badLat" Longitude="@badLong" Location="@location" />
+        }
+    </section>
 
-    private class WeatherForecast
-    {
-        public DateOnly Date { get; set; }
-        public int TemperatureC { get; set; }
-        public string? Summary { get; set; }
-        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-    }
-}
+    <section class="weather-card info-panel" aria-label="Current conditions" inert="@showLocationPrompt">
+        @if (errorMessage is not null)
+        {
+            <p class="location-error" role="alert">@errorMessage</p>
+        }
+        <CurrentConditionsPanel CurrentForecast="@RealHourlyForecast" Astronomy="@weatherPoint?.AstronomicalData" Location="@location" LastUpdated="@lastUpdated" OnChangeLocation="OpenLocationPrompt" />
+    </section>
+
+    <section class="weather-card forecast-panel" aria-label="Forecast" inert="@showLocationPrompt">
+        @if (forecastError is not null)
+        {
+            <div class="eyebrow">FORECAST</div>
+            <p class="location-error" role="alert">@forecastError</p>
+        }
+        else
+        {
+            <ForecastPanel forecastDataHourly="@BadHourlyForecast" forecastDataDaily="@BadDailyForecast" />
+        }
+    </section>
+</div>

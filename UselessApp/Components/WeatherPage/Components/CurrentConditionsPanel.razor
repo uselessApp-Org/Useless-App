@@ -1,0 +1,114 @@
+@inject WeatherService WeatherService
+
+<div class="eyebrow">CURRENT CONDITIONS</div>
+<h2 class="location">@Location</h2>
+<button type="button" class="change-location" @onclick="OnChangeLocation">Change location</button>
+<p class="updated">Last updated @LastUpdated</p>
+
+@if (CurrentData is null)
+{
+    <p class="empty">Choose a location to see the current conditions.</p>
+}
+else
+{
+    <div class="hero">
+        <div class="current-temp">
+            @if (!string.IsNullOrEmpty(IconSrc))
+            {
+                <img src="@IconSrc" alt="@CurrentData.shortForecast" class="current-icon" />
+            }
+            <span>@CurrentData.temperature°@CurrentData.temperatureUnit</span>
+        </div>
+
+        <p class="condition">@CurrentData.shortForecast</p>
+
+        <p class="period-window">
+            @if (!string.IsNullOrWhiteSpace(CurrentData.name))
+            {
+                <span>@CurrentData.name · </span>
+            }
+            @FormatHour(CurrentData.startTime) – @FormatHour(CurrentData.endTime)
+        </p>
+    </div>
+
+    <dl class="stats">
+        <div>
+            <dt>Wind</dt>
+            <dd>@CurrentData.windDirection @CurrentData.windSpeed</dd>
+        </div>
+        <div>
+            <dt>Date</dt>
+            <dd>@CurrentData.startTime.ToString("ddd, MMM d")</dd>
+        </div>
+        @if (@CurrentData.precipProb is not null)
+        {
+            <div>
+                <dt>Chance of Rain in Your Area</dt>
+                <dd>@CurrentData.precipProb.precipValue</dd>
+            </div>
+        }
+    </dl>
+}
+
+@if (Astronomy is not null)
+{
+    <div class="eyebrow astro-title">SUN</div>
+    <dl class="stats">
+        <div>
+            <dt>Dawn</dt>
+            <dd>@FormatTime(Astronomy.Dawn)</dd>
+        </div>
+        <div>
+            <dt>Sunrise</dt>
+            <dd>@FormatTime(Astronomy.Sunrise)</dd>
+        </div>
+        <div>
+            <dt>Sunset</dt>
+            <dd>@FormatTime(Astronomy.Sunset)</dd>
+        </div>
+        <div>
+            <dt>Dusk</dt>
+            <dd>@FormatTime(Astronomy.Dusk)</dd>
+        </div>
+    </dl>
+}
+
+@code {
+    [Parameter]
+    public string LastUpdated { get; set; } = string.Empty;
+
+    [Parameter]
+    public string Location { get; set; } = string.Empty;
+
+    [Parameter]
+    public EventCallback OnChangeLocation { get; set; }
+
+    [Parameter]
+    public ForecastData? CurrentForecast { get; set; }
+
+    [Parameter]
+    public AstronomicalData? Astronomy { get; set; }
+
+    public HourlyPeriod? CurrentData;
+
+    // weather.gov returns ?size=small (86px), which looks blurry when scaled up
+    private string? IconSrc => CurrentData?.iconURL?.Replace("size=small", "size=large");
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        SetCurrentData();
+    }
+
+    private void SetCurrentData()
+    {
+        // the first period can already be over if the forecast was generated a while ago
+        var periods = CurrentForecast?.hourlyPeriods;
+        CurrentData = periods?.FirstOrDefault(p => p.endTime > DateTimeOffset.Now) ?? periods?.FirstOrDefault();
+    }
+
+    // DateTimeOffset keeps the forecast location's offset, so this shows the location's local time
+    private static string FormatHour(DateTimeOffset time) => time.ToString("h tt");
+
+    private static string FormatTime(DateTimeOffset? time) => time?.ToString("h:mm tt") ?? "—";
+}
