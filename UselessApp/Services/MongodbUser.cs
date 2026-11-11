@@ -104,7 +104,6 @@ public async Task UpdateUserAsync(User user)
     /// </summary>
     /// <param name="username"></param>
     /// <param name="stats"></param>
-    /// <returns></returns>
     public async Task UpdateUserStatsAsync(string? username, UserStatsService stats)
     {
         var target = string.IsNullOrEmpty(username) ? "Default" : username;
@@ -118,7 +117,13 @@ public async Task UpdateUserAsync(User user)
             updates.Add(ub.Set(u => u.LastExpression, stats.LastExpression));
         if (!string.IsNullOrEmpty(stats.LastResult))
             updates.Add(ub.Set(u => u.LastResult, stats.LastResult));
-        // Future stats: add one guarded updates.Add(...) line each.
+        if(!string.IsNullOrEmpty(stats.WeatherLocation))
+            updates.Add(ub.Set(u => u.Location, stats.WeatherLocation));
+        if(stats.Latitude != 0.0f)
+            updates.Add(ub.Set(u => u.Latitude, stats.Latitude));
+        if(stats.Longitude != 0.0f)
+            updates.Add(ub.Set(u => u.Longitude, stats.Longitude));
+        // add more stats here
 
         if (updates.Count == 0)
             return; // Nothing to save (Mongo rejects an empty update).
