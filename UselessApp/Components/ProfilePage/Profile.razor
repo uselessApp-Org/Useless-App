@@ -43,22 +43,6 @@
 </div>
 @code {
 
-    [Parameter] public string Value { get; set; }
-    [Parameter] public string LatestExpression { get; set; }
-    [Parameter] public string LatestAnswer { get; set; }
-    [Parameter] public string AIvalue { get; set; }
-    [Parameter] public string AiLastExpression { get; set; }
-    [Parameter] public string AiLastAnswer { get; set; }
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            await DisplayNameService.LoadUserAsync();
-            StateHasChanged();
-        }
-    }
-}
-
     [Parameter] public int NumEnters { get; set; }
     [Parameter] public string LatestExpression { get; set; } = string.Empty;
     [Parameter] public string LatestAnswer { get; set; } = string.Empty;
