@@ -1,3 +1,5 @@
+@inject Microsoft.AspNetCore.Mvc.ViewFeatures.IFileVersionProvider FileVersions
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -5,10 +7,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <base href="/" />
-    <script src="preferences.js"></script>
+    <script src=@AssetUrl("preferences.js")></script>
     <link rel="stylesheet" href="@Assets["lib/bootstrap/dist/css/bootstrap.min.css"]" />
     <link rel="stylesheet" href="@Assets["app.css"]" />
     <link rel="stylesheet" href="@Assets["UselessApp.styles.css"]" />
+     <link rel="stylesheet" href="@AssetUrl("themes.css")" />
+    <link rel="stylesheet" href="@AssetUrl("polish.css")" />
     <ImportMap />
     <HeadOutlet @rendermode="InteractiveServer" />
 </head>
@@ -41,3 +45,7 @@
 </body>
 
 </html>
+
+@code {
+      private string AssetUrl(string path) => FileVersions.AddFileVersionToPath("", path);
+}
