@@ -3,11 +3,39 @@
 @using UselessApp.model
 @inject TMDBService TmdbService
 @rendermode InteractiveServer
+
+
+
+<h1>Movie Recommender</h1>
+
+<p>Select a genre:</p>
+
+<select @bind="SelectedGenreID">
+    @foreach (var genre in Genres)
+    {
+        <option value="@genre.Id">@genre.Name</option>
+    }
+</select>
+
+<button @onclick="RecommendMovie">
+    Recommend Movie
+</button>
+<div class="movie">
+    @if (Movie != null)
+    {
+        <h2>@Movie.Title</h2>
+        <img src="@Movie.PosterUrl" alt="@Movie.Title" />
+        
+  
+        <p>@Movie.Overview</p>
+
+
+    }
+</div>
+<div class="splitter"></div>
 <div class="tmdb-attribution">
-    <a href="https://www.themoviedb.org/">
-        <img src="TMDB1.svg"
-             alt="TMDB logo"
-             width="90" />
+    <a href="https://www.themoviedb.org/" target="_blank">
+        <img src="/TMDB1.svg" alt="TMDB logo" />
     </a>
 
     <p>
@@ -15,44 +43,31 @@
     </p>
 </div>
 
-
-<h1>Movie Recommender</h1>
-
-<p>Select a genre:</p>
-
-<select @bind="SelectedGenre">
-    <option value="Action">Action</option>
-    <option value="Comedy">Comedy</option>
-    <option value="Drama">Drama</option>
-    <option value="Horror">Horror</option>
-    <option value="Romance">Romance</option>
-    <option value="SciFi">SciFi</option>
-</select>
-
-<button @onclick="RecommendMovie">
-    Recommend Movie
-</button>
-
-@if (Movie != null)
-{
-    <h2>@Movie.Title</h2>
-    <img src="@Movie.PosterUrl"
-         alt="@Movie.Title"
-         width="250" />
-
-    <p>@Movie.Overview</p>
-
-
-}
-
-
 @code {
-    private string SelectedGenre = "Action";
+    
+    private List<Genre> Genres = new();
+    private int SelectedGenreID;
+        
+    private readonly Random random = new();
     private MovieRecommendation? Movie;
-
+    protected override async Task OnInitializedAsync()
+    {
+        Genres = await TmdbService.GetGenres();
+        if (Genres.Any())
+        {
+            SelectedGenreID = Genres.First().Id;
+        }
+    }
     private async Task RecommendMovie()
     {
-        Movie = await TmdbService.GetMovieRecommendation(
-            SelectedGenre);
+        var otherGenres = Genres
+            .Where(g => g.Id != SelectedGenreID)
+            .ToList();
+
+        var randomGenre =
+            otherGenres[random.Next(otherGenres.Count)];
+
+        Movie = await TmdbService
+            .GetMovieRecommendation(randomGenre.Id);
     }
 }

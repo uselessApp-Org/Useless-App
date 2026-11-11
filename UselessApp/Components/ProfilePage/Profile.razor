@@ -28,18 +28,18 @@
 <div class="splitter"></div>
 <h2>AI</h2>
 <div class="stat-row">
-<div class="stat-box">
-    <div class="AIvalue">0 </div>
-    <div class="stat-label">Amount of times AskAi has been interacted with</div>
-</div>
-<div class="stat-box">
-    <div class="Ai-LastExpression">Help me</div>
-    <div class="stat-label">Latest AI expression</div>
-</div>
-<div class="stat-box">
-    <div class="Ai-LastAnswer">42</div>
-    <div class="stat-label">Latest AI answer</div>
-</div>
+    <div class="stat-box">
+        <div class="AIvalue">0 </div>
+        <div class="stat-label">Amount of times AskAi has been interacted with</div>
+    </div>
+    <div class="stat-box">
+        <div class="Ai-LastExpression">Help me</div>
+        <div class="stat-label">Latest AI expression</div>
+    </div>
+    <div class="stat-box">
+        <div class="Ai-LastAnswer">42</div>
+        <div class="stat-label">Latest AI answer</div>
+    </div>
 </div>
 @code {
 
@@ -50,13 +50,13 @@
     [Parameter] public string AiLastExpression { get; set; }
     [Parameter] public string AiLastAnswer { get; set; }
     protected override async Task OnAfterRenderAsync(bool firstRender)
-{
-    if (firstRender)
     {
-        await DisplayNameService.LoadUserAsync();
-        StateHasChanged();
+        if (firstRender)
+        {
+            await DisplayNameService.LoadUserAsync();
+            StateHasChanged();
+        }
     }
-}
 }
 
 

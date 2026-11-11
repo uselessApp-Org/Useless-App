@@ -15,24 +15,11 @@ public class TMDBService
         _httpClient = httpClient;
     }
 
-    public async Task<MovieRecommendation> GetMovieRecommendation(string genre)
+    public async Task<MovieRecommendation> GetMovieRecommendation(int genreId)
     {
         var apiKey = _configuration["MovieAPI:ApiKey"];
 
-        var genres = new Dictionary<string, int>
-        {
-            { "Action", 28 },
-            { "Comedy", 35 },
-            { "Drama", 18 },
-            { "Horror", 27 },
-            { "Romance", 10749 },
-            { "SciFi", 878 }
-        };
-
-        if (!genres.TryGetValue(genre, out int genreId))
-        {
-            return new MovieRecommendation { Title = "Genre not found." };
-        }
+       
 
         var url =
             $"https://api.themoviedb.org/3/discover/movie" +
@@ -71,5 +58,25 @@ return new MovieRecommendation
         ? ""
         : $"https://image.tmdb.org/t/p/w500{posterPath}"
 };
+    }
+    public async Task<List<Genre>> GetGenres()
+    {
+        var apiKey = _configuration["MovieAPI:ApiKey"];
+        var url = $"https://api.themoviedb.org/3/genre/movie/list?api_key={apiKey}";
+        var json = await _httpClient.GetStringAsync(url);
+
+        using var document = JsonDocument.Parse(json);
+        var genres = new List<Genre>();
+
+        foreach (var genre in document.RootElement.GetProperty("genres").EnumerateArray())
+        {
+            genres.Add(new Genre
+            {
+                Id = genre.GetProperty("id").GetInt32(),
+                Name = genre.GetProperty("name").GetString() ?? string.Empty
+            });
+        }
+
+        return genres;
     }
 }
