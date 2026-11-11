@@ -95,4 +95,9 @@ public class MongodbUserService
         if (result.MatchedCount == 0)
             Console.WriteLine($"WARNING: UpdateUserStatsAsync found no user named '{target}'.");
     }
+
+    public async Task<User?> GetUserDataForProfilePage(string? username)
+    {
+        return await _user.Find(u => u.Username == username).FirstOrDefaultAsync<User>();
+    }
 }
