@@ -64,20 +64,39 @@ public class MongodbUserService
         return existing != null;
     }
 
-    public async Task<User> AddUserAsync(User user)
-    {
-        if (await UserExistsAsync(user.Username))
-            throw new Exception("Username already exists");
+public async Task<User?> GetByUsernameAsync(string username)
+{
+    return await _user.Find(u => u.Username == username).FirstOrDefaultAsync();
+}
+public async Task<User> AddUserAsync(User user)
+{
+    if (await UserExistsAsync(user.Username))
+        throw new Exception("Username already exists");
 
-        if (string.IsNullOrEmpty(user.Password))
-            throw new ArgumentException("Password cannot be null or empty");
+// Hash password if present and not empty
+if (!string.IsNullOrEmpty(user.Password))
+{
+    user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
+}
+else
+{
+    user.Password = string.Empty;
+}
+    if (string.IsNullOrEmpty(user.Password))
+        throw new ArgumentException("Password cannot be null or empty");
 
-        user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
+    user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
 
-        await _user.InsertOneAsync(user);
+    await _user.InsertOneAsync(user);
 
-        return user;
-    }
+    return user;
+}
+
+public async Task UpdateUserAsync(User user)
+{
+    var filter = Builders<User>.Filter.Eq(u => u.Id, user.Id);
+    await _user.ReplaceOneAsync(filter, user);
+}
 
     /// <summary>
     /// This function updates user stats that will be displayed on the profile page

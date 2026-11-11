@@ -13,7 +13,11 @@ public class User
     public required string Password { get; set; } = string.Empty;
     
     [BsonElement("DisplayName")]
-    public string DisplayName { get; set; } = string.Empty;
+    public string DisplayName { get; set; } = "";
+
+    [BsonElement("GoogleId")]
+    public string? GoogleId { get; set; }
+
 
     [BsonElement("WeatherLocation")]
     public string Location { get; set; } = string.Empty;
