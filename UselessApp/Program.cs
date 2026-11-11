@@ -55,6 +55,7 @@ builder.Services.AddSingleton<IMongoClient>(sp =>
 builder.Services.AddScoped<MongodbUserService>();
 builder.Services.AddScoped<CalculatorEvaluatorService>();
 builder.Services.AddScoped<DisplayNameService>();
+builder.Services.AddScoped<UserStatsService>();
 builder.Services.AddScoped<IExperimentService, ExperimentService>();
 
 builder.Services.AddScoped<ProtectedSessionStorage>();
