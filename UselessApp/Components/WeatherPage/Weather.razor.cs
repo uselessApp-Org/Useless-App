@@ -31,17 +31,62 @@ public partial class Weather
     // LocationPrompt is removed from the tree when hidden, so it opens with a fresh input each time
     private void OpenLocationPrompt() => showLocationPrompt = true;
 
+    // True until we've checked whether a logged-in user has a saved location, so the prompt doesn't flash
+    private bool checkingSavedLocation = true;
+
+    // Session storage (login state) is only readable after the first render
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        try
+        {
+            if (!DisplayNameService.IsLoggedIn)
+                await DisplayNameService.LoadUserAsync();
+
+            if (DisplayNameService.IsLoggedIn)
+            {
+                var user = await MongodbUserService.GetUserDataForProfilePage(DisplayNameService.Username);
+                if (user is not null && (user.Latitude != 0.0f || user.Longitude != 0.0f))
+                {
+                    // Hide the prompt right away, before waiting on the weather APIs
+                    showLocationPrompt = false;
+                    checkingSavedLocation = false;
+                    StateHasChanged();
+
+                    string savedName = string.IsNullOrEmpty(user.Location) ? "Saved location" : user.Location;
+                    await LoadLocation(savedName, user.Latitude, user.Longitude, record: false);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to load saved weather location: {ex}");
+        }
+
+        checkingSavedLocation = false;
+        StateHasChanged();
+    }
+
     private async Task SetLocation(GeoLocationResult result)
     {
         selectedLocation = result;
-        location = string.IsNullOrEmpty(result.Admin1)
+        string name = string.IsNullOrEmpty(result.Admin1)
             ? $"{result.Name}, {result.Country}"
             : $"{result.Name}, {result.Admin1}";
+
+        await LoadLocation(name, result.Latitude, result.Longitude, record: true);
+    }
+
+    // Shared by the prompt and the saved-location path. record: false when the location came from the DB.
+    private async Task LoadLocation(string name, float latitude, float longitude, bool record)
+    {
+        location = name;
         lastUpdated = DateTime.Now.ToString("h:mm tt");
         hasLocation = true;
         showLocationPrompt = false;
 
-        await GetGoodLocation(result);
+        await GetGoodLocation(latitude, longitude, record);
         await GetRadar();
         await GetRandomLocation();
     }
@@ -67,7 +112,7 @@ public partial class Weather
         }
     }
 
-    private async Task GetGoodLocation(GeoLocationResult result)
+    private async Task GetGoodLocation(float latitude, float longitude, bool record)
     {
         // Clear old results so a failed lookup doesn't leave the previous city's conditions on screen
         errorMessage = null;
@@ -77,7 +122,7 @@ public partial class Weather
         try
         {
             string? ErrorString;
-            (weatherPoint, ErrorString) = await WeatherService.GetWeatherPointData(result.Latitude, result.Longitude);
+            (weatherPoint, ErrorString) = await WeatherService.GetWeatherPointData(latitude, longitude);
             if (!string.IsNullOrEmpty(ErrorString) || weatherPoint is null)
             {
                 errorMessage = $"Couldn't find weather data for {location}. {ErrorString ?? "The weather service returned nothing."}";
@@ -91,7 +136,8 @@ public partial class Weather
                 return;
             }
 
-            UserStatsService.RecordWeatherLocation(weatherPoint.Id, result.Latitude, result.Longitude);
+            if (record)
+                UserStatsService.RecordWeatherLocation(location, latitude, longitude);
         }
         catch (Exception ex)
         {

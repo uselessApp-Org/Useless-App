@@ -6,11 +6,13 @@
 @inject RandomUSCoordsService RandomCoordsService;
 @inject RainViewerService RainViewerService
 @inject UserStatsService UserStatsService
+@inject DisplayNameService DisplayNameService
+@inject MongodbUserService MongodbUserService
 
 <PageTitle>Weather</PageTitle>
 
 <div class="weather-page">
-    @if (showLocationPrompt)
+    @if (!checkingSavedLocation && showLocationPrompt)
     {
         <LocationPrompt CanCancel="hasLocation" OnCancel="() => showLocationPrompt = false"
                         OnLocationSelected="SetLocation" />

@@ -36,6 +36,4 @@ public class UserStatsService
         Longitude = longitude;
         IsDirty = true;
     }
-
-
 }
