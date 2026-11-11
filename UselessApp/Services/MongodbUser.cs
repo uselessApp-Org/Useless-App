@@ -79,18 +79,33 @@ public class MongodbUserService
         return user;
     }
 
-    // Writes collected stats to the logged-in user, or to the "Default" guest user if no one is logged in.
-    // Only the stat fields are touched, so Password/DisplayName are never overwritten.
+    /// <summary>
+    /// This function updates user stats that will be displayed on the profile page
+    /// add a new guard and then the updates statement helps ensure we dont overwrite with null/""/0
+    /// </summary>
+    /// <param name="username"></param>
+    /// <param name="stats"></param>
+    /// <returns></returns>
     public async Task UpdateUserStatsAsync(string? username, UserStatsService stats)
     {
         var target = string.IsNullOrEmpty(username) ? "Default" : username;
 
-        var update = Builders<User>.Update
-            .Inc(u => u.Enters, stats.CalcEnters)
-            .Set(u => u.LastExpression, stats.LastExpression)
-            .Set(u => u.LastResult, stats.LastResult);
+        // Only write fields that have data this session, so unused features don't wipe saved values.
+        var ub = Builders<User>.Update;
+        var updates = new List<UpdateDefinition<User>>();
 
-        var result = await _user.UpdateOneAsync(u => u.Username == target, update);
+        if (stats.CalcEnters > 0)
+            updates.Add(ub.Inc(u => u.Enters, stats.CalcEnters));
+        if (!string.IsNullOrEmpty(stats.LastExpression))
+            updates.Add(ub.Set(u => u.LastExpression, stats.LastExpression));
+        if (!string.IsNullOrEmpty(stats.LastResult))
+            updates.Add(ub.Set(u => u.LastResult, stats.LastResult));
+        // Future stats: add one guarded updates.Add(...) line each.
+
+        if (updates.Count == 0)
+            return; // Nothing to save (Mongo rejects an empty update).
+
+        var result = await _user.UpdateOneAsync(u => u.Username == target, ub.Combine(updates));
 
         if (result.MatchedCount == 0)
             Console.WriteLine($"WARNING: UpdateUserStatsAsync found no user named '{target}'.");
