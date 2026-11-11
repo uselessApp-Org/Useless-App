@@ -75,6 +75,8 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddHttpClient<GeminiService>();
+builder.Services.AddHttpClient<TMDBService>();
+
 
 // ---------------------------
 // BUILD APP
