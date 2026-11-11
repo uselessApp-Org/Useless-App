@@ -90,7 +90,6 @@ public class MongodbUserService
     {
         var target = string.IsNullOrEmpty(username) ? "Default" : username;
 
-        // Only write fields that have data this session, so unused features don't wipe saved values.
         var ub = Builders<User>.Update;
         var updates = new List<UpdateDefinition<User>>();
 
