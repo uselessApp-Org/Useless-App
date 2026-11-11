@@ -1,5 +1,3 @@
-using UselessApp.Components.WeatherPage.Components;
-
 namespace UselessApp.Components.WeatherPage;
 
 public partial class Weather
@@ -92,6 +90,8 @@ public partial class Weather
                 errorMessage = $"Couldn't load the current conditions. {ErrorString}";
                 return;
             }
+
+            UserStatsService.RecordWeatherLocation(weatherPoint.Id, result.Latitude, result.Longitude);
         }
         catch (Exception ex)
         {

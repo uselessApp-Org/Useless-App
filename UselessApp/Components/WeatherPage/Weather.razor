@@ -1,16 +1,19 @@
 @page "/weather"
 @rendermode InteractiveServer
 @using UselessApp.Components.WeatherPage.Components
+@using UselessApp.Services
 @inject WeatherService WeatherService
 @inject RandomUSCoordsService RandomCoordsService;
 @inject RainViewerService RainViewerService
+@inject UserStatsService UserStatsService
 
 <PageTitle>Weather</PageTitle>
 
 <div class="weather-page">
     @if (showLocationPrompt)
     {
-        <LocationPrompt CanCancel="hasLocation" OnCancel="() => showLocationPrompt = false" OnLocationSelected="SetLocation" />
+        <LocationPrompt CanCancel="hasLocation" OnCancel="() => showLocationPrompt = false"
+                        OnLocationSelected="SetLocation" />
     }
 
     <section class="weather-card radar-panel" aria-label="Radar" inert="@showLocationPrompt">
@@ -30,7 +33,8 @@
         {
             <p class="location-error" role="alert">@errorMessage</p>
         }
-        <CurrentConditionsPanel CurrentForecast="@RealHourlyForecast" Astronomy="@weatherPoint?.AstronomicalData" Location="@location" LastUpdated="@lastUpdated" OnChangeLocation="OpenLocationPrompt" />
+        <CurrentConditionsPanel CurrentForecast="@RealHourlyForecast" Astronomy="@weatherPoint?.AstronomicalData"
+                                Location="@location" LastUpdated="@lastUpdated" OnChangeLocation="OpenLocationPrompt" />
     </section>
 
     <section class="weather-card forecast-panel" aria-label="Forecast" inert="@showLocationPrompt">
