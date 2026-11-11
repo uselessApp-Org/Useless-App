@@ -14,6 +14,9 @@ public class UrbanDictionaryEntry
 
     [JsonPropertyName("definition")]
     public string Definition { get; set; }
+
+    [JsonPropertyName("example")]
+    public string Example { get; set; }
 }
 
 public class UrbanAPI
@@ -25,7 +28,7 @@ public class UrbanAPI
         _httpClient = httpClient;
     }
 
-    public async Task<(string finalUrl, string jsonString, string finalWord, string finalDescription, string apiResult)> FetchRandomWord()
+    public async Task<(string finalUrl, string jsonString, string finalWord, string finalDescription, string finalExample, string apiResult)> FetchRandomWord()
     {
         try
         {
@@ -41,23 +44,24 @@ public class UrbanAPI
                 var firstEntry = responseObj.List[0];
 
                 string finalWord = firstEntry.Word;
+                string finalExample = firstEntry.Example;
                 string finalDescription = !string.IsNullOrWhiteSpace(firstEntry.Definition) 
                     ? firstEntry.Definition 
                     : "No definition found.";
 
                 string apiResult = $"Found something else";
 
-                return (finalUrl, jsonString, finalWord, finalDescription, apiResult);
+                return (finalUrl, jsonString, finalWord, finalDescription, finalExample, apiResult);
             }
             else
             {
                 string apiResult = $"No dictionary entries found for this word";
-                return (finalUrl, jsonString, "", "", apiResult);
+                return (finalUrl, jsonString, "", "", "", apiResult);
             }
         } 
         catch (Exception ex) 
         {
-            return ("", "", "", "", $"Error: {ex.Message}");
+            return ("", "", "", "", "", $"Error: {ex.Message}");
         }
     }
 }
