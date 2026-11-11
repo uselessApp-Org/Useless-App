@@ -10,7 +10,6 @@
     <link rel="stylesheet" href="@Assets["app.css"]" />
     <link rel="stylesheet" href="@Assets["UselessApp.styles.css"]" />
     <ImportMap />
-    <link rel="icon" type="image/png" href="@AssetUrl("favicon.png")" />
     <HeadOutlet @rendermode="InteractiveServer" />
 </head>
 
@@ -37,8 +36,6 @@
         <Routes />
     </CascadingAuthenticationState> *@
     <Routes @rendermode="InteractiveServer" />
-    <script src="@AssetUrl("absurd-arcade.js")"></script>
-    <script src="@AssetUrl("arcade-extras.js")"></script>
     <script src="_framework/blazor.web.js"></script>
     <script>Blazor.addEventListener("enhancedload", () => uselessPreferences.setTheme(uselessPreferences.getTheme()));</script>
 </body>
