@@ -15,41 +15,41 @@ public class DisplayNameService
     public string? RandomDisplayName { get; private set; }
 
     public bool IsLoggedIn => Username != null;
-public event Action? OnChange;
+    public event Action? OnChange;
 
-private void NotifyStateChanged() => OnChange?.Invoke();
+    private void NotifyStateChanged() => OnChange?.Invoke();
 
 
     public async Task SetUserAsync(string username, string displayName, string randomDisplayName)
-{
-    Username = username;
-    DisplayName = displayName;
-    RandomDisplayName = randomDisplayName;
+    {
+        Username = username;
+        DisplayName = displayName;
+        RandomDisplayName = randomDisplayName;
 
-    await _session.SetAsync("username", username);
-    await _session.SetAsync("displayName", displayName);
-    await _session.SetAsync("randomDisplayName", randomDisplayName);
+        await _session.SetAsync("username", username);
+        await _session.SetAsync("displayName", displayName);
+        await _session.SetAsync("randomDisplayName", randomDisplayName);
 
-    NotifyStateChanged();
-}
+        NotifyStateChanged();
+    }
 
     public async Task LoadUserAsync()
-{
-    var usernameResult = await _session.GetAsync<string>("username");
-    Console.WriteLine($"DEBUG SESSION username: success={usernameResult.Success}, value={usernameResult.Value}");
+    {
+        var usernameResult = await _session.GetAsync<string>("username");
+        Console.WriteLine($"DEBUG SESSION username: success={usernameResult.Success}, value={usernameResult.Value}");
 
-    var displayNameResult = await _session.GetAsync<string>("displayName");
-    Console.WriteLine($"DEBUG SESSION displayName: success={displayNameResult.Success}, value={displayNameResult.Value}");
+        var displayNameResult = await _session.GetAsync<string>("displayName");
+        Console.WriteLine($"DEBUG SESSION displayName: success={displayNameResult.Success}, value={displayNameResult.Value}");
 
-    var randomDisplayNameResult = await _session.GetAsync<string>("randomDisplayName");
-    Console.WriteLine($"DEBUG SESSION randomDisplayName: success={randomDisplayNameResult.Success}, value={randomDisplayNameResult.Value}");
+        var randomDisplayNameResult = await _session.GetAsync<string>("randomDisplayName");
+        Console.WriteLine($"DEBUG SESSION randomDisplayName: success={randomDisplayNameResult.Success}, value={randomDisplayNameResult.Value}");
 
-    Username = usernameResult.Value;
-    DisplayName = displayNameResult.Value;
-    RandomDisplayName = randomDisplayNameResult.Value;
+        Username = usernameResult.Value;
+        DisplayName = displayNameResult.Value;
+        RandomDisplayName = randomDisplayNameResult.Value;
 
-    NotifyStateChanged();
-}
+        NotifyStateChanged();
+    }
     public async Task LogoutAsync()
     {
         Username = null;
@@ -62,6 +62,4 @@ private void NotifyStateChanged() => OnChange?.Invoke();
 
         NotifyStateChanged();
     }
-
-   
 }

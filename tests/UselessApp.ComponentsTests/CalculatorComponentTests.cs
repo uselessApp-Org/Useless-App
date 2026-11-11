@@ -9,6 +9,12 @@ namespace UselessApp.ComponentsTests;
 
 public class CalculatorComponentTests : BunitContext
 {
+    public CalculatorComponentTests()
+    {
+        Services.AddSingleton<CalculatorEvaluatorService>();
+        Services.AddSingleton<UserStatsService>();
+    }
+
     #region CalcButton Tests
 
     [Fact]

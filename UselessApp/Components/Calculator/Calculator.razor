@@ -2,6 +2,7 @@
 @using UselessApp.Components.Calculator.Components
 @using UselessApp.Services
 @inject CalculatorEvaluatorService Evaluator
+@inject UserStatsService Stats
 @rendermode InteractiveServer
 
 <PageTitle>Calculator</PageTitle>
@@ -61,7 +62,7 @@
     private bool clearOnTop = true;
     private Random rng = new();
 
-    // Dimensions of the components
+    #region dimesions of components
     private const int SciWidth = 190;
     private const int SciHeight = 440;
     private const int CalcWidth = 290;
@@ -73,13 +74,17 @@
     private const int ArenaWidth = 900;
     private const int ArenaHeight = 500;
 
-    // Initial positions
+    #endregion
+
+    #region initial positions
     private int sciTop = 20;
     private int sciLeft = 60;
     private int calcTop = 20;
     private int calcLeft = 280;
     private int opTop = 20;
     private int opLeft = 600;
+
+    #endregion
 
     private string DisplayString
     {
@@ -160,6 +165,7 @@
         else if (value == "ENTER")
         {
             FlushCurrentNumber();
+            string expression = string.Join("", displayTokens);
 
             string result = Evaluator.Evaluate(displayTokens);
             displayTokens.Clear();
@@ -167,6 +173,8 @@
             {
                 displayTokens.Add(result);
             }
+
+            Stats.RecordCalcEnter(expression, result ?? "");
         }
         else if (char.IsDigit(value[0]) || value == ".")
         {
