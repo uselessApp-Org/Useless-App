@@ -7,8 +7,8 @@
 @inject MerriamAPI merriamAPI
 @inject UrbanAPI urbanAPI
 
-<PageTitle>API Search | UselessApp</PageTitle>
-<header class="page-heading"><p class="eyebrow">TOOL 04 / STAY CURIOUS</p><h1>API Search</h1>
+<PageTitle>Dictionary | UselessApp</PageTitle>
+<header class="page-heading"><p class="eyebrow">TOOL 04 / STAY CURIOUS</p><h1>Dictionary</h1>
 <p>Consulting an actual dictionary. Our confidence remains unjustified.</p></header>
 
 <div align="center">
@@ -34,6 +34,7 @@
             <div class="word-card" style="border: 1px solid #444; padding: 15px; border-radius: 8px; background: #222; margin-top: 15px">
                 <h3 style="color: #0d6efd; text-transform: capitalize; margin-top: 0;">@searchTerm</h3>
                 <p style="color: white; font-style: italic;">@finalDescription</p>
+                <p style="color: white; font-style: italic;">@finalExample</p>
             </div>
         }
 
@@ -50,9 +51,10 @@
             </div>
         }
 
-        <hr style="border-color: #444; margin-top: 30px" />
+        @*<hr style="border-color: #444; margin-top: 30px" />
         <h5>Raw JSON Output</h5>
         <pre role="status" style="background: #111; color: #aaa; padding: 10px; border-radius: 4px; overflow-x: auto; max-height: 200px;">@jsonString</pre>
+        *@
     </div>
 </div>
 
@@ -107,6 +109,7 @@
     public string jsonString = "";
     public string finalWord = "";
     public string finalDescription = ""; 
+    public string finalExample = "";
 
     List<string> suggestions = new List<string>();
 
@@ -151,15 +154,17 @@
             jsonString = result.jsonString;
             finalWord = result.finalWord;
             finalDescription = result.finalDescription;
+            finalExample = "";
             apiResult = result.apiResult;
         }
         else if (selectedItemValue == "Urban Dictionary")
         {
-            var result = await urbanAPI.FetchRandomWord();
+            (string finalUrl, string jsonString, string finalWord, string finalDescription, string finalExample, string apiResult) result = await urbanAPI.FetchRandomWord();
             finalUrl = result.finalUrl;
             jsonString = result.jsonString;
             finalWord = result.finalWord;
             finalDescription = result.finalDescription;
+            finalExample = result.finalExample;
             apiResult = result.apiResult;
         }
     }
