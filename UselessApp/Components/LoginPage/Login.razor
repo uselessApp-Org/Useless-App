@@ -30,7 +30,6 @@
                      style="max-width: 400px;">
                     <span>You are logged in as <strong>@context.User.Identity?.Name</strong></span>
                 
-                    <!-- Change this from an <a> tag to a button with forceLoad -->
                     <button class="btn btn-outline-danger btn-sm" @onclick="LogoutUser">Sign Out</button>
                 </div>
             </Authorized>
@@ -67,7 +66,7 @@
         if (user == null)
         {
             errorMessage = "Invalid username or password";
-            return; // ← STOP EXECUTION
+            return; 
         }
 
         await DisplayNameService.SetUserAsync(
@@ -80,9 +79,9 @@
 
         nav.NavigateTo("/");
     }
+
     private void LogoutUser()
     {
-        // forceLoad: true completely destroys the Blazor circuit and forces a hard browser reload
         nav.NavigateTo("/auth/logout", forceLoad: true);
     }
 }

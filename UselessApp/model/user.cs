@@ -15,9 +15,6 @@ public class User
     [BsonElement("DisplayName")]
     public string DisplayName { get; set; } = "";
 
-    [BsonElement("Email")]
-    public string Email { get; set; } = "";
-
     [BsonElement("GoogleId")]
     public string? GoogleId { get; set; }
 

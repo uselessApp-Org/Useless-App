@@ -1,45 +1,48 @@
-using UselessApp.Components;
-using UselessApp.Models;
 using Microsoft.AspNetCore.Authentication;
-using MongoDB.Driver;
-using Microsoft.AspNetCore.Authentication.Google;
 using System.Security.Claims;
-using UselessApp.Services;
+using UselessApp.Models;
+
 namespace UselessApp.Services;
-// ... other usings
-public class GoogleSignIn{
-public async Task<User?> ProcessGoogleUserAsync(ClaimsPrincipal principal)
+
+public class GoogleSignInService
 {
-    var email = principal.FindFirstValue(ClaimTypes.Email);
-    var googleId = principal.FindFirstValue(ClaimTypes.NameIdentifier);
-    var name = principal.FindFirstValue(ClaimTypes.Name) ?? email;
+    private readonly MongodbUserService _userService;
 
-    if (string.IsNullOrEmpty(email)) return null;
-
-    // 1. Check if user already exists by email
-    var user = await GetByEmailAsync(email); // Ensure you have a helper like this, or use your existing query
-
-    if (user == null)
+    public GoogleSignInService(MongodbUserService userService)
     {
-        
-        user = new User 
+        _userService = userService;
+    }
+
+    public async Task<(User? user, bool needsOnboarding)> ProcessGoogleUserAsync(ClaimsPrincipal principal)
+    {
+        // Use the Google email or unique identifier as the lookup username key
+        var identifier = principal.FindFirstValue(ClaimTypes.Email) ?? principal.FindFirstValue(ClaimTypes.NameIdentifier);
+        var googleName = principal.FindFirstValue(ClaimTypes.Name);
+
+        if (string.IsNullOrEmpty(identifier))
+            return (null, false);
+
+        var user = await _userService.GetByUsernameAsync(identifier);
+        bool needsOnboarding = false;
+
+        if (user == null)
         {
-            Username = email,
-            Email = email,
-            Password = "",
-            DisplayName = name,
-            GoogleId = googleId,
+            // Create minimal user record
+            user = new User
+            {
+                Username = identifier,
+                Password = string.Empty,
+                DisplayName = string.Empty // Blank signifies they need to set it
+            };
             
-        };
-        await MongodbUserService.AddUserAsync(user);
-    }
-    else if (string.IsNullOrEmpty(user.GoogleId))
-    {
-        // --- ACCOUNT LINKING ---
-        user.GoogleId = googleId;
-       
-    }
+            await _userService.AddUserAsync(user);
+            needsOnboarding = true;
+        }
+        else if (string.IsNullOrEmpty(user.DisplayName))
+        {
+            needsOnboarding = true;
+        }
 
-    return user;
-}
+        return (user, needsOnboarding);
+    }
 }

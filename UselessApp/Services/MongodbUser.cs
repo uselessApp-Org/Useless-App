@@ -68,19 +68,38 @@ public virtual async Task<bool> UserExistsAsync(string username)
     return existing != null;
 }
 
-   public async Task<User> AddUserAsync(User user)
+public async Task<User?> GetByUsernameAsync(string username)
 {
+    return await _user.Find(u => u.Username == username).FirstOrDefaultAsync();
+}
+
+public async Task<User> AddUserAsync(User user)
+{
+    if (string.IsNullOrEmpty(user.Username))
+        throw new ArgumentException("Username cannot be null or empty");
+
     if (await UserExistsAsync(user.Username))
         throw new Exception("Username already exists");
 
-    if (string.IsNullOrEmpty(user.Password))
-        throw new ArgumentException("Password cannot be null or empty");
-
-    user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
+    // Hash password if present and not empty
+    if (!string.IsNullOrEmpty(user.Password))
+    {
+        user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
+    }
+    else
+    {
+        user.Password = string.Empty;
+    }
 
     await _user.InsertOneAsync(user);
 
     return user;
+}
+
+public async Task UpdateUserAsync(User user)
+{
+    var filter = Builders<User>.Filter.Eq(u => u.Id, user.Id);
+    await _user.ReplaceOneAsync(filter, user);
 }
 
 

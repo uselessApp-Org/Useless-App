@@ -13,6 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Supplies content-based versions for the existing stylesheet and script links.
 builder.Services.AddRazorPages();
+builder.Services.AddCascadingAuthenticationState();
 
 // ---------------------------
 // GOOGLE AUTH
@@ -30,7 +31,7 @@ builder.Services.AddAuthentication(options =>
     // Allow cookies over HTTP for local testing
     options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
 })
-   .AddGoogle(options =>
+.AddGoogle(options =>
 {
     options.ClientId = builder.Configuration["Google:ClientId"]!;
     options.ClientSecret = builder.Configuration["Google:ClientSecret"]!;
@@ -57,6 +58,7 @@ builder.Services.AddSingleton<IMongoClient>(sp =>
 });
 
 builder.Services.AddScoped<MongodbUserService>();
+builder.Services.AddScoped<GoogleSignInService>(); // <--- Registered GoogleSignInService
 builder.Services.AddScoped<CalculatorEvaluatorService>();
 builder.Services.AddScoped<DisplayNameService>();
 builder.Services.AddScoped<IExperimentService, ExperimentService>();
@@ -68,14 +70,11 @@ builder.Services.AddHttpClient<GeoLocationService>();
 builder.Services.AddHttpClient<WeatherService>();
 builder.Services.AddHttpClient<GeminiService>();
 
-
 builder.Services.AddHttpClient<MerriamAPI>();
 builder.Services.AddHttpClient<UrbanAPI>();
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-
-builder.Services.AddHttpClient<GeminiService>();
 
 // ---------------------------
 // BUILD APP
@@ -90,7 +89,8 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
     app.UseHsts();
 }
-//Mongo Indexs
+
+// Mongo Indexes
 using (var scope = app.Services.CreateScope())
 {
     var userService = scope.ServiceProvider.GetRequiredService<MongodbUserService>();
@@ -126,40 +126,42 @@ app.MapGet("/auth/logout", async (HttpContext context) =>
     // Force a hard redirect back to home
     context.Response.Redirect("/login", permanent: false);
 });
-// New app sign up/login flow with Google OAuth
-app.MapGet("/auth/google-callback", async (HttpContext context, MongodbUserService userService) =>
+
+// Google OAuth Callback Flow using GoogleSignInService
+app.MapGet("/auth/google-callback", async (HttpContext context, GoogleSignInService googleSignInService, DisplayNameService displayNameService) =>
 {
     var result = await context.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-    if (!result.Succeeded) return Results.Redirect("/login?error=auth_failed");
+    if (!result.Succeeded || result.Principal == null) 
+        return Results.Redirect("/login?error=auth_failed");
 
-    var email = result.Principal.FindFirstValue(ClaimTypes.Email);
-    var googleId = result.Principal.FindFirstValue(ClaimTypes.NameIdentifier);
-    var name = result.Principal.FindFirstValue(ClaimTypes.Name);
-
-    // Check if user exists in MongoDB
-    var user = await userService.ValidateLoginAsync(email, null);
+    var (user, needsOnboarding) = await googleSignInService.ProcessGoogleUserAsync(result.Principal);
 
     if (user == null)
+        return Results.Redirect("/login?error=user_creation_failed");
+
+    // 1. Create the claims for the cookie so <AuthorizeView> and User.Identity recognize them
+    var claims = new List<Claim>
     {
-        // --- THIS IS THE SIGN-UP STEP ---
-        user = new User
-        {
-            Email = email,
-            DisplayName = name,
-            GoogleId = googleId,
-            CreatedAt = DateTime.UtcNow
-        };
-        await userService.CreateUserAsync(user);
-    }
-    else if (string.IsNullOrEmpty(user.GoogleId))
+        new Claim(ClaimTypes.Name, string.IsNullOrEmpty(user.DisplayName) ? user.Username : user.DisplayName),
+        new Claim(ClaimTypes.NameIdentifier, user.Username)
+    };
+    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+    
+    // 2. Issue the authentication cookie
+    await context.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+
+    // 3. Keep your DisplayNameService synchronized if your layout uses it
+    await displayNameService.SetUserAsync(user.Username, user.DisplayName, user.DisplayName);
+
+    // If it's their first time and they need a display name, send them to onboarding
+    if (needsOnboarding)
     {
-        // Account linking (e.g., if they previously signed up with password)
-        user.GoogleId = googleId;
-        await userService.UpdateUserAsync(user);
+        return Results.Redirect("/complete-profile");
     }
 
     return Results.Redirect("/");
 });
+
 // ---------------------------
 // RAZOR COMPONENTS
 // ---------------------------
