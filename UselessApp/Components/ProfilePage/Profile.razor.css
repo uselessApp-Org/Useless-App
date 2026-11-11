@@ -1,0 +1,50 @@
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+.stat-box {
+    width: 150px;
+    padding: 16px;
+    background-color: #262642;
+    border-radius: 10px;
+    text-align: center;
+    color: white;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+}
+
+.stat-value {
+    font-size: 32px;
+    font-weight: bold;
+}
+.Latest-Expression {
+    font-size: 32px;
+    font-weight: bold;
+}
+
+.Latest-Answer {
+    font-size: 32px;
+    font-weight: bold;
+}
+
+.stat-label {
+    font-size: 14px;
+    opacity: 0.8;
+}
+.splitter{
+    border-bottom: 1px solid #666;
+    margin: 10px 0;
+    height: 0;
+}
+.AIvalue {
+    font-size: 32px;
+    font-weight: bold;
+}
+.Ai-LastExpression {
+    font-size: 32px;
+    font-weight: bold;
+}
+.Ai-LastAnswer {
+    font-size: 32px;
+    font-weight: bold;
+}

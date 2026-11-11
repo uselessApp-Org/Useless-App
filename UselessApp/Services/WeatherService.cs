@@ -49,30 +49,65 @@ public class AstronomicalData
 
 #endregion
 
-#region Hourly Weather Data
+#region Hourly / Daily Weather Data
 
-public class HourlyForecast
+// these should work for both hourly forecast and "daily forecast" same exact structure
+public class Forecast
 {
     [JsonPropertyName("properties")]
-    public HourlyData? Properties { get; set; }
+    public ForecastData? Properties { get; set; }
 }
 
-public class HourlyData
+public class ForecastData
 {
     [JsonPropertyName("units")]
     public string Units { get; set; } = string.Empty;
 
     [JsonPropertyName("periods")]
-    public List<HourlyPeriod> hourlyPeriods = new List<HourlyPeriod>();
+    public List<HourlyPeriod> hourlyPeriods { get; set; } = new List<HourlyPeriod>();
 }
 
+// NOTE: System.Text.Json only fills properties ({ get; set; }), not plain fields
 public class HourlyPeriod
 {
-    [JsonPropertyName("number")]   
-    public int hourNumber;
+    [JsonPropertyName("number")]
+    public int hourNumber { get; set; }
 
-    // [JsonPropertyName("startTime")]
-    // public string
+    [JsonPropertyName("name")]
+    public string name { get; set; } = string.Empty;
+
+    [JsonPropertyName("startTime")]
+    public DateTimeOffset startTime { get; set; }
+
+    [JsonPropertyName("endTime")]
+    public DateTimeOffset endTime { get; set; }
+
+    [JsonPropertyName("temperature")]
+    public int temperature { get; set; }
+
+    [JsonPropertyName("temperatureUnit")]
+    public string temperatureUnit { get; set; } = string.Empty;
+
+    [JsonPropertyName("windSpeed")]
+    public string windSpeed { get; set; } = string.Empty;
+
+    [JsonPropertyName("windDirection")]
+    public string windDirection { get; set; } = string.Empty;
+
+    [JsonPropertyName("icon")]
+    public string iconURL { get; set; } = string.Empty;
+
+    [JsonPropertyName("shortForecast")]
+    public string shortForecast { get; set; } = string.Empty;
+
+    [JsonPropertyName("probabilityOfPrecipitation")]
+    public PrecipProb? precipProb { get; set; }
+}
+
+public class PrecipProb
+{
+    [JsonPropertyName("value")]
+    public int precipValue { get; set; }
 }
 
 #endregion
@@ -111,5 +146,25 @@ public class WeatherService
         PointResponse = JsonSerializer.Deserialize<WeatherPointsResponse>(PointResponseString);
 
         return (PointResponse?.Properties, null);
+    }
+
+    /// <summary>
+    /// this can be used to get either hourly or data forecast data
+    /// </summary>
+    /// <param name="ForecastURL">URL from WeatherProperties</param>
+    /// <returns>forecast data</returns>
+    public async Task<(ForecastData? ForecastData, string? Error)> GetWeatherData(string ForecastURL)
+    {
+        Forecast? DailyCast;
+        string ForecastResponse = string.Empty;
+        HttpResponseMessage responseMessage = await _httpClient.GetAsync(ForecastURL);
+
+        if(!responseMessage.IsSuccessStatusCode)
+            return (null, $"Error: {(int)responseMessage.StatusCode} {responseMessage.ReasonPhrase}");
+        
+        ForecastResponse = await responseMessage.Content.ReadAsStringAsync();
+        DailyCast = JsonSerializer.Deserialize<Forecast>(ForecastResponse);
+
+        return (DailyCast?.Properties, null);
     }
 }
