@@ -133,4 +133,19 @@ app.MapGet("/auth/logout", async (HttpContext context) =>
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
+     
+
+if (args.Contains("--update-users"))
+{
+    using var scope = app.Services.CreateScope();
+
+    var userService = scope.ServiceProvider
+        .GetRequiredService<MongodbUserService>();
+
+    await userService.UpdateUsersAsync();
+
+    Console.WriteLine("Migration complete.");
+    return;
+}
+
 app.Run();

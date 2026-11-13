@@ -32,4 +32,13 @@ public class User
 
     [BsonElement("LastResult")]
     public string LastResult { get; set; } = string.Empty;
+
+    [BsonElement("GoogleId")]
+    public string GoogleId { get; set; } = string.Empty;
+    
+    [BsonElement("LastWordSearched")]
+    public string LastWordSearched { get; set; } = string.Empty;
+
+    [BsonElement("LastDefinition")]
+    public string LastDefinition { get; set; } = string.Empty;
 }

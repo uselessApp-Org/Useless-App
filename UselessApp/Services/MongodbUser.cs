@@ -24,7 +24,7 @@ public class MongodbUserService
         var indexModel = new CreateIndexModel<User>(indexKeysDefinition, new CreateIndexOptions { Unique = true });
         _user.Indexes.CreateOne(indexModel);
     }
-
+    
     public async Task<string?> GetRandomDisplayNameAsync(string currentUsername)
     {
         var displayNames = await _user
@@ -119,4 +119,19 @@ public class MongodbUserService
     {
         return await _user.Find(u => u.Username == username).FirstOrDefaultAsync<User>();
     }
+    public async Task UpdateUsersAsync()
+{
+    var filter = Builders<User>.Filter.Or(
+        Builders<User>.Filter.Exists("LastWordSearched", false),
+        Builders<User>.Filter.Exists("LastDefinition", false)
+    );
+
+    var update = Builders<User>.Update
+        .Set(u => u.LastWordSearched, "")
+        .Set(u => u.LastDefinition, "");
+
+    var result = await _user.UpdateManyAsync(filter, update);
+
+    Console.WriteLine($"Updated {result.ModifiedCount} users.");
+}
 }
