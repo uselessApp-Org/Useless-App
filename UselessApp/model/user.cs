@@ -1,6 +1,7 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 namespace UselessApp.Models;
+
 public class User
 {
     [BsonId]
@@ -11,7 +12,7 @@ public class User
 
     [BsonElement("Password")]
     public required string Password { get; set; } = string.Empty;
-    
+
     [BsonElement("DisplayName")]
     public string DisplayName { get; set; } = "";
 
@@ -42,5 +43,6 @@ public class User
 
     [BsonElement("LastDefinition")]
     public string LastDefinition { get; set; } = string.Empty;
-
+    [BsonElement("testing")]
+    public string testing { get; set; }
 }

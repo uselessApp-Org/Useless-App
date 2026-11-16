@@ -51,11 +51,10 @@ public class MongodbUserService
                 Console.WriteLine("User not found");
                 return (null, null);
             }
-            var hash = BCrypt.Net.BCrypt.HashPassword("test123");
 
-            Console.WriteLine(
-                BCrypt.Net.BCrypt.Verify("test123", hash)
-            );
+
+
+
             Console.WriteLine($"Length: {user.Password.Length}");
             Console.WriteLine($"[{user.Password}]");
             Console.WriteLine($"Found user: {user.Username}");
@@ -98,39 +97,39 @@ public class MongodbUserService
         return existing != null;
     }
 
-public async Task<User?> GetByUsernameAsync(string username)
-{
-    return await _user.Find(u => u.Username == username).FirstOrDefaultAsync();
-}
-public async Task<User> AddUserAsync(User user)
-{
-    if (await UserExistsAsync(user.Username))
-        throw new Exception("Username already exists");
+    public async Task<User?> GetByUsernameAsync(string username)
+    {
+        return await _user.Find(u => u.Username == username).FirstOrDefaultAsync();
+    }
+    public async Task<User> AddUserAsync(User user)
+    {
+        if (await UserExistsAsync(user.Username))
+            throw new Exception("Username already exists");
 
-// Hash password if present and not empty
-if (!string.IsNullOrEmpty(user.Password))
-{
-    user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
-}
-else
-{
-    user.Password = string.Empty;
-}
-    if (string.IsNullOrEmpty(user.Password))
-        throw new ArgumentException("Password cannot be null or empty");
+        // Hash password if present and not empty
+        if (!string.IsNullOrEmpty(user.Password))
+        {
 
-    user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
+        }
+        else
+        {
+            user.Password = string.Empty;
+        }
+        if (string.IsNullOrEmpty(user.Password))
+            throw new ArgumentException("Password cannot be null or empty");
 
-    await _user.InsertOneAsync(user);
+        user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
 
-    return user;
-}
+        await _user.InsertOneAsync(user);
 
-public async Task UpdateUserAsync(User user)
-{
-    var filter = Builders<User>.Filter.Eq(u => u.Id, user.Id);
-    await _user.ReplaceOneAsync(filter, user);
-}
+        return user;
+    }
+
+    public async Task UpdateUserAsync(User user)
+    {
+        var filter = Builders<User>.Filter.Eq(u => u.Id, user.Id);
+        await _user.ReplaceOneAsync(filter, user);
+    }
 
     /// <summary>
     /// This function updates user stats that will be displayed on the profile page
@@ -178,11 +177,14 @@ public async Task UpdateUserAsync(User user)
         var filter = Builders<User>.Filter.Or(
             Builders<User>.Filter.Exists("LastWordSearched", false),
             Builders<User>.Filter.Exists("LastDefinition", false)
+
         );
 
         var update = Builders<User>.Update
             .Set(u => u.LastWordSearched, "")
             .Set(u => u.LastDefinition, "");
+
+
         var before = await _user
             .Find(u => u.Username == "test")
             .FirstOrDefaultAsync();
