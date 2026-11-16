@@ -1,0 +1,33 @@
+.stat-box {
+    max-width: 400px;
+    min-height: 150px;
+    padding: 10px;
+    background-color: #29292c;
+    border-radius: 10px;
+    text-align: center;
+    color: white;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+.stat-value {
+    font-size: 14px;
+    background-color: rgb(140, 184, 207);
+    color: rgb(255, 253, 253);
+    border: 3px solid var(--ink);
+    border-radius: 15px;
+    border-spacing: 5px;
+    overflow-wrap: anywhere;
+    display: inline-block;
+    padding: 10px;
+}
+
+.stat-label {
+    font-size: 22px;
+    opacity: 0.8;
+    font-style: bold;
+}

@@ -1,6 +1,10 @@
 @page "/"
+@using UselessApp.Components.SharedComps
+@using UselessApp.Services
+@using UselessApp.Models
 
 @inject DisplayNameService DisplayNameService
+@inject MongodbUserService MongodbUser
 
 <PageTitle>Home | UselessApp</PageTitle>
 <section class="hero">
@@ -12,6 +16,44 @@
 </section>
 <section class="CenterHeader">
     <div>
-        <h1>Global Stats</h1>
+        <h1>Global Usage Stats</h1>
+    </div>
+    <h2 class="PageHeader">Calculator</h2>
+    <div class="PageLine"></div>
+    <div class="Tool-Stats">
+        <StatBox Value="NumEnters" Label="Enters Pressed"/>
+        <StatBox Value="LastExpression" Label="Last Calculator Expression"/>
+    </div>
+    <h2 class="PageHeader">Weather</h2>
+    <div class="Tool-Stats">
+        <StatBox Value="TestString" Label="Test String"/>
     </div>
 </section>
+
+@code
+{
+    int NumEnters;
+    string TestString = "TurdBurger";
+    string LastExpression = string.Empty;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if(!firstRender) return;
+
+        if(!DisplayNameService.IsLoggedIn)
+            await DisplayNameService.LoadUserAsync();
+        
+        await LoadProfileDataAsync();
+        StateHasChanged();
+    }
+
+    private async Task LoadProfileDataAsync()
+    {
+        User? curUser = await MongodbUser.GetUserDataForProfilePage("Default");
+
+        if(curUser is null) return;
+
+        NumEnters = curUser.Enters;
+        LastExpression = curUser.LastExpression;
+    }
+}

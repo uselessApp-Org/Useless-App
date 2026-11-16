@@ -13,31 +13,18 @@
 <div class="stat-row">
     <StatBox Value="NumEnters" Label="Time Enter Has Been Hit"/>
 
-    <div class="stat-box">
-        <div class="Latest-Expression">@(string.IsNullOrEmpty(LatestExpression) ? "69 + 420" : LatestExpression)</div>
-        <div class="stat-label">Latest expression</div>
-    </div>
+    <StatBox Value="@(string.IsNullOrEmpty(LatestExpression) ? "69 + 420" : LatestExpression)"
+            Label="Last Expression Entered" />
 
-    <div class="stat-box">
-        <div class="Latest-Answer">@(string.IsNullOrEmpty(LatestAnswer) ? 69420 : LatestAnswer)</div>
-        <div class="stat-label">Latest answer</div>
-    </div>
+    <StatBox Value="@(string.IsNullOrEmpty(LatestAnswer) ? 69420 : LatestAnswer)"
+            Label="Last Answer Recieved" />
 </div>
 <div class="splitter"></div>
 <h2>AI</h2>
 <div class="stat-row">
-    <div class="stat-box">
-        <div class="AIvalue">0 </div>
-        <div class="stat-label">Amount of times AskAi has been interacted with</div>
-    </div>
-    <div class="stat-box">
-        <div class="Ai-LastExpression">Help me</div>
-        <div class="stat-label">Latest AI expression</div>
-    </div>
-    <div class="stat-box">
-        <div class="Ai-LastAnswer">42</div>
-        <div class="stat-label">Latest AI answer</div>
-    </div>
+    <StatBox Value="AIvalue" Label="LAST PLACEHOLDER" />
+    <StatBox Value="AiLastExpression" Label="Last AI PROMPT" />
+    <StatBox Value="AiLastAnswer" Label="Last AI Answer" />
 </div>
 @code {
 

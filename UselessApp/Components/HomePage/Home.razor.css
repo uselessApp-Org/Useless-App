@@ -7,3 +7,18 @@
     text-align: center;
     color: var(--ink);
 }
+
+.Tool-Stats
+{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.PageHeader
+{
+    padding: 10px;
+    border-bottom: 3px solid var(--ink);
+}
