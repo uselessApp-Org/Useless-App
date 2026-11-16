@@ -43,6 +43,6 @@ public class User
 
     [BsonElement("LastDefinition")]
     public string LastDefinition { get; set; } = string.Empty;
-    [BsonElement("testing")]
-    public string testing { get; set; }
+
+    
 }
