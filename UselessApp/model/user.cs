@@ -15,8 +15,6 @@ public class User
     [BsonElement("DisplayName")]
     public string DisplayName { get; set; } = "";
 
-    [BsonElement("GoogleId")]
-    public string? GoogleId { get; set; }
 
     [BsonElement("WeatherLocation")]
     public string Location { get; set; } = string.Empty;
