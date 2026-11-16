@@ -1,0 +1,43 @@
+.user-form {
+    display: relative;
+    
+}
+.error-text {
+    
+    font-size: 14px;
+    margin-top: 10px;
+}
+.popup {
+    position: absolute;
+    top: 300px;
+    left: 320px;
+    z-index: 1000;
+}
+
+.popup-content {
+    background-color: var(--emphasis);
+    padding: 20px;
+    border-radius: 5px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.popup-content p {
+    margin: 0;
+    color: var(--sidebar);
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.close-button {
+    background: transparent;
+    border: none;
+    color: var(--field);
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 0;
+}

@@ -96,7 +96,10 @@ public class MongodbUserService
     public async Task<User> AddUserAsync(User user)
     {
         if (await UserExistsAsync(user.Username))
-            throw new Exception("Username already exists");
+        {
+            user.Username = "Default";
+            return user;
+        }
 
         // Hash password if present and not empty
         if (!string.IsNullOrEmpty(user.Password))

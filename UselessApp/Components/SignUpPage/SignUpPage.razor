@@ -38,14 +38,41 @@
                 Sign up with Google
             </a>
         </div>
+
+        </div>@if (!string.IsNullOrEmpty(errorMessage))
+        {
+             <div class="popup">
+    <div class="popup-content">
+        <p>@errorMessage</p>
+
+        <button class="close-button"
+                @onclick="() => errorMessage = string.Empty">
+            X
+        </button>
     </div>
+</div>
+        
+            
+        }
+       
+       
+        
+    
 </section>
 @code {
     private User newUser = new User { Username = string.Empty, Password = string.Empty };
+    private string errorMessage = string.Empty;
     private async Task AddUser()
     {
         // Save new user and get the stored version back
         var createdUser = await MongodbUserService.AddUserAsync(newUser);
+        if (createdUser.Username == "Default")
+        {
+            // Handle the case where the username already exists
+            // You can show an error message or take appropriate action
+            errorMessage = "Username already exists.";
+            return;
+        }
 
         // Generate a random display name from other users
         var randomDisplayName = await MongodbUserService.GetRandomDisplayNameAsync(createdUser.Username);
