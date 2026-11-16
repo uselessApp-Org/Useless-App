@@ -137,6 +137,8 @@ app.MapRazorComponents<App>()
 
 if (args.Contains("--update-users"))
 {
+    Console.WriteLine("Starting migration mode");
+
     using var scope = app.Services.CreateScope();
 
     var userService = scope.ServiceProvider

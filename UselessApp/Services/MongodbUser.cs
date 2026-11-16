@@ -24,7 +24,7 @@ public class MongodbUserService
         var indexModel = new CreateIndexModel<User>(indexKeysDefinition, new CreateIndexOptions { Unique = true });
         _user.Indexes.CreateOne(indexModel);
     }
-    
+
     public async Task<string?> GetRandomDisplayNameAsync(string currentUsername)
     {
         var displayNames = await _user
@@ -38,24 +38,58 @@ public class MongodbUserService
         var random = new Random();
         return displayNames[random.Next(displayNames.Count)];
     }
-
     public async Task<(User? user, string? randomDisplayName)> ValidateLoginAsync(string username, string password)
     {
-        var user = await _user
-            .Find(u => u.Username == username)
-            .FirstOrDefaultAsync();
+        try
+        {
+            var user = await _user
+                .Find(u => u.Username == username)
+                .FirstOrDefaultAsync();
 
-        if (user == null)
-            return (null, null);
+            if (user == null)
+            {
+                Console.WriteLine("User not found");
+                return (null, null);
+            }
+            var hash = BCrypt.Net.BCrypt.HashPassword("test123");
 
-        bool isValid = BCrypt.Net.BCrypt.Verify(password, user.Password);
-        if (!isValid)
-            return (null, null);
+            Console.WriteLine(
+                BCrypt.Net.BCrypt.Verify("test123", hash)
+            );
+            Console.WriteLine($"Length: {user.Password.Length}");
+            Console.WriteLine($"[{user.Password}]");
+            Console.WriteLine($"Found user: {user.Username}");
+            Console.WriteLine($"Entered Password: [{password}]");
+            Console.WriteLine($"Stored Hash: [{user.Password}]");
+            Console.WriteLine($"Username: {user.Username}");
+            Console.WriteLine($"Stored Hash: {user.Password}");
+            Console.WriteLine($"Entered Password: {password}");
 
-        // Get random display name from other users
-        var randomDisplayName = await GetRandomDisplayNameAsync(username);
+            var rehash = BCrypt.Net.BCrypt.HashPassword(password);
 
-        return (user, randomDisplayName);
+            Console.WriteLine($"New Hash: {rehash}");
+
+            bool isvalid = BCrypt.Net.BCrypt.Verify(password, user.Password);
+
+            Console.WriteLine($"Valid: {isvalid}");
+
+
+            Console.WriteLine($"Password valid: {isvalid}");
+
+            if (!isvalid)
+                return (null, null);
+
+
+
+            var randomDisplayName = await GetRandomDisplayNameAsync(username);
+
+            return (user, randomDisplayName);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToString());
+            throw;
+        }
     }
 
     public virtual async Task<bool> UserExistsAsync(string username)
@@ -98,11 +132,11 @@ public class MongodbUserService
             updates.Add(ub.Set(u => u.LastExpression, stats.LastExpression));
         if (!string.IsNullOrEmpty(stats.LastResult))
             updates.Add(ub.Set(u => u.LastResult, stats.LastResult));
-        if(!string.IsNullOrEmpty(stats.WeatherLocation))
+        if (!string.IsNullOrEmpty(stats.WeatherLocation))
             updates.Add(ub.Set(u => u.Location, stats.WeatherLocation));
-        if(stats.Latitude != 0.0f)
+        if (stats.Latitude != 0.0f)
             updates.Add(ub.Set(u => u.Latitude, stats.Latitude));
-        if(stats.Longitude != 0.0f)
+        if (stats.Longitude != 0.0f)
             updates.Add(ub.Set(u => u.Longitude, stats.Longitude));
         // add more stats here
 
@@ -120,18 +154,32 @@ public class MongodbUserService
         return await _user.Find(u => u.Username == username).FirstOrDefaultAsync<User>();
     }
     public async Task UpdateUsersAsync()
-{
-    var filter = Builders<User>.Filter.Or(
-        Builders<User>.Filter.Exists("LastWordSearched", false),
-        Builders<User>.Filter.Exists("LastDefinition", false)
-    );
+    {
 
-    var update = Builders<User>.Update
-        .Set(u => u.LastWordSearched, "")
-        .Set(u => u.LastDefinition, "");
+        var filter = Builders<User>.Filter.Or(
+            Builders<User>.Filter.Exists("LastWordSearched", false),
+            Builders<User>.Filter.Exists("LastDefinition", false)
+        );
 
-    var result = await _user.UpdateManyAsync(filter, update);
+        var update = Builders<User>.Update
+            .Set(u => u.LastWordSearched, "")
+            .Set(u => u.LastDefinition, "");
+        var before = await _user
+            .Find(u => u.Username == "test")
+            .FirstOrDefaultAsync();
 
-    Console.WriteLine($"Updated {result.ModifiedCount} users.");
-}
+
+
+        var result = await _user.UpdateManyAsync(filter, update);
+
+        var after = await _user
+            .Find(u => u.Username == "test")
+            .FirstOrDefaultAsync();
+
+
+
+
+        Console.WriteLine($"Updated {result.ModifiedCount} users.");
+    }
+
 }

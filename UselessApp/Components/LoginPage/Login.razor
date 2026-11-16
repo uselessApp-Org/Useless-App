@@ -67,7 +67,7 @@
         if (user == null)
         {
             errorMessage = "Invalid username or password";
-            return; // ← STOP EXECUTION
+            return;
         }
 
         await DisplayNameService.SetUserAsync(
