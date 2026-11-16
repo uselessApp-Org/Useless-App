@@ -38,24 +38,57 @@ public class MongodbUserService
         var random = new Random();
         return displayNames[random.Next(displayNames.Count)];
     }
-
     public async Task<(User? user, string? randomDisplayName)> ValidateLoginAsync(string username, string password)
     {
-        var user = await _user
-            .Find(u => u.Username == username)
-            .FirstOrDefaultAsync();
+        try
+        {
+            var user = await _user
+                .Find(u => u.Username == username)
+                .FirstOrDefaultAsync();
 
-        if (user == null)
-            return (null, null);
+            if (user == null)
+            {
+                Console.WriteLine("User not found");
+                return (null, null);
+            }
 
-        bool isValid = BCrypt.Net.BCrypt.Verify(password, user.Password);
-        if (!isValid)
-            return (null, null);
 
-        // Get random display name from other users
-        var randomDisplayName = await GetRandomDisplayNameAsync(username);
 
-        return (user, randomDisplayName);
+
+            Console.WriteLine($"Length: {user.Password.Length}");
+            Console.WriteLine($"[{user.Password}]");
+            Console.WriteLine($"Found user: {user.Username}");
+            Console.WriteLine($"Entered Password: [{password}]");
+            Console.WriteLine($"Stored Hash: [{user.Password}]");
+            Console.WriteLine($"Username: {user.Username}");
+            Console.WriteLine($"Stored Hash: {user.Password}");
+            Console.WriteLine($"Entered Password: {password}");
+
+            var rehash = BCrypt.Net.BCrypt.HashPassword(password);
+
+            Console.WriteLine($"New Hash: {rehash}");
+
+            bool isvalid = BCrypt.Net.BCrypt.Verify(password, user.Password);
+
+            Console.WriteLine($"Valid: {isvalid}");
+
+
+            Console.WriteLine($"Password valid: {isvalid}");
+
+            if (!isvalid)
+                return (null, null);
+
+
+
+            var randomDisplayName = await GetRandomDisplayNameAsync(username);
+
+            return (user, randomDisplayName);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToString());
+            throw;
+        }
     }
 
     public virtual async Task<bool> UserExistsAsync(string username)
@@ -64,39 +97,39 @@ public class MongodbUserService
         return existing != null;
     }
 
-public async Task<User?> GetByUsernameAsync(string username)
-{
-    return await _user.Find(u => u.Username == username).FirstOrDefaultAsync();
-}
-public async Task<User> AddUserAsync(User user)
-{
-    if (await UserExistsAsync(user.Username))
-        throw new Exception("Username already exists");
+    public async Task<User?> GetByUsernameAsync(string username)
+    {
+        return await _user.Find(u => u.Username == username).FirstOrDefaultAsync();
+    }
+    public async Task<User> AddUserAsync(User user)
+    {
+        if (await UserExistsAsync(user.Username))
+            throw new Exception("Username already exists");
 
-// Hash password if present and not empty
-if (!string.IsNullOrEmpty(user.Password))
-{
-    user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
-}
-else
-{
-    user.Password = string.Empty;
-}
-    if (string.IsNullOrEmpty(user.Password))
-        throw new ArgumentException("Password cannot be null or empty");
+        // Hash password if present and not empty
+        if (!string.IsNullOrEmpty(user.Password))
+        {
 
-    user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
+        }
+        else
+        {
+            user.Password = string.Empty;
+        }
+        if (string.IsNullOrEmpty(user.Password))
+            throw new ArgumentException("Password cannot be null or empty");
 
-    await _user.InsertOneAsync(user);
+        user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
 
-    return user;
-}
+        await _user.InsertOneAsync(user);
 
-public async Task UpdateUserAsync(User user)
-{
-    var filter = Builders<User>.Filter.Eq(u => u.Id, user.Id);
-    await _user.ReplaceOneAsync(filter, user);
-}
+        return user;
+    }
+
+    public async Task UpdateUserAsync(User user)
+    {
+        var filter = Builders<User>.Filter.Eq(u => u.Id, user.Id);
+        await _user.ReplaceOneAsync(filter, user);
+    }
 
     /// <summary>
     /// This function updates user stats that will be displayed on the profile page
@@ -117,11 +150,11 @@ public async Task UpdateUserAsync(User user)
             updates.Add(ub.Set(u => u.LastExpression, stats.LastExpression));
         if (!string.IsNullOrEmpty(stats.LastResult))
             updates.Add(ub.Set(u => u.LastResult, stats.LastResult));
-        if(!string.IsNullOrEmpty(stats.WeatherLocation))
+        if (!string.IsNullOrEmpty(stats.WeatherLocation))
             updates.Add(ub.Set(u => u.Location, stats.WeatherLocation));
-        if(stats.Latitude != 0.0f)
+        if (stats.Latitude != 0.0f)
             updates.Add(ub.Set(u => u.Latitude, stats.Latitude));
-        if(stats.Longitude != 0.0f)
+        if (stats.Longitude != 0.0f)
             updates.Add(ub.Set(u => u.Longitude, stats.Longitude));
         // add more stats here
 
@@ -138,4 +171,36 @@ public async Task UpdateUserAsync(User user)
     {
         return await _user.Find(u => u.Username == username).FirstOrDefaultAsync<User>();
     }
+    public async Task UpdateUsersAsync()
+    {
+
+        var filter = Builders<User>.Filter.Or(
+            Builders<User>.Filter.Exists("LastWordSearched", false),
+            Builders<User>.Filter.Exists("LastDefinition", false)
+
+        );
+
+        var update = Builders<User>.Update
+            .Set(u => u.LastWordSearched, "")
+            .Set(u => u.LastDefinition, "");
+
+
+        var before = await _user
+            .Find(u => u.Username == "test")
+            .FirstOrDefaultAsync();
+
+
+
+        var result = await _user.UpdateManyAsync(filter, update);
+
+        var after = await _user
+            .Find(u => u.Username == "test")
+            .FirstOrDefaultAsync();
+
+
+
+
+        Console.WriteLine($"Updated {result.ModifiedCount} users.");
+    }
+
 }

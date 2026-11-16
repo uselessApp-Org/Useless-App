@@ -175,4 +175,21 @@ app.MapGet("/auth/google-callback", async (HttpContext context, GoogleSignInServ
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
+     
+
+if (args.Contains("--update-users"))
+{
+    Console.WriteLine("Starting migration mode");
+
+    using var scope = app.Services.CreateScope();
+
+    var userService = scope.ServiceProvider
+        .GetRequiredService<MongodbUserService>();
+
+    await userService.UpdateUsersAsync();
+
+    Console.WriteLine("Migration complete.");
+    return;
+}
+
 app.Run();

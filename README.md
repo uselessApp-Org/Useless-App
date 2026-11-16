@@ -335,7 +335,7 @@ If you prefer editing JSON, open your user-secrets file through your IDE’s Man
 
 ```json
 {
-  "MongoDB:DatabaseName": "Users",
+  "MongoDB:DatabaseName": "<DatabaseName>",
   "MongoDB:ConnectionString": "<complete Atlas connection string>",
   "Google:ClientId": "<OAuth web client ID>",
   "Google:ClientSecret": "<OAuth web client secret>",
