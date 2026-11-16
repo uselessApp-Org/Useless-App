@@ -55,14 +55,6 @@ public class MongodbUserService
 
 
 
-            Console.WriteLine($"Length: {user.Password.Length}");
-            Console.WriteLine($"[{user.Password}]");
-            Console.WriteLine($"Found user: {user.Username}");
-            Console.WriteLine($"Entered Password: [{password}]");
-            Console.WriteLine($"Stored Hash: [{user.Password}]");
-            Console.WriteLine($"Username: {user.Username}");
-            Console.WriteLine($"Stored Hash: {user.Password}");
-            Console.WriteLine($"Entered Password: {password}");
 
             var rehash = BCrypt.Net.BCrypt.HashPassword(password);
 
