@@ -4,49 +4,67 @@
 
 @inject MongodbUserService MongodbUserService
 @inject DisplayNameService DisplayNameService
-@inject  NavigationManager nav
+@inject NavigationManager nav
 @rendermode InteractiveServer
 
 
 <section class="panel user-panel">
-        <div>
-            <p class="eyebrow">JOIN THE QUESTIONABLE DECISIONS CLUB</p>
-            <h2>Add a user</h2>
-            <p>Create a user record in your connected database.</p>
+    <div>
+        <p class="eyebrow">JOIN THE QUESTIONABLE DECISIONS CLUB</p>
+        <h2>Add a user</h2>
+        <p>Create a user record in your connected database.</p>
+    </div>
+    <div class="user-form"><label for="username">Username</label><input id="username" class="form-control"
+                                                                            @bind="newUser.Username" placeholder="Your username" autocomplete="username" /><label
+        for="password">Password</label><input id="password" class="form-control" type="password"
+                                              @bind="newUser.Password" placeholder="Your password" autocomplete="new-password" /><label
+        for="displayname">Display Name</label><input id="displayname" class="form-control"
+                                                     @bind="newUser.DisplayName" placeholder="Your display name" />
+        <div class="d-flex align-items-center gap-2 mt-3">
+            <button class="btn btn-primary" @onclick="AddUser">Add User <span aria-hidden="true">＋</span></button>
+        
+            <a href="/auth/login"
+               class="btn btn-outline-dark d-flex align-items-center justify-content-center gap-2 py-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                    <path fill="#4285F4"
+                          d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z" />
+                    <path fill="#34A853"
+                          d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.19v3.15C3.17 21.36 7.23 24 12 24z" />
+                    <path fill="#FBBC05"
+                          d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.19C.43 8.12 0 9.87 0 11.7s.43 3.58 1.19 5.12l4.09-3.15z" />
+                    <path fill="#EA4335"
+                          d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.23 0 3.17 2.64 1.19 6.58l4.09 3.15c.95-2.83 3.6-4.98 6.72-4.98z" />
+                </svg>
+                Sign up with Google
+            </a>
         </div>
-        <div class="user-form"><label for="username">Username</label><input id="username" class="form-control"
-                                                                                @bind="newUser.Username" placeholder="Your username" autocomplete="username" /><label
-            for="password">Password</label><input id="password" class="form-control" type="password"
-                                                  @bind="newUser.Password" placeholder="Your password" autocomplete="new-password" /><label
-            for="displayname">Display Name</label><input id="displayname" class="form-control"
-                                                      @bind="newUser.DisplayName" placeholder="Your display name" />
-            <button class="btn btn-primary" @onclick="AddUser">Add User <span aria-hidden="true">＋</span></button></div>
-        </section>
+    </div>
+</section>
 @code {
     private User newUser = new User { Username = string.Empty, Password = string.Empty };
-   private async Task AddUser()
-{
-    // Save new user and get the stored version back
-    var createdUser = await MongodbUserService.AddUserAsync(newUser);
+    private async Task AddUser()
+    {
+        // Save new user and get the stored version back
+        var createdUser = await MongodbUserService.AddUserAsync(newUser);
 
-    // Generate a random display name from other users
-    var randomDisplayName = await MongodbUserService.GetRandomDisplayNameAsync(createdUser.Username);
+        // Generate a random display name from other users
+        var randomDisplayName = await MongodbUserService.GetRandomDisplayNameAsync(createdUser.Username);
 
-    // If no other users exist, fall back to their own display name
-    await DisplayNameService.SetUserAsync(
-    createdUser.Username,
-    createdUser.DisplayName,
-    randomDisplayName ?? createdUser.DisplayName
-);
+        // If no other users exist, fall back to their own display name
+        await DisplayNameService.SetUserAsync(
+        createdUser.Username,
+        createdUser.DisplayName,
+        randomDisplayName ?? createdUser.DisplayName
+    );
 
     
 
-    // Clear form
-    newUser = new User { Username = string.Empty, Password = string.Empty, DisplayName = string.Empty };
+        // Clear form
+        newUser = new User { Username = string.Empty, Password = string.Empty, DisplayName = string.Empty };
 
-    // Redirect to home page
-    nav.NavigateTo("/");
-}
+        // Redirect to home page
+        nav.NavigateTo("/");
+    }
 
 
 }

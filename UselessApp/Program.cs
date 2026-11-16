@@ -6,11 +6,14 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+using System.Security.Claims;
+using UselessApp.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Supplies content-based versions for the existing stylesheet and script links.
 builder.Services.AddRazorPages();
+builder.Services.AddCascadingAuthenticationState();
 
 // ---------------------------
 // GOOGLE AUTH
@@ -28,15 +31,17 @@ builder.Services.AddAuthentication(options =>
     // Allow cookies over HTTP for local testing
     options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
 })
-    .AddGoogle(options =>
-    {
-        options.ClientId = builder.Configuration["Google:ClientId"]!;
-        options.ClientSecret = builder.Configuration["Google:ClientSecret"]!;
+.AddGoogle(options =>
+{
+    options.ClientId = builder.Configuration["Google:ClientId"]!;
+    options.ClientSecret = builder.Configuration["Google:ClientSecret"]!;
 
-        // Ensure correlation cookie works smoothly on localhost
-        options.CorrelationCookie.SameSite = SameSiteMode.Lax;
-        options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
-    });
+    // Match the callback endpoint path you defined
+    options.CallbackPath = new PathString("/auth/google-callback");
+
+    options.CorrelationCookie.SameSite = SameSiteMode.Lax;
+    options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+});
 
 builder.Services.AddCascadingAuthenticationState();
 
@@ -53,6 +58,7 @@ builder.Services.AddSingleton<IMongoClient>(sp =>
 });
 
 builder.Services.AddScoped<MongodbUserService>();
+builder.Services.AddScoped<GoogleSignInService>(); // <--- Registered GoogleSignInService
 builder.Services.AddScoped<CalculatorEvaluatorService>();
 builder.Services.AddScoped<DisplayNameService>();
 builder.Services.AddScoped<UserStatsService>();
@@ -66,7 +72,6 @@ builder.Services.AddHttpClient<WeatherService>();
 builder.Services.AddHttpClient<RandomUSCoordsService>();
 builder.Services.AddHttpClient<RainViewerService>();
 builder.Services.AddHttpClient<GeminiService>();
-
 
 builder.Services.AddHttpClient<MerriamAPI>();
 builder.Services.AddHttpClient<UrbanAPI>();
@@ -91,7 +96,8 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
     app.UseHsts();
 }
-//Mongo Indexs
+
+// Mongo Indexes
 using (var scope = app.Services.CreateScope())
 {
     var userService = scope.ServiceProvider.GetRequiredService<MongodbUserService>();
@@ -127,6 +133,42 @@ app.MapGet("/auth/logout", async (HttpContext context) =>
     // Force a hard redirect back to home
     context.Response.Redirect("/login", permanent: false);
 });
+
+// Google OAuth Callback Flow using GoogleSignInService
+app.MapGet("/auth/google-callback", async (HttpContext context, GoogleSignInService googleSignInService, DisplayNameService displayNameService) =>
+{
+    var result = await context.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+    if (!result.Succeeded || result.Principal == null) 
+        return Results.Redirect("/login?error=auth_failed");
+
+    var (user, needsOnboarding) = await googleSignInService.ProcessGoogleUserAsync(result.Principal);
+
+    if (user == null)
+        return Results.Redirect("/login?error=user_creation_failed");
+
+    // 1. Create the claims for the cookie so <AuthorizeView> and User.Identity recognize them
+    var claims = new List<Claim>
+    {
+        new Claim(ClaimTypes.Name, string.IsNullOrEmpty(user.DisplayName) ? user.Username : user.DisplayName),
+        new Claim(ClaimTypes.NameIdentifier, user.Username)
+    };
+    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+    
+    // 2. Issue the authentication cookie
+    await context.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+
+    // 3. Keep your DisplayNameService synchronized if your layout uses it
+    await displayNameService.SetUserAsync(user.Username, user.DisplayName, user.DisplayName);
+
+    // If it's their first time and they need a display name, send them to onboarding
+    if (needsOnboarding)
+    {
+        return Results.Redirect("/complete-profile");
+    }
+
+    return Results.Redirect("/");
+});
+
 // ---------------------------
 // RAZOR COMPONENTS
 // ---------------------------
