@@ -1,20 +1,17 @@
 @page "/"
-@using UselessApp.Services
-@using UselessApp.Models
-@using UselessApp.Components.HomePage.Components
-@rendermode InteractiveServer
+
 @inject DisplayNameService DisplayNameService
+
 <PageTitle>Home | UselessApp</PageTitle>
 <section class="hero">
     <div>
-        <p class="eyebrow">CONFIDENCE WITHOUT THE QUALIFICATIONS</p>
-        <h1>So close.<br /><em>So very wrong.</em></h1>
-        <p class="intro">A Swiss Army knife made entirely of spoons.<br />Pick a tool. Watch it miss the point.</p><a
-        class="btn btn-primary" href="#tools">See what could go wrong <span aria-hidden="true">↗</span></a>
+        <p class="eyebrow">Welcome to the Useless App</p>
+        <h1>So close.<br /><em>So wrong.</em></h1>
+        <p class="intro">A Swiss Army knife made entirely of spoons.</p>
     </div>
-    <div class="hero-art" aria-hidden="true"><span class="orbit orbit-one"></span><span
-        class="orbit orbit-two"></span><span class="art-center"><img class="hero-app-icon" src="favicon.png" alt="" width="120" height="120" /></span><span
-        class="art-chip chip-one">＋</span><span class="art-chip chip-two">☀</span><span
-        class="art-chip chip-three">⌕</span><span class="art-caption">A FEW USELESS POSSIBILITIES</span></div>
-    </section>
-    <ToolShelf />
+</section>
+<section class="CenterHeader">
+    <div>
+        <h1>Global Stats</h1>
+    </div>
+</section>

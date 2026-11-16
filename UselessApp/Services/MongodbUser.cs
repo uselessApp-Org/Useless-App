@@ -24,7 +24,7 @@ public class MongodbUserService
         var indexModel = new CreateIndexModel<User>(indexKeysDefinition, new CreateIndexOptions { Unique = true });
         _user.Indexes.CreateOne(indexModel);
     }
-    
+
     public async Task<string?> GetRandomDisplayNameAsync(string currentUsername)
     {
         var displayNames = await _user
@@ -98,11 +98,11 @@ public class MongodbUserService
             updates.Add(ub.Set(u => u.LastExpression, stats.LastExpression));
         if (!string.IsNullOrEmpty(stats.LastResult))
             updates.Add(ub.Set(u => u.LastResult, stats.LastResult));
-        if(!string.IsNullOrEmpty(stats.WeatherLocation))
+        if (!string.IsNullOrEmpty(stats.WeatherLocation))
             updates.Add(ub.Set(u => u.Location, stats.WeatherLocation));
-        if(stats.Latitude != 0.0f)
+        if (stats.Latitude != 0.0f)
             updates.Add(ub.Set(u => u.Latitude, stats.Latitude));
-        if(stats.Longitude != 0.0f)
+        if (stats.Longitude != 0.0f)
             updates.Add(ub.Set(u => u.Longitude, stats.Longitude));
         // add more stats here
 
@@ -120,18 +120,18 @@ public class MongodbUserService
         return await _user.Find(u => u.Username == username).FirstOrDefaultAsync<User>();
     }
     public async Task UpdateUsersAsync()
-{
-    var filter = Builders<User>.Filter.Or(
-        Builders<User>.Filter.Exists("LastWordSearched", false),
-        Builders<User>.Filter.Exists("LastDefinition", false)
-    );
+    {
+        var filter = Builders<User>.Filter.Or(
+            Builders<User>.Filter.Exists("LastWordSearched", false),
+            Builders<User>.Filter.Exists("LastDefinition", false)
+        );
 
-    var update = Builders<User>.Update
-        .Set(u => u.LastWordSearched, "")
-        .Set(u => u.LastDefinition, "");
+        var update = Builders<User>.Update
+            .Set(u => u.LastWordSearched, "")
+            .Set(u => u.LastDefinition, "");
 
-    var result = await _user.UpdateManyAsync(filter, update);
+        var result = await _user.UpdateManyAsync(filter, update);
 
-    Console.WriteLine($"Updated {result.ModifiedCount} users.");
-}
+        Console.WriteLine($"Updated {result.ModifiedCount} users.");
+    }
 }

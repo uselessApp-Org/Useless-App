@@ -1,6 +1,7 @@
 @page "/profile"
 @using UselessApp.Services
 @using UselessApp.Models
+@using UselessApp.Components.SharedComps
 
 @inject MongodbUserService MongodbUser
 @inject DisplayNameService DisplayNameService
@@ -10,10 +11,7 @@
 <h1>@DisplayNameService.RandomDisplayName</h1>
 <h2>Calculator </h2>
 <div class="stat-row">
-    <div class="stat-box">
-        <div class="stat-value">@NumEnters</div>
-        <div class="stat-label">Times enter has been hit</div>
-    </div>
+    <StatBox Value="NumEnters" Label="Time Enter Has Been Hit"/>
 
     <div class="stat-box">
         <div class="Latest-Expression">@(string.IsNullOrEmpty(LatestExpression) ? "69 + 420" : LatestExpression)</div>
