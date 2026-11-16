@@ -21,4 +21,5 @@
 {
     padding: 10px;
     border-bottom: 3px solid var(--ink);
+    width: 50%;
 }
