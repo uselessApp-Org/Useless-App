@@ -161,6 +161,19 @@ public class MongodbUserService
         if (result.MatchedCount == 0)
             Console.WriteLine($"WARNING: UpdateUserStatsAsync found no user named '{target}'.");
     }
+    public async Task ChangeDisplayNameAsync(string username, string newDisplayName)
+    {
+        var update = Builders<User>.Update.Set(u => u.DisplayName, newDisplayName);
+        await _user.UpdateOneAsync(u => u.Username == username, update);
+
+    }
+    public async Task ChangePasswordAsync(string username, string newPassword)
+    {
+        var hashedPassword = BCrypt.Net.BCrypt.HashPassword(newPassword);
+        var update = Builders<User>.Update.Set(u => u.Password, hashedPassword);
+        await _user.UpdateOneAsync(u => u.Username == username, update);
+    }
+
 
     public async Task<User?> GetUserDataForProfilePage(string? username)
     {
