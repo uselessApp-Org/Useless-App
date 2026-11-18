@@ -48,6 +48,4 @@ public class User
 
     [BsonElement("LastMoviePoster")]
     public string LastMoviePoster { get; set; } = string.Empty;
-
-    
 }
