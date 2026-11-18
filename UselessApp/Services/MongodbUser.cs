@@ -134,4 +134,22 @@ public class MongodbUserService
 
         Console.WriteLine($"Updated {result.ModifiedCount} users.");
     }
+
+    /// <summary>
+    /// This function will be used to get any data we want displayed on
+    /// the home page
+    /// </summary>
+    /// <returns></returns>
+    public async Task UpdateGlobalUser()
+    {
+        int totalNums = 0; // add the variable you want
+
+        var filter = Builders<User>.Filter.Empty;
+        var result = _user.Find(filter).ToList();
+
+        foreach(User curUser in result)
+        {
+            totalNums += curUser.Enters; // add something like this to update your data
+        }
+    }
 }
