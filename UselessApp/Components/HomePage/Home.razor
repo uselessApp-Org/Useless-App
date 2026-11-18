@@ -23,22 +23,32 @@
         <h1>Global Usage Stats</h1>
     </div>
     <h2 class="PageHeader">Calculator</h2>
-    <div class="PageLine"></div>
     <div class="Tool-Stats">
-        <StatBox Value="NumEnters" Label="Enters Pressed"/>
+        <StatBox Value="NumEnters" Label="Times Entered"/>
         <StatBox Value="LastExpression" Label="Last Calculator Expression"/>
     </div>
-    <h2 class="PageHeader">Weather</h2>
+    <h2 class="PageHeader">AI Info</h2>
     <div class="Tool-Stats">
-        <StatBox Value="TestString" Label="Test String"/>
+        <StatBox Value=ReplaceMe Label="# of AI Prompts"/>
+        <StatBox Value=ReplaceMe Label="Recent Prompt"/>
+    </div>
+    <h2 class="PageHeader">Dictionary Info</h2>
+    <div class="Tool-Stats">
+        <StatBox Value=ReplaceMe Label="Recent Word"/>
+        <StatBox Value=ReplaceMe Label="Recent Definition"/>
+    </div>
+    <h2 class="PageHeader">Movie Recommender</h2>
+    <div class="Tool-Stats">
+        <StatBox Value=ReplaceMe Label="# of Recommended Movies"/>
+        <StatBox Value=ReplaceMe Label="Recent Movie Recommendation"/>
     </div>
 </section>
 
 @code
 {
     int NumEnters;
-    string TestString = "TurdBurger";
     string LastExpression = string.Empty;
+    string ReplaceMe = "Replace Me";
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -47,6 +57,7 @@
         if(!DisplayNameService.IsLoggedIn)
             await DisplayNameService.LoadUserAsync();
         
+        await MongodbUser.UpdateGlobalUser();
         await LoadProfileDataAsync();
         StateHasChanged();
     }

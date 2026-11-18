@@ -93,7 +93,7 @@ public class MongodbUserService
         var updates = new List<UpdateDefinition<User>>();
 
         if (stats.CalcEnters > 0)
-            updates.Add(ub.Inc(u => u.Enters, stats.CalcEnters));
+            updates.Add(ub.Set(u => u.Enters, stats.CalcEnters));
         if (!string.IsNullOrEmpty(stats.LastExpression))
             updates.Add(ub.Set(u => u.LastExpression, stats.LastExpression));
         if (!string.IsNullOrEmpty(stats.LastResult))
@@ -149,7 +149,14 @@ public class MongodbUserService
 
         foreach(User curUser in result)
         {
-            totalNums += curUser.Enters; // add something like this to update your data
+            if(curUser.Username != "Default")
+                totalNums += curUser.Enters; // add something like this to update your data
         }
+
+        UserStatsService updateDefaultUser = new UserStatsService();
+
+        updateDefaultUser.CalcEnters = totalNums; // add new stats to this
+
+        await UpdateUserStatsAsync("Default", updateDefaultUser);
     }
 }
