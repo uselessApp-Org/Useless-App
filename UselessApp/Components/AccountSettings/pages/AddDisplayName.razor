@@ -26,7 +26,6 @@
     {
         if (!string.IsNullOrWhiteSpace(newDisplayName))
         {
-            await MongodbUser.ChangeDisplayNameAsync(DisplayNameService.Username, newDisplayName);
              
             await DisplayNameService.SetDisplayNameAsync(newDisplayName);
             

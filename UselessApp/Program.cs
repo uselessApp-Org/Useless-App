@@ -163,7 +163,7 @@ app.MapGet("/auth/google-callback", async (HttpContext context, GoogleSignInServ
     // 3. Redirect straight to onboarding or home (SessionStorage will populate once Blazor renders)
     if (needsOnboarding)
     {
-        return Results.Redirect("/onboarding");
+        return Results.Redirect("/AddDisplayName");
     }
 
     return Results.Redirect("/");
