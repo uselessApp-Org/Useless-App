@@ -15,6 +15,11 @@ public class GoogleSignInService
 
     public async Task<(User? user, bool needsOnboarding)> ProcessGoogleUserAsync(ClaimsPrincipal principal)
     {
+        Console.WriteLine("Processing Google user...");
+        // foreach (var claim in principal.Claims)
+        // {
+        //     Console.WriteLine($"Test Message");
+        // }
         // Use the Google email or unique identifier as the lookup username key
         var identifier = principal.FindFirstValue(ClaimTypes.Email) ?? principal.FindFirstValue(ClaimTypes.NameIdentifier);
         var googleName = principal.FindFirstValue(ClaimTypes.Name);

@@ -94,28 +94,24 @@ public class MongodbUserService
         return await _user.Find(u => u.Username == username).FirstOrDefaultAsync();
     }
     public async Task<User> AddUserAsync(User user)
+{
+    if (await UserExistsAsync(user.Username))
+        throw new Exception("Username already exists");
+
+    // Hash password if present and not empty
+    if (!string.IsNullOrEmpty(user.Password))
     {
-        if (await UserExistsAsync(user.Username))
-            throw new Exception("Username already exists");
-
-        // Hash password if present and not empty
-        if (!string.IsNullOrEmpty(user.Password))
-        {
-
-        }
-        else
-        {
-            user.Password = string.Empty;
-        }
-        if (string.IsNullOrEmpty(user.Password))
-            throw new ArgumentException("Password cannot be null or empty");
-
         user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
-
-        await _user.InsertOneAsync(user);
-
-        return user;
     }
+    else
+    {
+        user.Password = string.Empty;
+    }
+
+    await _user.InsertOneAsync(user);
+
+    return user;
+}
 
     public async Task UpdateUserAsync(User user)
     {

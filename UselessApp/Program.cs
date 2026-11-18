@@ -37,8 +37,7 @@ builder.Services.AddAuthentication(options =>
     options.ClientSecret = builder.Configuration["Google:ClientSecret"]!;
 
     // Match the callback endpoint path you defined
-    options.CallbackPath = new PathString("/auth/google-callback");
-
+    options.CallbackPath = new PathString("/signin-google");
     options.CorrelationCookie.SameSite = SameSiteMode.Lax;
     options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
 });
@@ -115,11 +114,15 @@ app.UseAuthorization();
 // ---------------------------
 // AUTH ENDPOINTS
 // ---------------------------
-app.MapGet("/auth/login", (string? returnUrl) =>
-    Results.Challenge(
-        new AuthenticationProperties { RedirectUri = returnUrl ?? "/" },
-        [GoogleDefaults.AuthenticationScheme]));
-
+app.MapGet("/auth/login", () =>
+{
+    var properties = new AuthenticationProperties
+    {
+        // This forces Google's middleware to hand off to your endpoint after login
+        RedirectUri = "/auth/google-callback"
+    };
+    return Results.Challenge(properties, [GoogleDefaults.AuthenticationScheme]);
+});
 app.MapGet("/auth/logout", async (HttpContext context) =>
 {
     // Clear the authentication cookie
@@ -135,7 +138,7 @@ app.MapGet("/auth/logout", async (HttpContext context) =>
 });
 
 // Google OAuth Callback Flow using GoogleSignInService
-app.MapGet("/auth/google-callback", async (HttpContext context, GoogleSignInService googleSignInService, DisplayNameService displayNameService) =>
+app.MapGet("/auth/google-callback", async (HttpContext context, GoogleSignInService googleSignInService) =>
 {
     var result = await context.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
     if (!result.Succeeded || result.Principal == null) 
@@ -157,13 +160,10 @@ app.MapGet("/auth/google-callback", async (HttpContext context, GoogleSignInServ
     // 2. Issue the authentication cookie
     await context.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
 
-    // 3. Keep your DisplayNameService synchronized if your layout uses it
-    await displayNameService.SetUserAsync(user.Username, user.DisplayName, user.DisplayName);
-
-    // If it's their first time and they need a display name, send them to onboarding
+    // 3. Redirect straight to onboarding or home (SessionStorage will populate once Blazor renders)
     if (needsOnboarding)
     {
-        return Results.Redirect("/complete-profile");
+        return Results.Redirect("/onboarding");
     }
 
     return Results.Redirect("/");
