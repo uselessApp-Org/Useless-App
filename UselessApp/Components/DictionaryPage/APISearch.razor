@@ -3,9 +3,12 @@
 @using System.Net.Http
 @using System.Text.Json
 @using System.Threading.Tasks
+@using MongoDB.Driver
+@using UselessApp.Services
 @inject IConfiguration Configuration
 @inject MerriamAPI merriamAPI
 @inject UrbanAPI urbanAPI
+@inject UserStatsService Stats
 
 <PageTitle>Dictionary | UselessApp</PageTitle>
 <header class="page-heading"><p class="eyebrow">TOOL 04 / STAY CURIOUS</p><h1>Dictionary</h1>
@@ -32,7 +35,7 @@
         @if (!string.IsNullOrEmpty(finalWord))
         {
             <div class="word-card" style="border: 1px solid #444; padding: 15px; border-radius: 8px; background: #222; margin-top: 15px">
-                <h3 style="color: #0d6efd; text-transform: capitalize; margin-top: 0;">@searchTerm</h3>
+                <h3 style="color: #0d6efd; text-transform: capitalize; margin-top: 0;">@finalWord</h3>
                 <p style="color: white; font-style: italic;">@finalDescription</p>
                 <p style="color: white; font-style: italic;">@finalExample</p>
             </div>
@@ -151,7 +154,7 @@
             var result = await merriamAPI.FetchRandomWord();
             finalUrl = result.finalUrl;
             jsonString = result.jsonString;
-            finalWord = result.finalWord;
+            finalWord = searchTerm;
             finalDescription = result.finalDescription;
             finalExample = "";
             apiResult = result.apiResult;
@@ -161,10 +164,15 @@
             (string finalUrl, string jsonString, string finalWord, string finalDescription, string finalExample, string apiResult) result = await urbanAPI.FetchRandomWord();
             finalUrl = result.finalUrl;
             jsonString = result.jsonString;
-            finalWord = result.finalWord;
+            finalWord = searchTerm;
             finalDescription = result.finalDescription;
             finalExample = result.finalExample;
             apiResult = result.apiResult;
+        }
+
+        if (!string.IsNullOrEmpty(finalDescription) && !string.IsNullOrEmpty(finalWord))
+        {
+            Stats.RecordDictionarySearch(finalDescription, finalWord);
         }
     }
 
