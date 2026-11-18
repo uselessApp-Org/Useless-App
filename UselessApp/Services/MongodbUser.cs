@@ -184,13 +184,17 @@ public class MongodbUserService
 
         var filter = Builders<User>.Filter.Or(
             Builders<User>.Filter.Exists("LastWordSearched", false),
-            Builders<User>.Filter.Exists("LastDefinition", false)
+            Builders<User>.Filter.Exists("LastDefinition", false),
+            Builders<User>.Filter.Exists("LastMovieRecommended", false),
+            Builders<User>.Filter.Exists("LastMoviePoster", false)
 
         );
 
         var update = Builders<User>.Update
             .Set(u => u.LastWordSearched, "")
-            .Set(u => u.LastDefinition, "");
+            .Set(u => u.LastDefinition, "")
+            .Set(u => u.LastMovieRecommended, "")
+            .Set(u => u.LastMoviePoster, "");
 
 
         var before = await _user
