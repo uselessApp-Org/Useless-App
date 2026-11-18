@@ -14,9 +14,10 @@
         <p class="intro">A Swiss Army knife made entirely of spoons.</p>
     </div>
     <div class="hero-art" aria-hidden="true"><span class="orbit orbit-one"></span><span
-        class="orbit orbit-two"></span><span class="art-center"><img class="hero-app-icon" src="favicon.png" alt="" width="120" height="120" /></span><span
-        class="art-chip chip-one">＋</span><span class="art-chip chip-two">☀</span><span
-        class="art-chip chip-three">⌕</span><span class="art-caption">A FEW USELESS POSSIBILITIES</span></div>
+        class="orbit orbit-two"></span><span class="art-center"><img class="hero-app-icon" src="favicon.png" alt=""
+                                                                     width="120" height="120" /></span><span class="art-chip chip-one">＋</span><span
+        class="art-chip chip-two">☀</span><span class="art-chip chip-three">⌕</span><span class="art-caption">A FEW
+        USELESS POSSIBILITIES</span></div>
 </section>
 <section class="CenterHeader">
     <div>
@@ -27,29 +28,29 @@
             <div class="Tool-Column">
                 <h2 class="PageHeader">Calculator</h2>
                 <div class="Tool-Stats">
-                    <StatBox Value=@NumEnters Label="Times Entered"/>
-                    <StatBox Value=@LastExpression Label="Last Calculator Expression"/>
+                    <StatBox Value=@NumEnters Label="Times Entered" />
+                    <StatBox Value=@LastExpression Label="Last Calculator Expression" />
                 </div>
             </div>
             <div class="Tool-Column">
                 <h2 class="PageHeader">AI Info</h2>
                 <div class="Tool-Stats">
-                    <StatBox Value=@NumAIPrompts Label="# of AI Prompts"/>
-                    <StatBox Value=@AIResponse Label="Recent Prompt"/>
+                    <StatBox Value=@NumAIPrompts Label="# of AI Prompts" />
+                    <StatBox Value=@AIResponse Label="Recent Prompt" />
                 </div>
             </div>
             <div class="Tool-Column">
                 <h2 class="PageHeader">Dictionary Info</h2>
                 <div class="Tool-Stats">
-                    <StatBox Value=@RecentWord Label="Recent Word"/>
-                    <StatBox Value=@RecentDefinition Label="Recent Definition"/>
+                    <StatBox Value=@RecentWord Label="Recent Word" />
+                    <StatBox Value=@RecentDefinition Label="Recent Definition" />
                 </div>
             </div>
             <div class="Tool-Column">
                 <h2 class="PageHeader">Movie Recommender</h2>
                 <div class="Tool-Stats">
-                    <StatBox Value=@NumRecMovies Label="# of Recommended Movies"/>
-                    <StatBox Value=@RecentMovie Label="Recent Movie Recommendation"/>
+                    <StatBox Value=@NumRecMovies Label="# of Recommended Movies" />
+                    <StatBox Value=@RecentMovie Label="Recent Movie Recommendation" />
                 </div>
             </div>
         </div>
@@ -70,9 +71,9 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if(!firstRender) return;
+        if (!firstRender) return;
 
-        if(!DisplayNameService.IsLoggedIn)
+        if (!DisplayNameService.IsLoggedIn)
             await DisplayNameService.LoadUserAsync();
         
         await MongodbUser.UpdateGlobalUser();
@@ -84,7 +85,7 @@
     {
         User? curUser = await MongodbUser.GetUserDataForProfilePage("Default");
 
-        if(curUser is null) return;
+        if (curUser is null) return;
 
         NumEnters = curUser.Enters;
         LastExpression = curUser.LastExpression;

@@ -6,34 +6,55 @@
 @inject MongodbUserService MongodbUser
 @inject DisplayNameService DisplayNameService
 
-
-
 <h1>@DisplayNameService.RandomDisplayName</h1>
-<h2>Calculator </h2>
-<div class="stat-row">
-    <StatBox Value="NumEnters" Label="Time Enter Has Been Hit"/>
-
-    <StatBox Value="@(string.IsNullOrEmpty(LatestExpression) ? "69 + 420" : LatestExpression)"
-            Label="Last Expression Entered" />
-
-    <StatBox Value="@(string.IsNullOrEmpty(LatestAnswer) ? 69420 : LatestAnswer)"
-            Label="Last Answer Recieved" />
-</div>
-<div class="splitter"></div>
-<h2>AI</h2>
-<div class="stat-row">
-    <StatBox Value="AIvalue" Label="LAST PLACEHOLDER" />
-    <StatBox Value="AiLastExpression" Label="Last AI PROMPT" />
-    <StatBox Value="AiLastAnswer" Label="Last AI Answer" />
-</div>
+<section class="CenterHeader">
+    <div>
+        <h1>Global Usage Stats</h1>
+    </div>
+    <div class="Stats-Scroller">
+        <div class="Stats-Columns">
+            <div class="Tool-Column">
+                <h2 class="PageHeader">Calculator</h2>
+                <div class="Tool-Stats">
+                    <StatBox Value=@NumEnters Label="Times Entered" />
+                    <StatBox Value=@LastExpression Label="Last Calculator Expression" />
+                </div>
+            </div>
+            <div class="Tool-Column">
+                <h2 class="PageHeader">AI Info</h2>
+                <div class="Tool-Stats">
+                    <StatBox Value=@NumAIPrompts Label="# of AI Prompts" />
+                    <StatBox Value=@AIResponse Label="Recent Prompt" />
+                </div>
+            </div>
+            <div class="Tool-Column">
+                <h2 class="PageHeader">Dictionary Info</h2>
+                <div class="Tool-Stats">
+                    <StatBox Value=@RecentWord Label="Recent Word" />
+                    <StatBox Value=@RecentDefinition Label="Recent Definition" />
+                </div>
+            </div>
+            <div class="Tool-Column">
+                <h2 class="PageHeader">Movie Recommender</h2>
+                <div class="Tool-Stats">
+                    <StatBox Value=@NumRecMovies Label="# of Recommended Movies" />
+                    <StatBox Value=@RecentMovie Label="Recent Movie Recommendation" />
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 @code {
 
-    [Parameter] public int NumEnters { get; set; }
-    [Parameter] public string LatestExpression { get; set; } = string.Empty;
-    [Parameter] public string LatestAnswer { get; set; } = string.Empty;
-    [Parameter] public string AIvalue { get; set; } = string.Empty;
-    [Parameter] public string AiLastExpression { get; set; } = string.Empty;
-    [Parameter] public string AiLastAnswer { get; set; } = string.Empty;
+    int NumEnters;
+    int NumRecMovies = 67;
+    int NumAIPrompts = 69;
+    string LastAnswer = string.Empty;
+    string LastExpression = string.Empty;
+    string AIResponse = "42 Is the answer to the universe";
+    string RecentWord = "Facism";
+    string RecentDefinition = "is a far-right, authoritarian, and ultranationalist political ideology and movement that centers power in a dictatorial leader and prioritizes the nation or race over the individual.";
+    string RecentMovie = "You Can See Everything";
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -54,8 +75,8 @@
 
         if(curUser is null) return;
 
-        LatestAnswer = curUser.LastResult;
-        LatestExpression = curUser.LastExpression;
+        LastAnswer = curUser.LastResult;
+        LastExpression = curUser.LastExpression;
         NumEnters = curUser.Enters;
     }
 }
