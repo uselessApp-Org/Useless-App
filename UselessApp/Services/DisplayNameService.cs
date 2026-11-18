@@ -36,13 +36,13 @@ public class DisplayNameService
     public async Task LoadUserAsync()
     {
         var usernameResult = await _session.GetAsync<string>("username");
-        Console.WriteLine($"DEBUG SESSION username: success={usernameResult.Success}, value={usernameResult.Value}");
+
 
         var displayNameResult = await _session.GetAsync<string>("displayName");
-        Console.WriteLine($"DEBUG SESSION displayName: success={displayNameResult.Success}, value={displayNameResult.Value}");
+
 
         var randomDisplayNameResult = await _session.GetAsync<string>("randomDisplayName");
-        Console.WriteLine($"DEBUG SESSION randomDisplayName: success={randomDisplayNameResult.Success}, value={randomDisplayNameResult.Value}");
+
 
         Username = usernameResult.Value;
         DisplayName = displayNameResult.Value;
@@ -59,6 +59,14 @@ public class DisplayNameService
         await _session.DeleteAsync("username");
         await _session.DeleteAsync("displayName");
         await _session.DeleteAsync("randomDisplayName");
+
+        NotifyStateChanged();
+    }
+    public async Task SetDisplayNameAsync(string displayName)
+    {
+        DisplayName = displayName;
+
+        await _session.SetAsync("displayName", displayName);
 
         NotifyStateChanged();
     }

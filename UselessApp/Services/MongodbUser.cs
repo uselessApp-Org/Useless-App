@@ -101,6 +101,24 @@ public class MongodbUserService
     // Hash password if present and not empty
     if (!string.IsNullOrEmpty(user.Password))
     {
+        if (await UserExistsAsync(user.Username))
+        {
+            user.Username = "Default";
+            return user;
+        }
+
+        // Hash password if present and not empty
+        if (!string.IsNullOrEmpty(user.Password))
+        {
+
+        }
+        else
+        {
+            user.Password = string.Empty;
+        }
+        if (string.IsNullOrEmpty(user.Password))
+            throw new ArgumentException("Password cannot be null or empty");
+
         user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
     }
     else
@@ -154,6 +172,19 @@ public class MongodbUserService
         if (result.MatchedCount == 0)
             Console.WriteLine($"WARNING: UpdateUserStatsAsync found no user named '{target}'.");
     }
+    public async Task ChangeDisplayNameAsync(string username, string newDisplayName)
+    {
+        var update = Builders<User>.Update.Set(u => u.DisplayName, newDisplayName);
+        await _user.UpdateOneAsync(u => u.Username == username, update);
+
+    }
+    public async Task ChangePasswordAsync(string username, string newPassword)
+    {
+        var hashedPassword = BCrypt.Net.BCrypt.HashPassword(newPassword);
+        var update = Builders<User>.Update.Set(u => u.Password, hashedPassword);
+        await _user.UpdateOneAsync(u => u.Username == username, update);
+    }
+
 
     public async Task<User?> GetUserDataForProfilePage(string? username)
     {
@@ -164,13 +195,17 @@ public class MongodbUserService
 
         var filter = Builders<User>.Filter.Or(
             Builders<User>.Filter.Exists("LastWordSearched", false),
-            Builders<User>.Filter.Exists("LastDefinition", false)
+            Builders<User>.Filter.Exists("LastDefinition", false),
+            Builders<User>.Filter.Exists("LastMovieRecommended", false),
+            Builders<User>.Filter.Exists("LastMoviePoster", false)
 
         );
 
         var update = Builders<User>.Update
             .Set(u => u.LastWordSearched, "")
-            .Set(u => u.LastDefinition, "");
+            .Set(u => u.LastDefinition, "")
+            .Set(u => u.LastMovieRecommended, "")
+            .Set(u => u.LastMoviePoster, "");
 
 
         var before = await _user

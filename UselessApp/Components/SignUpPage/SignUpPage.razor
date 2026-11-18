@@ -38,19 +38,45 @@
                 Sign up with Google
             </a>
         </div>
+
+        </div>@if (!string.IsNullOrEmpty(errorMessage))
+        {
+             <div class="popup">
+    <div class="popup-content">
+        <p>@errorMessage</p>
+
+        <button class="close-button"
+                @onclick="() => errorMessage = string.Empty">
+            X
+        </button>
     </div>
+</div>
+        
+            
+        }
+       
+       
+        
+    
 </section>
 @code {
     private User newUser = new User { Username = string.Empty, Password = string.Empty };
+    private string errorMessage = string.Empty;
     private async Task AddUser()
     {
-        // Save new user and get the stored version back
+        
         var createdUser = await MongodbUserService.AddUserAsync(newUser);
+        if (createdUser.Username == "Default")
+        {
+           
+            errorMessage = "Username already exists.";
+            return;
+        }
 
-        // Generate a random display name from other users
+        
         var randomDisplayName = await MongodbUserService.GetRandomDisplayNameAsync(createdUser.Username);
 
-        // If no other users exist, fall back to their own display name
+        
         await DisplayNameService.SetUserAsync(
         createdUser.Username,
         createdUser.DisplayName,
@@ -62,7 +88,7 @@
         // Clear form
         newUser = new User { Username = string.Empty, Password = string.Empty, DisplayName = string.Empty };
 
-        // Redirect to home page
+        
         nav.NavigateTo("/");
     }
 

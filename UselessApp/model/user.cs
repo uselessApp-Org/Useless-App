@@ -44,5 +44,11 @@ public class User
     [BsonElement("LastDefinition")]
     public string LastDefinition { get; set; } = string.Empty;
 
+    [BsonElement("LastMovieRecommended")]
+    public string LastMovieRecommended { get; set; } = string.Empty;
+
+    [BsonElement("LastMoviePoster")]
+    public string LastMoviePoster { get; set; } = string.Empty;
+
     
 }

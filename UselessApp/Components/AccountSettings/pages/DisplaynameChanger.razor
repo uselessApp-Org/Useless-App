@@ -1,0 +1,39 @@
+@page "/Displayname"
+@using UselessApp.Services
+
+
+@inject MongodbUserService MongodbUser
+@inject DisplayNameService DisplayNameService
+@inject NavigationManager nav
+
+@rendermode InteractiveServer
+<h1>Current Name: @DisplayNameService.DisplayName</h1>
+
+
+<h2>Change Display Name</h2>
+
+<div class ="DisplayNameForm">
+    <label for="displayName">New Display Name</label>
+    <input type="text" class="form-control" id="displayName" @bind="newDisplayName" />
+</div>
+
+<button class="btn btn-primary" @onclick="ChangeDisplayName">Change Display Name</button>
+
+@code {
+    private string newDisplayName;
+
+    private async Task ChangeDisplayName()
+    {
+        if (!string.IsNullOrWhiteSpace(newDisplayName))
+        {
+            await MongodbUser.ChangeDisplayNameAsync(DisplayNameService.Username, newDisplayName);
+             
+            await DisplayNameService.SetDisplayNameAsync(newDisplayName);
+            
+            //nav.NavigateTo("/account-settings");
+          await InvokeAsync(StateHasChanged);
+        }
+      
+
+    }
+}
