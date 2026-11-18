@@ -53,10 +53,6 @@ public class MongodbUserService
                 return (null, null);
             }
 
-
-
-
-
             var rehash = BCrypt.Net.BCrypt.HashPassword(password);
 
             Console.WriteLine($"New Hash: {rehash}");
@@ -64,14 +60,10 @@ public class MongodbUserService
             bool isvalid = BCrypt.Net.BCrypt.Verify(password, user.Password);
 
             Console.WriteLine($"Valid: {isvalid}");
-
-
             Console.WriteLine($"Password valid: {isvalid}");
 
             if (!isvalid)
                 return (null, null);
-
-
 
             var randomDisplayName = await GetRandomDisplayNameAsync(username);
 
@@ -177,25 +169,16 @@ public class MongodbUserService
         var update = Builders<User>.Update
             .Set(u => u.LastWordSearched, "")
             .Set(u => u.LastDefinition, "");
-        var update = Builders<User>.Update
-            .Set(u => u.LastWordSearched, "")
-            .Set(u => u.LastDefinition, "");
-
 
         var before = await _user
             .Find(u => u.Username == "test")
             .FirstOrDefaultAsync();
-
-
 
         var result = await _user.UpdateManyAsync(filter, update);
 
         var after = await _user
             .Find(u => u.Username == "test")
             .FirstOrDefaultAsync();
-
-
-
 
         Console.WriteLine($"Updated {result.ModifiedCount} users.");
     }
