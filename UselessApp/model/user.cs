@@ -1,6 +1,7 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 namespace UselessApp.Models;
+
 public class User
 {
     [BsonId]
@@ -11,9 +12,10 @@ public class User
 
     [BsonElement("Password")]
     public required string Password { get; set; } = string.Empty;
-    
+
     [BsonElement("DisplayName")]
-    public string DisplayName { get; set; } = string.Empty;
+    public string DisplayName { get; set; } = "";
+
 
     [BsonElement("WeatherLocation")]
     public string Location { get; set; } = string.Empty;
@@ -34,11 +36,13 @@ public class User
     public string LastResult { get; set; } = string.Empty;
 
     [BsonElement("GoogleId")]
-    public string GoogleId { get; set; } = string.Empty;
-    
+    public string GoogleId { get; set; }
+
     [BsonElement("LastWordSearched")]
     public string LastWordSearched { get; set; } = string.Empty;
 
     [BsonElement("LastDefinition")]
     public string LastDefinition { get; set; } = string.Empty;
+
+    
 }

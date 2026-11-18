@@ -25,6 +25,7 @@ public class MongodbUserService
         _user.Indexes.CreateOne(indexModel);
     }
 
+
     public async Task<string?> GetRandomDisplayNameAsync(string currentUsername)
     {
         var displayNames = await _user
@@ -38,24 +39,49 @@ public class MongodbUserService
         var random = new Random();
         return displayNames[random.Next(displayNames.Count)];
     }
-
     public async Task<(User? user, string? randomDisplayName)> ValidateLoginAsync(string username, string password)
     {
-        var user = await _user
-            .Find(u => u.Username == username)
-            .FirstOrDefaultAsync();
+        try
+        {
+            var user = await _user
+                .Find(u => u.Username == username)
+                .FirstOrDefaultAsync();
 
-        if (user == null)
-            return (null, null);
+            if (user == null)
+            {
+                Console.WriteLine("User not found");
+                return (null, null);
+            }
 
-        bool isValid = BCrypt.Net.BCrypt.Verify(password, user.Password);
-        if (!isValid)
-            return (null, null);
 
-        // Get random display name from other users
-        var randomDisplayName = await GetRandomDisplayNameAsync(username);
 
-        return (user, randomDisplayName);
+
+
+            var rehash = BCrypt.Net.BCrypt.HashPassword(password);
+
+            Console.WriteLine($"New Hash: {rehash}");
+
+            bool isvalid = BCrypt.Net.BCrypt.Verify(password, user.Password);
+
+            Console.WriteLine($"Valid: {isvalid}");
+
+
+            Console.WriteLine($"Password valid: {isvalid}");
+
+            if (!isvalid)
+                return (null, null);
+
+
+
+            var randomDisplayName = await GetRandomDisplayNameAsync(username);
+
+            return (user, randomDisplayName);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToString());
+            throw;
+        }
     }
 
     public virtual async Task<bool> UserExistsAsync(string username)
@@ -64,11 +90,27 @@ public class MongodbUserService
         return existing != null;
     }
 
+    public async Task<User?> GetByUsernameAsync(string username)
+    {
+        return await _user.Find(u => u.Username == username).FirstOrDefaultAsync();
+    }
     public async Task<User> AddUserAsync(User user)
     {
         if (await UserExistsAsync(user.Username))
-            throw new Exception("Username already exists");
+        {
+            user.Username = "Default";
+            return user;
+        }
 
+        // Hash password if present and not empty
+        if (!string.IsNullOrEmpty(user.Password))
+        {
+
+        }
+        else
+        {
+            user.Password = string.Empty;
+        }
         if (string.IsNullOrEmpty(user.Password))
             throw new ArgumentException("Password cannot be null or empty");
 
@@ -77,6 +119,12 @@ public class MongodbUserService
         await _user.InsertOneAsync(user);
 
         return user;
+    }
+
+    public async Task UpdateUserAsync(User user)
+    {
+        var filter = Builders<User>.Filter.Eq(u => u.Id, user.Id);
+        await _user.ReplaceOneAsync(filter, user);
     }
 
     /// <summary>
@@ -129,8 +177,25 @@ public class MongodbUserService
         var update = Builders<User>.Update
             .Set(u => u.LastWordSearched, "")
             .Set(u => u.LastDefinition, "");
+        var update = Builders<User>.Update
+            .Set(u => u.LastWordSearched, "")
+            .Set(u => u.LastDefinition, "");
+
+
+        var before = await _user
+            .Find(u => u.Username == "test")
+            .FirstOrDefaultAsync();
+
+
 
         var result = await _user.UpdateManyAsync(filter, update);
+
+        var after = await _user
+            .Find(u => u.Username == "test")
+            .FirstOrDefaultAsync();
+
+
+
 
         Console.WriteLine($"Updated {result.ModifiedCount} users.");
     }
