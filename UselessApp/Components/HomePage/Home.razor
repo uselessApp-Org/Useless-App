@@ -22,33 +22,51 @@
     <div>
         <h1>Global Usage Stats</h1>
     </div>
-    <h2 class="PageHeader">Calculator</h2>
-    <div class="Tool-Stats">
-        <StatBox Value="NumEnters" Label="Times Entered"/>
-        <StatBox Value="LastExpression" Label="Last Calculator Expression"/>
-    </div>
-    <h2 class="PageHeader">AI Info</h2>
-    <div class="Tool-Stats">
-        <StatBox Value=ReplaceMe Label="# of AI Prompts"/>
-        <StatBox Value=ReplaceMe Label="Recent Prompt"/>
-    </div>
-    <h2 class="PageHeader">Dictionary Info</h2>
-    <div class="Tool-Stats">
-        <StatBox Value=ReplaceMe Label="Recent Word"/>
-        <StatBox Value=ReplaceMe Label="Recent Definition"/>
-    </div>
-    <h2 class="PageHeader">Movie Recommender</h2>
-    <div class="Tool-Stats">
-        <StatBox Value=ReplaceMe Label="# of Recommended Movies"/>
-        <StatBox Value=ReplaceMe Label="Recent Movie Recommendation"/>
+    <div class="Stats-Scroller">
+        <div class="Stats-Columns">
+            <div class="Tool-Column">
+                <h2 class="PageHeader">Calculator</h2>
+                <div class="Tool-Stats">
+                    <StatBox Value=@NumEnters Label="Times Entered"/>
+                    <StatBox Value=@LastExpression Label="Last Calculator Expression"/>
+                </div>
+            </div>
+            <div class="Tool-Column">
+                <h2 class="PageHeader">AI Info</h2>
+                <div class="Tool-Stats">
+                    <StatBox Value=@NumAIPrompts Label="# of AI Prompts"/>
+                    <StatBox Value=@AIResponse Label="Recent Prompt"/>
+                </div>
+            </div>
+            <div class="Tool-Column">
+                <h2 class="PageHeader">Dictionary Info</h2>
+                <div class="Tool-Stats">
+                    <StatBox Value=@RecentWord Label="Recent Word"/>
+                    <StatBox Value=@RecentDefinition Label="Recent Definition"/>
+                </div>
+            </div>
+            <div class="Tool-Column">
+                <h2 class="PageHeader">Movie Recommender</h2>
+                <div class="Tool-Stats">
+                    <StatBox Value=@NumRecMovies Label="# of Recommended Movies"/>
+                    <StatBox Value=@RecentMovie Label="Recent Movie Recommendation"/>
+                </div>
+            </div>
+        </div>
     </div>
 </section>
 
 @code
 {
     int NumEnters;
+    int NumRecMovies = 67;
+    int NumAIPrompts = 69;
     string LastExpression = string.Empty;
-    string ReplaceMe = "Replace Me";
+    string AIResponse = "42 Is the answer to the universe";
+
+    string RecentWord = "Facism";
+    string RecentDefinition = "is a far-right, authoritarian, and ultranationalist political ideology and movement that centers power in a dictatorial leader and prioritizes the nation or race over the individual.";
+    string RecentMovie = "You Can See Everything";
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {

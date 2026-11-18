@@ -1,5 +1,5 @@
 .stat-box {
-    max-width: 400px;
+    width: 200px;
     min-height: 150px;
     padding: 10px;
     background-color: var(--accent);
