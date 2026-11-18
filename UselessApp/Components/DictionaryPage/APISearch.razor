@@ -61,7 +61,6 @@
 <div class="form-group">
     <label for="myDropdown">Select an API:</label>
     <select id="myDropdown" class="form-control" @bind="selectedItemValue" @bind:after="OnDropdownChanged">
-        <option value="">-- Choose an API --</option>
         @if (dropdownOptions != null)
         {
             @foreach (var option in dropdownOptions)
@@ -95,7 +94,7 @@
         </div>
     </div>
 }
-<p>Selected API: @selectedItemValue</p>
+<br>
 <br>
 <a href="https://www.youtube.com/watch?v=L8XbI9aJOXk" target="_blank" rel="noopener norefferer">Unsatisfied with your search?</a>
 
