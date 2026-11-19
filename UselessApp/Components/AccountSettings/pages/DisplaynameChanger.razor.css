@@ -1,0 +1,100 @@
+.current-name {
+    text-align: center;
+    color: var(--sidebar-text);
+    margin-bottom: 15px;
+    font-size: 2rem;
+}
+
+.displayname-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 35px;
+    background-color: var(--sidebar);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.35);
+}
+
+.displayname-container h2 {
+    text-align: center;
+    color: var(--emphasis);
+    margin-bottom: 25px;
+}
+
+.DisplayNameForm {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.DisplayNameForm label {
+    color: var(--sidebar-text);
+    font-weight: 600;
+}
+
+.DisplayNameForm input {
+    background-color: transparent;
+    border: 2px solid var(--sidebar-text);
+    color: var(--sidebar-text);
+    padding: 12px;
+    border-radius: 10px;
+    outline: none;
+    transition: all 0.25s ease;
+}
+
+.DisplayNameForm input:focus {
+    border-color: var(--emphasis);
+    box-shadow: 0 0 10px rgba(255,255,255,0.15);
+}
+
+.displayname-button {
+    width: 100%;
+    margin-top: 25px;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    background-color: var(--emphasis);
+    color: var(--sidebar);
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.displayname-button:hover {
+    background-color: transparent;
+    color: var(--emphasis);
+    border: 2px solid var(--emphasis);
+    transform: translateY(-2px);
+}
+
+.name-preview {
+    text-align: center;
+    background-color: rgba(255,255,255,0.05);
+    border: 1px solid var(--sidebar-text);
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 25px;
+    color: var(--sidebar-text);
+    font-size: 1.1rem;
+}
+
+.close-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background-color: var(--emphasis);
+    color: var(--sidebar);
+
+    border: 1px solid var(--sidebar-text);
+    border-radius: 8px;
+
+    padding: 10px 18px;
+    margin: 15px auto;
+
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.close-button:hover {
+    filter: brightness(1.1);
+}

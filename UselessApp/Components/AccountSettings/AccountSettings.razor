@@ -1,18 +1,24 @@
 @page "/account-settings"
 @using UselessApp.Services
-@using Microsoft.Extensions.Options;
+@using Microsoft.Extensions.Options
 @using UselessApp.Models
 @using MongoDB.Driver
 
 @inject MongodbUserService MongodbUser
-
 @inject DisplayNameService DisplayNameService
 
 @rendermode InteractiveServer
 
+<h1 class="Welcome">
+    Welcome, @DisplayNameService.Username
+</h1>
 
-<h1>Welcome, @DisplayNameService.Username</h1>
-<a href="/Displayname">Change display name</a>
+<div class="account-settings">
+    <h2>Account Settings</h2>
+    <p>Manage your account settings below.</p>
 
-<a href="/ChangePassword">Change password</a>
-
+    <div class="settings-options">
+        <a href="/Displayname">Change Display Name</a>
+        <a href="/ChangePassword">Change Password</a>
+    </div>
+</div>
