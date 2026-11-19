@@ -25,6 +25,7 @@ public class MongodbUserService
         _user.Indexes.CreateOne(indexModel);
     }
 
+
     public async Task<string?> GetRandomDisplayNameAsync(string currentUsername)
     {
         var displayNames = await _user
@@ -52,10 +53,6 @@ public class MongodbUserService
                 return (null, null);
             }
 
-
-
-
-
             var rehash = BCrypt.Net.BCrypt.HashPassword(password);
 
             Console.WriteLine($"New Hash: {rehash}");
@@ -63,14 +60,10 @@ public class MongodbUserService
             bool isvalid = BCrypt.Net.BCrypt.Verify(password, user.Password);
 
             Console.WriteLine($"Valid: {isvalid}");
-
-
             Console.WriteLine($"Password valid: {isvalid}");
 
             if (!isvalid)
                 return (null, null);
-
-
 
             var randomDisplayName = await GetRandomDisplayNameAsync(username);
 
@@ -140,7 +133,7 @@ public class MongodbUserService
         var updates = new List<UpdateDefinition<User>>();
 
         if (stats.CalcEnters > 0)
-            updates.Add(ub.Inc(u => u.Enters, stats.CalcEnters));
+            updates.Add(ub.Set(u => u.Enters, stats.CalcEnters));
         if (!string.IsNullOrEmpty(stats.LastExpression))
             updates.Add(ub.Set(u => u.LastExpression, stats.LastExpression));
         if (!string.IsNullOrEmpty(stats.LastResult))
@@ -161,6 +154,19 @@ public class MongodbUserService
         if (result.MatchedCount == 0)
             Console.WriteLine($"WARNING: UpdateUserStatsAsync found no user named '{target}'.");
     }
+    public async Task ChangeDisplayNameAsync(string username, string newDisplayName)
+    {
+        var update = Builders<User>.Update.Set(u => u.DisplayName, newDisplayName);
+        await _user.UpdateOneAsync(u => u.Username == username, update);
+
+    }
+    public async Task ChangePasswordAsync(string username, string newPassword)
+    {
+        var hashedPassword = BCrypt.Net.BCrypt.HashPassword(newPassword);
+        var update = Builders<User>.Update.Set(u => u.Password, hashedPassword);
+        await _user.UpdateOneAsync(u => u.Username == username, update);
+    }
+
 
     public async Task<User?> GetUserDataForProfilePage(string? username)
     {
@@ -168,23 +174,23 @@ public class MongodbUserService
     }
     public async Task UpdateUsersAsync()
     {
-
         var filter = Builders<User>.Filter.Or(
             Builders<User>.Filter.Exists("LastWordSearched", false),
-            Builders<User>.Filter.Exists("LastDefinition", false)
+            Builders<User>.Filter.Exists("LastDefinition", false),
+            Builders<User>.Filter.Exists("LastMovieRecommended", false),
+            Builders<User>.Filter.Exists("LastMoviePoster", false)
 
         );
 
         var update = Builders<User>.Update
             .Set(u => u.LastWordSearched, "")
-            .Set(u => u.LastDefinition, "");
-
+            .Set(u => u.LastDefinition, "")
+            .Set(u => u.LastMovieRecommended, "")
+            .Set(u => u.LastMoviePoster, "");
 
         var before = await _user
             .Find(u => u.Username == "test")
             .FirstOrDefaultAsync();
-
-
 
         var result = await _user.UpdateManyAsync(filter, update);
 
@@ -192,10 +198,31 @@ public class MongodbUserService
             .Find(u => u.Username == "test")
             .FirstOrDefaultAsync();
 
-
-
-
         Console.WriteLine($"Updated {result.ModifiedCount} users.");
     }
 
+    /// <summary>
+    /// This function will be used to get any data we want displayed on
+    /// the home page
+    /// </summary>
+    /// <returns></returns>
+    public async Task UpdateGlobalUser()
+    {
+        int totalNums = 0; // add the variable you want
+
+        var filter = Builders<User>.Filter.Empty;
+        var result = _user.Find(filter).ToList();
+
+        foreach(User curUser in result)
+        {
+            if(curUser.Username != "Default")
+                totalNums += curUser.Enters; // add something like this to update your data
+        }
+
+        UserStatsService updateDefaultUser = new UserStatsService();
+
+        updateDefaultUser.CalcEnters = totalNums; // add new stats to this
+
+        await UpdateUserStatsAsync("Default", updateDefaultUser);
+    }
 }

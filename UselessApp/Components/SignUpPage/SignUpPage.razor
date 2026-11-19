@@ -64,20 +64,19 @@
     private string errorMessage = string.Empty;
     private async Task AddUser()
     {
-        // Save new user and get the stored version back
+        
         var createdUser = await MongodbUserService.AddUserAsync(newUser);
         if (createdUser.Username == "Default")
         {
-            // Handle the case where the username already exists
-            // You can show an error message or take appropriate action
+           
             errorMessage = "Username already exists.";
             return;
         }
 
-        // Generate a random display name from other users
+        
         var randomDisplayName = await MongodbUserService.GetRandomDisplayNameAsync(createdUser.Username);
 
-        // If no other users exist, fall back to their own display name
+        
         await DisplayNameService.SetUserAsync(
         createdUser.Username,
         createdUser.DisplayName,
@@ -89,7 +88,7 @@
         // Clear form
         newUser = new User { Username = string.Empty, Password = string.Empty, DisplayName = string.Empty };
 
-        // Redirect to home page
+        
         nav.NavigateTo("/");
     }
 
