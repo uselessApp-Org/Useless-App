@@ -102,6 +102,17 @@ main {
         gap: 12px
     }
 }
+
+@media (min-width: 641px) {
+    .sidebar {
+        width: 250px;
+        height: 100vh;
+        position: sticky;
+        top: 0;
+        overflow-y: auto;
+    }
+}
+
 /* Shared shell refinement; preserve the existing layout and responsive rules. */
 .sidebar{border-right:1px solid color-mix(in srgb,var(--sidebar-text) 14%,transparent)}
 .top-row{background:var(--surface);gap:14px}

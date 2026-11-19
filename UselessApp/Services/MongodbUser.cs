@@ -144,6 +144,10 @@ public class MongodbUserService
             updates.Add(ub.Set(u => u.Latitude, stats.Latitude));
         if (stats.Longitude != 0.0f)
             updates.Add(ub.Set(u => u.Longitude, stats.Longitude));
+        if (!string.IsNullOrEmpty(stats.LastWordSearched))
+            updates.Add(ub.Set(u => u.LastWordSearched, stats.LastWordSearched));
+        if (!string.IsNullOrEmpty(stats.LastDefinition))
+            updates.Add(ub.Set(u => u.LastDefinition, stats.LastDefinition));
         // add more stats here
 
         if (updates.Count == 0)

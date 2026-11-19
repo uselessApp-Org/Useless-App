@@ -3,9 +3,12 @@
 @using System.Net.Http
 @using System.Text.Json
 @using System.Threading.Tasks
+@using MongoDB.Driver
+@using UselessApp.Services
 @inject IConfiguration Configuration
 @inject MerriamAPI merriamAPI
 @inject UrbanAPI urbanAPI
+@inject UserStatsService Stats
 
 <PageTitle>Dictionary | UselessApp</PageTitle>
 <header class="page-heading"><p class="eyebrow">TOOL 04 / STAY CURIOUS</p><h1>Dictionary</h1>
@@ -32,7 +35,7 @@
         @if (!string.IsNullOrEmpty(finalWord))
         {
             <div class="word-card" style="border: 1px solid #444; padding: 15px; border-radius: 8px; background: #222; margin-top: 15px">
-                <h3 style="color: #0d6efd; text-transform: capitalize; margin-top: 0;">@searchTerm</h3>
+                <h3 style="color: #0d6efd; text-transform: capitalize; margin-top: 0;">@finalWord</h3>
                 <p style="color: white; font-style: italic;">@finalDescription</p>
                 <p style="color: white; font-style: italic;">@finalExample</p>
             </div>
@@ -61,7 +64,6 @@
 <div class="form-group">
     <label for="myDropdown">Select an API:</label>
     <select id="myDropdown" class="form-control" @bind="selectedItemValue" @bind:after="OnDropdownChanged">
-        <option value="">-- Choose an API --</option>
         @if (dropdownOptions != null)
         {
             @foreach (var option in dropdownOptions)
@@ -76,7 +78,7 @@
 {
     <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); z-index: 9998;" @onclick="ClosePopup"></div>
     <div style="background-color: #2e2e2e; color: #ffffff; padding: 25px; border: 1px solid #444444; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); position: fixed; top: 30%; left: 50%; transform: translate(-50%, -30%); width: 400px; max-width: 90%; z-index: 9999;">
-        <h3 style="margin-top: 0; border-bottom: 1px solid #444444; padding-bottom: 10px;">WARNING</h3>
+        <h3 style="margin-top: 0; border-bottom: 1px solid #444444; padding-bottom: 10px; color: #dddddd">WARNING</h3>
         
         <p style="color: #dddddd; font-size: 14px; margin: 20px 0;">
             Disclaimer: Urban Dictionary may return descriptions that contain vulgar or offensive language. 
@@ -95,7 +97,7 @@
         </div>
     </div>
 }
-<p>Selected API: @selectedItemValue</p>
+<br>
 <br>
 <a href="https://www.youtube.com/watch?v=L8XbI9aJOXk" target="_blank" rel="noopener norefferer">Unsatisfied with your search?</a>
 
@@ -152,7 +154,7 @@
             var result = await merriamAPI.FetchRandomWord();
             finalUrl = result.finalUrl;
             jsonString = result.jsonString;
-            finalWord = result.finalWord;
+            finalWord = searchTerm;
             finalDescription = result.finalDescription;
             finalExample = "";
             apiResult = result.apiResult;
@@ -162,10 +164,15 @@
             (string finalUrl, string jsonString, string finalWord, string finalDescription, string finalExample, string apiResult) result = await urbanAPI.FetchRandomWord();
             finalUrl = result.finalUrl;
             jsonString = result.jsonString;
-            finalWord = result.finalWord;
+            finalWord = searchTerm;
             finalDescription = result.finalDescription;
             finalExample = result.finalExample;
             apiResult = result.apiResult;
+        }
+
+        if (!string.IsNullOrEmpty(finalDescription) && !string.IsNullOrEmpty(finalWord))
+        {
+            Stats.RecordDictionarySearch(finalDescription, finalWord);
         }
     }
 
