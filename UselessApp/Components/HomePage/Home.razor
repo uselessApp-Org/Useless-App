@@ -1,20 +1,93 @@
 @page "/"
+@using UselessApp.Components.SharedComps
 @using UselessApp.Services
 @using UselessApp.Models
-@using UselessApp.Components.HomePage.Components
-@rendermode InteractiveServer
+
 @inject DisplayNameService DisplayNameService
+@inject MongodbUserService MongodbUser
+
 <PageTitle>Home | UselessApp</PageTitle>
 <section class="hero">
     <div>
-        <p class="eyebrow">CONFIDENCE WITHOUT THE QUALIFICATIONS</p>
-        <h1>So close.<br /><em>So very wrong.</em></h1>
-        <p class="intro">A Swiss Army knife made entirely of spoons.<br />Pick a tool. Watch it miss the point.</p><a
-        class="btn btn-primary" href="#tools">See what could go wrong <span aria-hidden="true">↗</span></a>
+        <p class="eyebrow">Welcome to the Useless App</p>
+        <h1>So close.<br /><em>So wrong.</em></h1>
+        <p class="intro">A Swiss Army knife made entirely of spoons.</p>
     </div>
     <div class="hero-art" aria-hidden="true"><span class="orbit orbit-one"></span><span
-        class="orbit orbit-two"></span><span class="art-center"><img class="hero-app-icon" src="favicon.png" alt="" width="120" height="120" /></span><span
-        class="art-chip chip-one">＋</span><span class="art-chip chip-two">☀</span><span
-        class="art-chip chip-three">⌕</span><span class="art-caption">A FEW USELESS POSSIBILITIES</span></div>
-    </section>
-    <ToolShelf />
+        class="orbit orbit-two"></span><span class="art-center"><img class="hero-app-icon" src="favicon.png" alt=""
+                                                                     width="120" height="120" /></span><span class="art-chip chip-one">＋</span><span
+        class="art-chip chip-two">☀</span><span class="art-chip chip-three">⌕</span><span class="art-caption">A FEW
+        USELESS POSSIBILITIES</span></div>
+</section>
+<section class="CenterHeader">
+    <div>
+        <h1>Global Usage Stats</h1>
+    </div>
+    <div class="Stats-Scroller">
+        <div class="Stats-Columns">
+            <div class="Tool-Column">
+                <h2 class="PageHeader">Calculator</h2>
+                <div class="Tool-Stats">
+                    <StatBox Value=@NumEnters Label="Times Entered" />
+                    <StatBox Value=@LastExpression Label="Last Calculator Expression" />
+                </div>
+            </div>
+            <div class="Tool-Column">
+                <h2 class="PageHeader">AI Info</h2>
+                <div class="Tool-Stats">
+                    <StatBox Value=@NumAIPrompts Label="# of AI Prompts" />
+                    <StatBox Value=@AIResponse Label="Recent Prompt" />
+                </div>
+            </div>
+            <div class="Tool-Column">
+                <h2 class="PageHeader">Dictionary Info</h2>
+                <div class="Tool-Stats">
+                    <StatBox Value=@RecentWord Label="Recent Word" />
+                    <StatBox Value=@RecentDefinition Label="Recent Definition" />
+                </div>
+            </div>
+            <div class="Tool-Column">
+                <h2 class="PageHeader">Movie Recommender</h2>
+                <div class="Tool-Stats">
+                    <StatBox Value=@NumRecMovies Label="# of Recommended Movies" />
+                    <StatBox Value=@RecentMovie Label="Recent Movie Recommendation" />
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@code
+{
+    int NumEnters;
+    int NumRecMovies = 67;
+    int NumAIPrompts = 69;
+    string LastExpression = string.Empty;
+    string AIResponse = "42 Is the answer to the universe";
+
+    string RecentWord = "Facism";
+    string RecentDefinition = "is a far-right, authoritarian, and ultranationalist political ideology and movement that centers power in a dictatorial leader and prioritizes the nation or race over the individual.";
+    string RecentMovie = "You Can See Everything";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        if (!DisplayNameService.IsLoggedIn)
+            await DisplayNameService.LoadUserAsync();
+        
+        await MongodbUser.UpdateGlobalUser();
+        await LoadProfileDataAsync();
+        StateHasChanged();
+    }
+
+    private async Task LoadProfileDataAsync()
+    {
+        User? curUser = await MongodbUser.GetUserDataForProfilePage("Default");
+
+        if (curUser is null) return;
+
+        NumEnters = curUser.Enters;
+        LastExpression = curUser.LastExpression;
+    }
+}

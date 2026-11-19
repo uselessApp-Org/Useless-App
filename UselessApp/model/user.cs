@@ -16,7 +16,6 @@ public class User
     [BsonElement("DisplayName")]
     public string DisplayName { get; set; } = "";
 
-
     [BsonElement("WeatherLocation")]
     public string Location { get; set; } = string.Empty;
 
@@ -36,7 +35,7 @@ public class User
     public string LastResult { get; set; } = string.Empty;
 
     [BsonElement("GoogleId")]
-    public string GoogleId { get; set; }
+    public string GoogleId { get; set; } = string.Empty;
 
     [BsonElement("LastWordSearched")]
     public string LastWordSearched { get; set; } = string.Empty;
@@ -49,6 +48,4 @@ public class User
 
     [BsonElement("LastMoviePoster")]
     public string LastMoviePoster { get; set; } = string.Empty;
-
-    
 }

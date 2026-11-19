@@ -17,15 +17,6 @@
     font-size: 32px;
     font-weight: bold;
 }
-.Latest-Expression {
-    font-size: 32px;
-    font-weight: bold;
-}
-
-.Latest-Answer {
-    font-size: 32px;
-    font-weight: bold;
-}
 
 .stat-label {
     font-size: 14px;
@@ -36,15 +27,59 @@
     margin: 10px 0;
     height: 0;
 }
-.AIvalue {
-    font-size: 32px;
-    font-weight: bold;
+
+.CenterHeader
+{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: var(--ink);
 }
-.Ai-LastExpression {
-    font-size: 32px;
-    font-weight: bold;
+
+/* Full-width wrapper that scrolls sideways when the columns don't fit */
+.Stats-Scroller
+{
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 10px;
 }
-.Ai-LastAnswer {
-    font-size: 32px;
-    font-weight: bold;
+
+/* Lays the tool columns side by side; margin: auto centers them when they fit */
+.Stats-Columns
+{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 20px;
+    width: max-content;
+    margin: 0 auto;
+    padding: 0 10px;
+}
+
+.Tool-Column
+{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 260px;
+    flex-shrink: 0;
+}
+
+.Tool-Stats
+{
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+}
+
+.PageHeader
+{
+    padding: 10px;
+    border-bottom: 3px solid var(--ink);
+    width: 100%;
+    box-sizing: border-box;
 }
